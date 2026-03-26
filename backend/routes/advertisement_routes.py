@@ -189,6 +189,26 @@ def get_active_advertisements():
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
+@advertisement_bp.route('/advertisements/featured', methods=['GET'])
+def get_featured_advertisements():
+    """Get active featured advertisements for public display"""
+    try:
+        limit = request.args.get('limit', type=int, default=None)
+        result = AdvertisementController.get_featured_advertisements(limit)
+        return jsonify(result), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@advertisement_bp.route('/advertisements/popup', methods=['GET'])
+def get_popup_advertisements():
+    """Get active non-featured advertisements for popup display"""
+    try:
+        limit = request.args.get('limit', type=int, default=None)
+        result = AdvertisementController.get_popup_advertisements(limit)
+        return jsonify(result), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
 @advertisement_bp.route('/advertisements/<ad_id>/impression', methods=['POST'])
 def track_impression(ad_id):
     """Track advertisement impression"""

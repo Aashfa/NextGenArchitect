@@ -253,6 +253,30 @@ class AdvertisementController:
             return {"success": False, "error": str(e)}
 
     @staticmethod
+    def get_featured_advertisements(limit=None):
+        """Get active featured advertisements for public display"""
+        try:
+            advertisement_model = Advertisement()
+            advertisement_model.check_expired_advertisements()
+
+            ads = advertisement_model.get_featured_advertisements(limit)
+            return {"success": True, "data": ads}
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+
+    @staticmethod
+    def get_popup_advertisements(limit=None):
+        """Get active non-featured advertisements for popup display"""
+        try:
+            advertisement_model = Advertisement()
+            advertisement_model.check_expired_advertisements()
+
+            ads = advertisement_model.get_popup_advertisements(limit)
+            return {"success": True, "data": ads}
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+
+    @staticmethod
     def increment_impressions(ad_id):
         """Track impression of advertisement"""
         try:

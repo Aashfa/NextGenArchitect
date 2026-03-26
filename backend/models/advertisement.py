@@ -187,14 +187,7 @@ class Advertisement:
     def get_active_advertisements(self, limit=None):
         """Get active advertisements for display"""
         try:
-            now = datetime.utcnow()
-            query = {
-                "status": "active",
-                "start_date": {"$lte": now},
-                "end_date": {"$gte": now}
-            }
-            
-            cursor = self.collection.find(query).sort("created_at", -1)
+            cursor = self._get_active_advertisements_cursor().sort("created_at", -1)
             if limit:
                 cursor = cursor.limit(limit)
             
@@ -212,6 +205,62 @@ class Advertisement:
             return ads
         except Exception as e:
             raise Exception(f"Error fetching active advertisements: {str(e)}")
+
+    def _get_active_advertisements_cursor(self, is_featured=None):
+        """Build active advertisements cursor with optional featured filter."""
+        now = datetime.utcnow()
+        query = {
+            "status": "active",
+            "start_date": {"$lte": now},
+            "end_date": {"$gte": now}
+        }
+
+        if is_featured is not None:
+            query["is_featured"] = is_featured
+
+        return self.collection.find(query)
+
+    def get_featured_advertisements(self, limit=None):
+        """Get active featured advertisements for featured section."""
+        try:
+            cursor = self._get_active_advertisements_cursor(is_featured=True).sort("created_at", -1)
+            if limit:
+                cursor = cursor.limit(limit)
+
+            ads = []
+            for ad in cursor:
+                ad['_id'] = str(ad['_id'])
+                if 'plan_id' in ad and isinstance(ad['plan_id'], ObjectId):
+                    ad['plan_id'] = str(ad['plan_id'])
+                if 'society_id' in ad and isinstance(ad['society_id'], ObjectId):
+                    society_id = ad['society_id']
+                    ad['society_id'] = str(society_id)
+                    ad['society_name'] = self._get_society_name(society_id)
+                ads.append(ad)
+            return ads
+        except Exception as e:
+            raise Exception(f"Error fetching featured advertisements: {str(e)}")
+
+    def get_popup_advertisements(self, limit=None):
+        """Get active non-featured advertisements for popup display."""
+        try:
+            cursor = self._get_active_advertisements_cursor(is_featured=False).sort("created_at", -1)
+            if limit:
+                cursor = cursor.limit(limit)
+
+            ads = []
+            for ad in cursor:
+                ad['_id'] = str(ad['_id'])
+                if 'plan_id' in ad and isinstance(ad['plan_id'], ObjectId):
+                    ad['plan_id'] = str(ad['plan_id'])
+                if 'society_id' in ad and isinstance(ad['society_id'], ObjectId):
+                    society_id = ad['society_id']
+                    ad['society_id'] = str(society_id)
+                    ad['society_name'] = self._get_society_name(society_id)
+                ads.append(ad)
+            return ads
+        except Exception as e:
+            raise Exception(f"Error fetching popup advertisements: {str(e)}")
 
     def check_expired_advertisements(self):
         """Mark advertisements as expired if end_date passed"""

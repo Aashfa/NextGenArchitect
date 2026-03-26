@@ -150,6 +150,40 @@ class AdvertisementAPI {
     }
   }
 
+  // Get featured advertisements (public)
+  async getFeaturedAdvertisements(limit = 20) {
+    try {
+      const params = limit ? `?limit=${limit}` : '';
+      const response = await cachedFetch(`${API_BASE_URL}/advertisements/featured${params}`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      }, 'getFeaturedAdvertisements');
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error fetching featured advertisements:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Get popup advertisements (public, non-featured)
+  async getPopupAdvertisements(limit = 20) {
+    try {
+      const params = limit ? `?limit=${limit}` : '';
+      const response = await cachedFetch(`${API_BASE_URL}/advertisements/popup${params}`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      }, 'getPopupAdvertisements');
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error fetching popup advertisements:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
   // Track impression of advertisement
   async trackImpression(adId) {
     try {

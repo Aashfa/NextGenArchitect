@@ -177,10 +177,9 @@ const HomePage = () => {
     const fetchFeaturedAds = async () => {
       try {
         setLoading(true);
-        const result = await advertisementAPI.getActiveAdvertisements();
+        const result = await advertisementAPI.getFeaturedAdvertisements(6);
         if (result.success) {
-          // Get first 6 active advertisements for the featured section
-          setFeaturedAds((result.data || []).slice(0, 6));
+          setFeaturedAds(result.data || []);
         } else {
           console.error('Failed to fetch featured ads:', result.error);
         }
@@ -268,7 +267,7 @@ const HomePage = () => {
 
     const fetchAllAdsForPopup = async () => {
       try {
-        const result = await advertisementAPI.getActiveAdvertisements(20);
+        const result = await advertisementAPI.getPopupAdvertisements(20);
         
         if (result.success && result.data && result.data.length > 0) {
           setAllAds(result.data);

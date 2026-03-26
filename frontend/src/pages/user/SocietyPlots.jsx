@@ -241,7 +241,7 @@ const SocietyPlots = () => {
                                 <h1 className="text-4xl md:text-5xl font-bold text-[#ED7600] leading-tight">
                                     Plots in {currentSociety.name}
                                 </h1>
-                                <p className="text-lg md:text-xl text-gray-200 leading-relaxed">
+                                <p className="text-lg md:text-xl text-gray-200 leading-relaxed text-justify">
                                     {currentSociety.description}
                                 </p>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -340,7 +340,9 @@ const SocietyPlots = () => {
                                                 <p className="text-gray-600">{plot.location}</p>
                                             )}
                                             {plot.description && Array.isArray(plot.description) && plot.description.length > 0 && (
-                                                <p className="text-gray-600">{plot.description[0]}</p>
+                                                <p className="text-gray-600 text-justify line-clamp-2">
+                                                    {plot.description.join(' ')}
+                                                </p>
                                             )}
                                         </div>
                                     

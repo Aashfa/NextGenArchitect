@@ -35,6 +35,13 @@ def normalize_and_validate_pakistan_phone(phone_number):
 
     return True, normalized
 
+
+def count_words(text):
+    """Count words in a text string using whitespace separation."""
+    if not text:
+        return 0
+    return len(re.findall(r"\S+", text.strip()))
+
 def get_user_id_from_email(email):
     """Helper function to get user_id from email"""
     db = get_db()
@@ -286,6 +293,11 @@ def create_or_update_society_profile():
                     "error": "Invalid contact number. Use format: XXXXXXXXXX, 0XXXXXXXXXX, 92XXXXXXXXXX, or +92XXXXXXXXXX (10 digits after +92)."
                 }), 400
             profile_data['contact_number'] = normalized_phone
+
+        if 'description' in profile_data and isinstance(profile_data['description'], str) and profile_data['description'].strip():
+            description_words = count_words(profile_data['description'])
+            if description_words < 50 or description_words > 180:
+                return jsonify({"error": "Description must be between 50 and 180 words."}), 400
         
         # Get user_id from email
         user_id = get_user_id_from_email(user_email)

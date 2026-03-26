@@ -317,6 +317,16 @@ const EditPlotForm = ({ plot, onSubmit, onCancel }) => {
     setForm({ ...form, description: newDescription });
   };
 
+  const getDescriptionWordCount = () => {
+    const combinedDescription = form.description
+      .filter(d => d && d.trim() !== '')
+      .join(' ')
+      .trim();
+
+    if (!combinedDescription) return 0;
+    return combinedDescription.split(/\s+/).length;
+  };
+
   const handlePdfUpload = (e) => {
     const file = e.target.files[0];
     if (file && file.type === 'application/pdf') {
@@ -399,6 +409,13 @@ const EditPlotForm = ({ plot, onSubmit, onCancel }) => {
       if (plotNumberError) {
         setIsSubmitting(false);
         alert('Plot number must contain only digits');
+        return;
+      }
+
+      const descriptionWordCount = getDescriptionWordCount();
+      if (descriptionWordCount < 30 || descriptionWordCount > 150) {
+        setIsSubmitting(false);
+        await showError('Description Validation', 'Plot description must be between 30 and 150 words.');
         return;
       }
       
@@ -640,7 +657,9 @@ const EditPlotForm = ({ plot, onSubmit, onCancel }) => {
           {/* Right Column */}
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Description <span className="text-red-600">*</span>
+              </label>
               <div className="space-y-2">
                 {form.description.map((item, index) => (
                   <div key={index} className="flex items-center">
@@ -654,6 +673,9 @@ const EditPlotForm = ({ plot, onSubmit, onCancel }) => {
                   </div>
                 ))}
               </div>
+              <p className={`text-xs mt-1 ${getDescriptionWordCount() < 30 || getDescriptionWordCount() > 150 ? 'text-red-600' : 'text-green-600'}`}>
+                Description word count: {getDescriptionWordCount()} (required: 30-150)
+              </p>
             </div>
             {/* Templates Section */}
             <div className="space-y-4 pt-4 border-t border-gray-200 mt-4 rounded-lg bg-gray-50 p-4">
@@ -860,10 +882,6 @@ const EditPlotForm = ({ plot, onSubmit, onCancel }) => {
                   {/* Summary */}
                   <div className="text-center text-sm text-gray-600 bg-gray-50 p-3 rounded-md">
                     <p className="font-medium">Total Images: {imagePreviews.length}</p>
-                    <p className="text-xs mt-1">
-                      {imagePreviews.filter(img => typeof img === 'string' && img.startsWith('blob:')).length} new image(s), 
-                      {imagePreviews.filter(img => typeof img === 'object' || (typeof img === 'string' && !img.startsWith('blob:'))).length} existing image(s)
-                    </p>
                   </div>
                 </div>
               )}

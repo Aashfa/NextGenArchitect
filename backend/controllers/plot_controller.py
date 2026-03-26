@@ -7,7 +7,28 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from models.society_profile import society_profile_collection
 import base64
 import json
+import re
 from datetime import datetime
+
+
+def _normalize_descriptions(raw_description):
+    """Normalize description into a clean list of non-empty strings."""
+    if raw_description is None:
+        return []
+
+    if isinstance(raw_description, list):
+        return [str(item).strip() for item in raw_description if item and str(item).strip()]
+
+    if isinstance(raw_description, str):
+        stripped = raw_description.strip()
+        return [stripped] if stripped else []
+
+    return []
+
+
+def _description_word_count(description_items):
+    combined_text = " ".join(description_items)
+    return len(re.findall(r"\S+", combined_text))
 
 class PlotController:
     """
@@ -139,6 +160,12 @@ class PlotController:
             # Use the society profile's _id as societyId (store as ObjectId for foreign key)
             society_id = profile['_id'] if isinstance(profile['_id'], ObjectId) else ObjectId(profile['_id'])
             data['societyId'] = society_id
+
+            # Normalize and validate description word count (required: 30-150 words)
+            data['description'] = _normalize_descriptions(data.get('description'))
+            description_words = _description_word_count(data['description'])
+            if description_words < 30 or description_words > 150:
+                return jsonify({'error': 'Plot description must be between 30 and 150 words'}), 400
             
             # Validate required fields
             if not data.get('plot_number') or not data['plot_number'].strip():
@@ -381,6 +408,12 @@ class PlotController:
                 return jsonify({'error': 'Invalid request format. Expected form data or JSON.'}), 400
             
             data = {k: v for k, v in data.items() if v is not None and v != ''}
+
+            if 'description' in data:
+                data['description'] = _normalize_descriptions(data.get('description'))
+                description_words = _description_word_count(data['description'])
+                if description_words < 30 or description_words > 150:
+                    return jsonify({'error': 'Plot description must be between 30 and 150 words'}), 400
             
             plot_col = plot_collection(db)
             

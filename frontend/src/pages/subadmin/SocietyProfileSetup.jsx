@@ -55,6 +55,7 @@ const SocietyProfileSetup = () => {
   const [message, setMessage] = useState('');
   const [phoneError, setPhoneError] = useState('');
   const [plotError, setPlotError] = useState('');
+  const [descriptionError, setDescriptionError] = useState('');
   
   // Popup modal state
   const [popup, setPopup] = useState({
@@ -159,10 +160,26 @@ const SocietyProfileSetup = () => {
       return;
     }
 
+    if (field === 'description') {
+      const wordCount = countWords(value);
+      if (wordCount === 0) {
+        setDescriptionError('');
+      } else if (wordCount < 50 || wordCount > 180) {
+        setDescriptionError('Description must be between 50 and 180 words.');
+      } else {
+        setDescriptionError('');
+      }
+    }
+
     setProfile(prev => ({
       ...prev,
       [field]: value
     }));
+  };
+
+  const countWords = (text) => {
+    if (!text || !text.trim()) return 0;
+    return text.trim().split(/\s+/).length;
   };
 
   const sanitizePhoneInput = (phone) => {
@@ -345,6 +362,14 @@ const SocietyProfileSetup = () => {
       // Validate Pakistani phone number
       if (!validatePakistanPhone(profile.contact_number)) {
         setMessage('Please enter a valid Pakistani phone number');
+        setLoading(false);
+        return;
+      }
+
+      const descriptionWordCount = countWords(profile.description);
+      if (descriptionWordCount < 50 || descriptionWordCount > 180) {
+        setDescriptionError('Description must be between 50 and 180 words.');
+        setMessage('Description must be between 50 and 180 words.');
         setLoading(false);
         return;
       }
@@ -651,6 +676,8 @@ const SocietyProfileSetup = () => {
                   onChange={(e) => handleInputChange('description', e.target.value)}
                   fullWidth
                   required
+                  error={!!descriptionError}
+                  helperText={descriptionError || `Word count: ${countWords(profile.description)} (required: 50-180)`}
                   multiline
                   rows={4}
                   placeholder="Describe your society, its features, and what makes it special..."

@@ -401,7 +401,7 @@ const Societies = () => {
                           <h3 className="text-xl md:text-2xl font-bold text-white group-hover:text-[#ED7600] transition-colors mb-2">
                             {society.name}
                           </h3>
-                          <p className="text-gray-400 text-sm line-clamp-2 mb-4">
+                          <p className="text-gray-400 text-sm text-justify line-clamp-2 mb-4">
                             {society.description || 'Premium housing society with modern amenities and excellent location.'}
                           </p>
                           
@@ -554,7 +554,7 @@ const Societies = () => {
               
               <div className="p-6">
                 <h3 className="text-2xl font-bold text-white mb-2">{selectedSociety.name}</h3>
-                <p className="text-gray-400 mb-6">{selectedSociety.description || 'Premium housing society with modern amenities.'}</p>
+                <p className="text-gray-400 text-justify mb-6">{selectedSociety.description || 'Premium housing society with modern amenities.'}</p>
                 
                 <div className="grid grid-cols-3 gap-4 mb-6">
                   <div className="bg-white/5 rounded-xl p-4 text-center">

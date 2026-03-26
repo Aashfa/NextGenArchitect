@@ -189,6 +189,16 @@ const AddPlotForm = ({ onSubmit, onCancel}) => {
     setForm({ ...form, description: newDescription });
   };
 
+  const getDescriptionWordCount = () => {
+    const combinedDescription = form.description
+      .filter(d => d && d.trim() !== '')
+      .join(' ')
+      .trim();
+
+    if (!combinedDescription) return 0;
+    return combinedDescription.split(/\s+/).length;
+  };
+
   // Handle plot image selection (similar to society profile)
   const handleImageUpload = (event) => {
     const file = event.target.files[0];
@@ -287,6 +297,14 @@ const AddPlotForm = ({ onSubmit, onCancel}) => {
         setLoading(false);
         setIsSubmitting(false);
         await showWarning('Validation Error', 'Plot number must contain only digits');
+        return;
+      }
+
+      const descriptionWordCount = getDescriptionWordCount();
+      if (descriptionWordCount < 30 || descriptionWordCount > 150) {
+        setLoading(false);
+        setIsSubmitting(false);
+        await showWarning('Description Validation', 'Plot description must be between 30 and 150 words.');
         return;
       }
       
@@ -553,7 +571,9 @@ const AddPlotForm = ({ onSubmit, onCancel}) => {
           {/* Right Column */}
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Description <span className="text-red-600">*</span>
+              </label>
               <div className="space-y-2">
                 {form.description.map((item, index) => (
                   <div key={index} className="flex items-center">
@@ -567,6 +587,9 @@ const AddPlotForm = ({ onSubmit, onCancel}) => {
                   </div>
                 ))}
               </div>
+              <p className={`text-xs mt-1 ${getDescriptionWordCount() < 30 || getDescriptionWordCount() > 150 ? 'text-red-600' : 'text-green-600'}`}>
+                Description word count: {getDescriptionWordCount()} (required: 30-150)
+              </p>
             </div>
 
             {/* Templates Section */}

@@ -53,6 +53,7 @@ const SocietyProfileEditModal = ({ isOpen, onClose, onSuccess }) => {
   const [initialLoading, setInitialLoading] = useState(false);
   const [phoneError, setPhoneError] = useState('');
   const [plotError, setPlotError] = useState('');
+  const [descriptionError, setDescriptionError] = useState('');
   
   // Popup modal state
   const [popup, setPopup] = useState({
@@ -147,10 +148,26 @@ const SocietyProfileEditModal = ({ isOpen, onClose, onSuccess }) => {
       return;
     }
 
+    if (field === 'description') {
+      const wordCount = countWords(value);
+      if (wordCount === 0) {
+        setDescriptionError('');
+      } else if (wordCount < 50 || wordCount > 180) {
+        setDescriptionError('Description must be between 50 and 180 words.');
+      } else {
+        setDescriptionError('');
+      }
+    }
+
     setProfile(prev => ({
       ...prev,
       [field]: value
     }));
+  };
+
+  const countWords = (text) => {
+    if (!text || !text.trim()) return 0;
+    return text.trim().split(/\s+/).length;
   };
 
   const sanitizePhoneInput = (phone) => {
@@ -338,6 +355,14 @@ const SocietyProfileEditModal = ({ isOpen, onClose, onSuccess }) => {
       // Validate Pakistani phone number
       if (!validatePakistanPhone(profile.contact_number)) {
         setMessage('Please enter a valid Pakistani phone number');
+        setLoading(false);
+        return;
+      }
+
+      const descriptionWordCount = countWords(profile.description);
+      if (descriptionWordCount < 50 || descriptionWordCount > 180) {
+        setDescriptionError('Description must be between 50 and 180 words.');
+        setMessage('Description must be between 50 and 180 words.');
         setLoading(false);
         return;
       }
@@ -711,10 +736,15 @@ const SocietyProfileEditModal = ({ isOpen, onClose, onSuccess }) => {
                             value={profile.description}
                             onChange={(e) => handleInputChange('description', e.target.value)}
                             rows={4}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#ED7600] focus:border-transparent transition-all duration-200 resize-none"
+                            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#ED7600] focus:border-transparent transition-all duration-200 resize-none ${
+                              descriptionError ? 'border-red-500' : 'border-gray-300'
+                            }`}
                             placeholder="Describe your society, its features, and what makes it special..."
                             required
                           />
+                          <p className={`text-xs mt-1 ${descriptionError ? 'text-red-500' : 'text-gray-500'}`}>
+                            {descriptionError || `Word count: ${countWords(profile.description)} (required: 50-180)`}
+                          </p>
                         </div>
                       </div>
 

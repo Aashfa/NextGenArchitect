@@ -70,9 +70,11 @@ def signup_society():
     society_data = {
         'name': data.get('name'),
         'type': data.get('type'),
+        'type_other': data.get('type_other'),
         'regNo': data.get('regNo'),
         'established': data.get('established'),
         'authority': data.get('authority'),
+        'authority_other': data.get('authority_other'),
         'contact': data.get('contact'),
         'website': data.get('website'),
         'city': data.get('city'),
@@ -124,6 +126,28 @@ def signup_society():
     
     if not all(society_required):
         return jsonify({"error": "Society information is incomplete"}), 400
+
+    selected_type = str(society_data.get('type', '')).strip()
+    type_other_value = str(society_data.get('type_other', '')).strip()
+
+    if selected_type == 'Other':
+        if not type_other_value:
+            return jsonify({"error": "Please specify society type when selecting Other"}), 400
+        society_data['type'] = type_other_value
+        society_data['type_other'] = type_other_value
+    else:
+        society_data['type_other'] = None
+
+    selected_authority = str(society_data.get('authority', '')).strip()
+    authority_other_value = str(society_data.get('authority_other', '')).strip()
+
+    if selected_authority == 'Other':
+        if not authority_other_value:
+            return jsonify({"error": "Please specify regulatory authority when selecting Other"}), 400
+        society_data['authority'] = authority_other_value
+        society_data['authority_other'] = authority_other_value
+    else:
+        society_data['authority_other'] = None
 
     if not re.fullmatch(r'\d{6}', str(society_data.get('regNo', '')).strip()):
         return jsonify({"error": "Registration number must be exactly 6 digits"}), 400

@@ -27,7 +27,7 @@ def get_db():
     """
     Get database connection with persistent connection pooling.
     Creates connection only once, then reuses for all requests.
-    Prioritizes MongoDB Atlas (production), falls back to local MongoDB.
+    Prioritizes local MongoDB, falls back to MongoDB Atlas.
     """
     global _client, _db
     
@@ -35,49 +35,49 @@ def get_db():
     if _db is not None:
         return _db
     
-    # Try MongoDB Atlas first (prioritized for production)
+    # Try local MongoDB first (prioritized for offline/local development)
     try:
-        print("[DB] Attempting to connect to MongoDB Atlas...")
+        print("[DB] Attempting to connect to local MongoDB...")
         _client = MongoClient(
-            MONGO_URI,
-            serverSelectionTimeoutMS=30000,  # Increased to 30 seconds
-            connectTimeoutMS=30000,          # Added explicit connect timeout
-            socketTimeoutMS=30000,           # Socket timeout
+            LOCAL_MONGO_URI,
+            serverSelectionTimeoutMS=5000,
             # Connection pooling options
             maxPoolSize=50,          # Maximum connections in pool
             minPoolSize=10,          # Minimum connections to maintain
-            retryWrites=True,
-            retryReads=True
         )
         # Test the connection
         _client.admin.command('ping')
-        print("[DB] ✅ Connected to MongoDB Atlas (with connection pooling)")
+        print("[DB] ✅ Connected to local MongoDB (with connection pooling)")
         _db = _client['NextGenArchitect']
         setup_admin_indexes(_db)
         return _db
-    except Exception as atlas_error:
-        print(f"[DB] ❌ Atlas connection failed: {atlas_error}")
+    except Exception as local_error:
+        print(f"[DB] ❌ Local MongoDB connection failed: {local_error}")
         
-        # Fallback to local MongoDB (development)
+        # Fallback to MongoDB Atlas
         try:
-            print("[DB] Attempting to connect to local MongoDB (fallback)...")
+            print("[DB] Attempting to connect to MongoDB Atlas (fallback)...")
             _client = MongoClient(
-                LOCAL_MONGO_URI,
-                serverSelectionTimeoutMS=5000,
+                MONGO_URI,
+                serverSelectionTimeoutMS=30000,  # Increased to 30 seconds
+                connectTimeoutMS=30000,          # Added explicit connect timeout
+                socketTimeoutMS=30000,           # Socket timeout
                 # Connection pooling options
                 maxPoolSize=50,
-                minPoolSize=10
+                minPoolSize=10,
+                retryWrites=True,
+                retryReads=True
             )
             # Test the connection
             _client.admin.command('ping')
-            print("[DB] ✅ Connected to local MongoDB (with connection pooling)")
+            print("[DB] ✅ Connected to MongoDB Atlas (with connection pooling)")
             _db = _client['NextGenArchitect']
             setup_admin_indexes(_db)
             return _db
-        except Exception as local_error:
-            print(f"[DB] ❌ Local MongoDB connection failed: {local_error}")
+        except Exception as atlas_error:
+            print(f"[DB] ❌ Atlas connection failed: {atlas_error}")
             print("[DB] ❌ Both Atlas and local connections failed!")
-            raise Exception("Database connection failed. Please ensure MongoDB Atlas is accessible or MongoDB is running locally.")
+            raise Exception("Database connection failed. Please ensure MongoDB is running locally or MongoDB Atlas is accessible.")
 
 def test_connection():
     """

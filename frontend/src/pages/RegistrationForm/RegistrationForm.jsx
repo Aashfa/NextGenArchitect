@@ -15,7 +15,8 @@ const authorityOptions = [
   "FGEHA (Federal Government Employees Housing Authority)",
   "Cantonment Boards (CBs)",
   "DHA (Defence Housing Authority)",
-  "Bahria Group"
+  "Bahria Group",
+  "Other"
 ];
 
 const cityOptions = [
@@ -37,7 +38,7 @@ const cityOptions = [
   "Other"
 ];
 
-const typeOptions = ["Private", "Public"];
+const typeOptions = ["Private", "Public", "Other"];
 
 const RegistrationForm = () => {
   const location = useLocation();
@@ -54,9 +55,11 @@ const RegistrationForm = () => {
   const [form, setForm] = useState({
     name: "",
     type: "",
+    customType: "",
     regNo: "",
     established: "",
     authority: "",
+    customAuthority: "",
     contact: "",
     website: "",
     city: "",
@@ -114,6 +117,24 @@ const RegistrationForm = () => {
     }
     if (name === 'customCity') {
       setSelectErrors(prev => ({ ...prev, customCity: '' }));
+    }
+
+    if (name === 'customType') {
+      setSelectErrors(prev => ({ ...prev, customType: '' }));
+    }
+
+    if (name === 'customAuthority') {
+      setSelectErrors(prev => ({ ...prev, customAuthority: '' }));
+    }
+
+    if (name === 'type' && value !== 'Other') {
+      setForm({ ...form, type: value, customType: '' });
+      return;
+    }
+
+    if (name === 'authority' && value !== 'Other') {
+      setForm({ ...form, authority: value, customAuthority: '' });
+      return;
     }
 
     // Established date validation - no future date allowed
@@ -247,6 +268,14 @@ const RegistrationForm = () => {
       newSelectErrors.customCity = 'Please enter city name';
     }
 
+    if (form.type === 'Other' && !form.customType.trim()) {
+      newSelectErrors.customType = 'Please specify society type';
+    }
+
+    if (form.authority === 'Other' && !form.customAuthority.trim()) {
+      newSelectErrors.customAuthority = 'Please specify regulatory authority';
+    }
+
     if (Object.keys(newSelectErrors).length > 0) {
       setSelectErrors(newSelectErrors);
       showPopup(
@@ -332,9 +361,11 @@ const RegistrationForm = () => {
       societyData.append('userPassword', userData.userPassword || '');
       societyData.append('name', form.name || '');
       societyData.append('type', form.type || '');
+      societyData.append('type_other', form.type === 'Other' ? form.customType.trim() : '');
       societyData.append('regNo', form.regNo || '');
       societyData.append('established', form.established || '');
       societyData.append('authority', form.authority || '');
+      societyData.append('authority_other', form.authority === 'Other' ? form.customAuthority.trim() : '');
       societyData.append('website', form.website || '');
       societyData.append('land_acquisition_status', form.land_acquisition_status || '');
       societyData.append('procurement_status', form.procurement_status || '');
@@ -683,6 +714,41 @@ const RegistrationForm = () => {
                 </TextField>
               </Grid>
 
+              {form.type === 'Other' && (
+                <Grid item xs={12} sm={6} lg={4}>
+                  <Typography sx={{ mb: 1, color: '#2F3D57', fontWeight: 600, fontSize: 15 }}>
+                    Specify Society Type <span style={{ color: '#ED7600' }}>*</span>
+                  </Typography>
+                  <TextField
+                    name="customType"
+                    placeholder="Enter society type"
+                    value={form.customType}
+                    onChange={handleChange}
+                    fullWidth
+                    required
+                    error={!!selectErrors.customType}
+                    helperText={selectErrors.customType || 'Required when "Other" is selected'}
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        borderRadius: 2,
+                        height: 56,
+                        background: '#fff',
+                        '&:hover fieldset': {
+                          borderColor: '#ED7600',
+                        },
+                        '&.Mui-focused fieldset': {
+                          borderColor: '#ED7600',
+                          borderWidth: 2,
+                        },
+                      },
+                      '& .MuiFormHelperText-root': {
+                        color: selectErrors.customType ? '#d32f2f' : '#9e9e9e',
+                      },
+                    }}
+                  />
+                </Grid>
+              )}
+
               {/* City Location */}
               <Grid item xs={12} sm={6} lg={4}>
                 <Typography sx={{ mb: 1, color: '#2F3D57', fontWeight: 600, fontSize: 15 }}>
@@ -802,6 +868,41 @@ const RegistrationForm = () => {
                   {authorityOptions.map(opt => <MenuItem key={opt} value={opt}>{opt}</MenuItem>)}
                 </TextField>
               </Grid>
+
+              {form.authority === 'Other' && (
+                <Grid item xs={12} sm={6} lg={4}>
+                  <Typography sx={{ mb: 1, color: '#2F3D57', fontWeight: 600, fontSize: 15 }}>
+                    Specify Regulatory Authority <span style={{ color: '#ED7600' }}>*</span>
+                  </Typography>
+                  <TextField
+                    name="customAuthority"
+                    placeholder="Enter regulatory authority"
+                    value={form.customAuthority}
+                    onChange={handleChange}
+                    fullWidth
+                    required
+                    error={!!selectErrors.customAuthority}
+                    helperText={selectErrors.customAuthority || 'Required when "Other" is selected'}
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        borderRadius: 2,
+                        height: 56,
+                        background: '#fff',
+                        '&:hover fieldset': {
+                          borderColor: '#ED7600',
+                        },
+                        '&.Mui-focused fieldset': {
+                          borderColor: '#ED7600',
+                          borderWidth: 2,
+                        },
+                      },
+                      '& .MuiFormHelperText-root': {
+                        color: selectErrors.customAuthority ? '#d32f2f' : '#9e9e9e',
+                      },
+                    }}
+                  />
+                </Grid>
+              )}
 
               {/* NOC Issued Checkbox */}
               <Grid item xs={12} sm={6} lg={4}>

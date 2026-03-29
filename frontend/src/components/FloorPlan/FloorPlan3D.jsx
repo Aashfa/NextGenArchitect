@@ -1992,7 +1992,7 @@ const SimpleDoor3D = ({ door, bounds }) => {
 };
 
 // Enhanced Room Component - FIXED positioning with doors and windows
-const Room3D = ({ room, bounds, showLabels = true, doors = [], windows = [], walls = [], customColors, roomColors = {} }) => {
+const Room3D = ({ room, bounds, showLabels = true, doors = [], windows = [], walls = [], customColors, roomColors = {}, showFurniture = true, stairsWorldRects = [] }) => {
   // Normalize room ID to string for consistent lookup
   const roomIdString = String(room.id);
   
@@ -2032,6 +2032,33 @@ const Room3D = ({ room, bounds, showLabels = true, doors = [], windows = [], wal
   // Position room at its EXACT converted coordinates (no centering)
   const roomX = world.x + world.width / 2;  // Center of room in world space
   const roomZ = world.z + world.height / 2; // Center of room in world space
+
+  const roomStairs = useMemo(() => {
+    if (!stairsWorldRects || stairsWorldRects.length === 0) return [];
+
+    const roomMinX = roomX - world.width / 2;
+    const roomMaxX = roomX + world.width / 2;
+    const roomMinZ = roomZ - world.height / 2;
+    const roomMaxZ = roomZ + world.height / 2;
+
+    const intersects = (a, b) => (
+      a.minX <= b.maxX &&
+      a.maxX >= b.minX &&
+      a.minZ <= b.maxZ &&
+      a.maxZ >= b.minZ
+    );
+
+    const roomRect = { minX: roomMinX, maxX: roomMaxX, minZ: roomMinZ, maxZ: roomMaxZ };
+
+    return stairsWorldRects
+      .filter(st => intersects(roomRect, st))
+      .map(st => ({
+        x: st.centerX - roomX,
+        z: st.centerZ - roomZ,
+        width: st.width,
+        depth: st.depth
+      }));
+  }, [stairsWorldRects, roomX, roomZ, world.width, world.height]);
   
   // Find doors and windows for this room - updated for new door structure
   const roomDoors = doors.filter(door => 
@@ -2357,6 +2384,8 @@ const Room3D = ({ room, bounds, showLabels = true, doors = [], windows = [], wal
         roomHeight={world.height}
         roomDoors={roomDoors}
         roomId={room.id}
+        showFurniture={showFurniture}
+        roomStairs={roomStairs}
       />
     </group>
   );
@@ -2848,7 +2877,7 @@ const CameraController3D = ({ mode, bounds, rooms, onPlayerPositionChange }) => 
 };
 
 // Main 3D Scene Component - Enhanced with doors and windows
-const FloorPlan3DScene = ({ floorPlanData, mode, customColors, roomColors = {}, doorColors = {}, onRoomsAnalyzed, onDoorsAnalyzed, sunSettings, setbacks = null }) => {
+const FloorPlan3DScene = ({ floorPlanData, mode, customColors, roomColors = {}, doorColors = {}, onRoomsAnalyzed, onDoorsAnalyzed, sunSettings, setbacks = null, showFurniture = true }) => {
   const [doorStates, setDoorStates] = useState({});
   const [playerPosition, setPlayerPosition] = useState([0, 1.7, 0]);
   
@@ -2903,6 +2932,25 @@ const FloorPlan3DScene = ({ floorPlanData, mode, customColors, roomColors = {}, 
     console.log('📏 Calculating bounds for rooms:', rooms.length);
     return calculateBounds(rooms);
   }, [rooms]);
+
+  const stairsWorldRects = useMemo(() => {
+    if (!stairs || stairs.length === 0) return [];
+
+    return stairs.map(stair => {
+      const stairWorld = convertToWorld3D(stair.x, stair.y, stair.width, stair.height, bounds);
+      return {
+        id: stair.id,
+        centerX: stairWorld.x + stairWorld.width / 2,
+        centerZ: stairWorld.z + stairWorld.height / 2,
+        width: stairWorld.width,
+        depth: stairWorld.height,
+        minX: stairWorld.x,
+        maxX: stairWorld.x + stairWorld.width,
+        minZ: stairWorld.z,
+        maxZ: stairWorld.z + stairWorld.height
+      };
+    });
+  }, [stairs, bounds]);
   
   // Generate smart doors and windows using detected doors from 2D plan - memoized to prevent loops
   // Always generate smart doors for room connectivity
@@ -3256,6 +3304,8 @@ const FloorPlan3DScene = ({ floorPlanData, mode, customColors, roomColors = {}, 
               walls={walls}
               customColors={colors}
               roomColors={roomColors}
+              showFurniture={showFurniture}
+              stairsWorldRects={stairsWorldRects}
             />
           );
         })}
@@ -3395,6 +3445,7 @@ const FloorPlan3D = ({ floorPlanData, className = "", isVisible = true, setbacks
   const [isSunPanelOpen, setIsSunPanelOpen] = useState(false);
   const [saveFeedback, setSaveFeedback] = useState('idle');
   const [activeTab, setActiveTab] = useState('sun');
+  const [showFurniture, setShowFurniture] = useState(savedState?.showFurniture ?? true);
 
   // Sun / daylight visualization settings
   const mergedDefaultSun = useMemo(() => {
@@ -3465,6 +3516,7 @@ const FloorPlan3D = ({ floorPlanData, className = "", isVisible = true, setbacks
       const stateToSave = {
         viewMode,
         autoRotate,
+        showFurniture,
         customColors,
         roomColors,
         doorColors,
@@ -3477,7 +3529,7 @@ const FloorPlan3D = ({ floorPlanData, className = "", isVisible = true, setbacks
       console.error('Failed to save 3D state:', error);
       return false;
     }
-  }, [saveKey, viewMode, autoRotate, customColors, roomColors, doorColors, sunSettings]);
+  }, [saveKey, viewMode, autoRotate, showFurniture, customColors, roomColors, doorColors, sunSettings]);
 
   const handleSaveProgress = useCallback(() => {
     const success = saveState();
@@ -3494,7 +3546,7 @@ const FloorPlan3D = ({ floorPlanData, className = "", isVisible = true, setbacks
     }, 1000); // Debounce saves by 1 second
     
     return () => clearTimeout(timeoutId);
-  }, [customColors, roomColors, doorColors, viewMode, autoRotate, sunSettings, saveState]);
+  }, [customColors, roomColors, doorColors, viewMode, autoRotate, showFurniture, sunSettings, saveState]);
   
   return (
     <div className={`flex h-full ${className}`}>
@@ -3696,6 +3748,7 @@ const FloorPlan3D = ({ floorPlanData, className = "", isVisible = true, setbacks
             onDoorsAnalyzed={handleDoorsAnalyzed}
             sunSettings={sunSettings}
             setbacks={setbacks}
+            showFurniture={showFurniture}
           />
 
           {/* Subtle grounding shadows for a more realistic “anchored” look */}
@@ -3766,6 +3819,17 @@ const FloorPlan3D = ({ floorPlanData, className = "", isVisible = true, setbacks
                 ⚙️ Auto-rotate {autoRotate ? 'ON' : 'OFF'}
               </button>
             )}
+
+            <button
+              onClick={() => setShowFurniture(!showFurniture)}
+              className={`w-full rounded-lg px-2 py-2 text-xs font-semibold transition-colors ${
+                showFurniture
+                  ? 'bg-emerald-600 text-white'
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+              }`}
+            >
+              🛋️ Furniture {showFurniture ? 'ON' : 'OFF'}
+            </button>
 
             <button
               onClick={handleSaveProgress}

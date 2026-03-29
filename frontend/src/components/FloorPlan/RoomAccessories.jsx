@@ -2081,8 +2081,12 @@ export const getRoomAccessories = (roomType, roomWidth, roomHeight) => {
 /* ═══════════════════════════════════════════════════════
    MAIN EXPORT – Render all accessories for a room
    ═══════════════════════════════════════════════════════ */
-export const RoomAccessories = ({ roomType, roomWidth, roomHeight, roomDoors, roomId }) => {
+export const RoomAccessories = ({ roomType, roomWidth, roomHeight, roomDoors, roomId, showFurniture = true, roomStairs = [] }) => {
   const accessories = useMemo(() => {
+    if (!showFurniture) {
+      return [];
+    }
+
     let items = getRoomAccessories(roomType, roomWidth, roomHeight);
     
     // Ensure no furniture blocks the doors
@@ -2139,8 +2143,58 @@ export const RoomAccessories = ({ roomType, roomWidth, roomHeight, roomDoors, ro
       });
     }
     
+    if (roomStairs && roomStairs.length > 0) {
+      const getFootprint = (item) => {
+        const componentName = item.component?.name || '';
+        const s = Number(item.scale) || 1;
+
+        // Approximate furniture footprint in room-local XZ plane.
+        if (/Bed|Sofa|Car|Wardrobe|KitchenCounter|Bathtub/i.test(componentName)) {
+          return { halfW: 0.65 * s, halfD: 0.45 * s };
+        }
+        if (/DiningTable|CoffeeTable|TVUnit|Bookshelf|DisplayCabinet|Refrigerator|Stove/i.test(componentName)) {
+          return { halfW: 0.45 * s, halfD: 0.35 * s };
+        }
+        if (/ArmChair|Recliner|NightStand|Dresser|Toilet|BathroomSink|ShowerArea|Bench|BikeStand/i.test(componentName)) {
+          return { halfW: 0.35 * s, halfD: 0.3 * s };
+        }
+        // Decorative and small props
+        return { halfW: 0.25 * s, halfD: 0.25 * s };
+      };
+
+      const overlapsRect = (a, b) => (
+        a.minX <= b.maxX &&
+        a.maxX >= b.minX &&
+        a.minZ <= b.maxZ &&
+        a.maxZ >= b.minZ
+      );
+
+      items = items.filter(item => {
+        const [ix = 0, , iz = 0] = item.position || [0, 0, 0];
+        const fp = getFootprint(item);
+        const itemRect = {
+          minX: ix - fp.halfW,
+          maxX: ix + fp.halfW,
+          minZ: iz - fp.halfD,
+          maxZ: iz + fp.halfD
+        };
+
+        const collidesWithStairs = roomStairs.some(st => {
+          const stairRect = {
+            minX: st.x - st.width / 2,
+            maxX: st.x + st.width / 2,
+            minZ: st.z - st.depth / 2,
+            maxZ: st.z + st.depth / 2
+          };
+          return overlapsRect(itemRect, stairRect);
+        });
+
+        return !collidesWithStairs;
+      });
+    }
+
     return items;
-  }, [roomType, roomWidth, roomHeight, roomDoors, roomId]);
+  }, [roomType, roomWidth, roomHeight, roomDoors, roomId, showFurniture, roomStairs]);
 
   return (
     <>

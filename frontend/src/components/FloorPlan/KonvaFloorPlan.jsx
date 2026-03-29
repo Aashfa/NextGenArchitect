@@ -58,6 +58,11 @@ const KonvaFloorPlan = forwardRef(({
   const [collisionWarning, setCollisionWarning] = useState(false);
   const collisionWarningTimeoutRef = useRef(null);
   const [showRoomTypeDialog, setShowRoomTypeDialog] = useState(false);
+  const doorOpeningOptions = [
+    { value: 'left', label: 'Open Left', icon: '↶' },
+    { value: 'right', label: 'Open Right', icon: '↷' },
+    { value: 'double', label: 'Double Swing', icon: '⇄' }
+  ];
   
   // Room types matching the generation form
   const roomTypes = [
@@ -394,6 +399,40 @@ const KonvaFloorPlan = forwardRef(({
     setContextMenu({ visible: false, x: 0, y: 0, type: null, id: null });
   }, [contextMenu, stairs, onStairsChange]);
 
+  // Handle opening direction change for door from context menu
+  const handleDoorOpeningDirectionChange = useCallback((openingDirection) => {
+    if (!contextMenu.visible || contextMenu.type !== 'door') return;
+
+    const { id } = contextMenu;
+    const updatedDoors = doors.map(door =>
+      door.id === id ? { ...door, openingDirection } : door
+    );
+
+    setDoors(updatedDoors);
+    if (onDoorsChange) {
+      onDoorsChange(updatedDoors);
+    }
+
+    setContextMenu({ visible: false, x: 0, y: 0, type: null, id: null });
+  }, [contextMenu, doors, onDoorsChange]);
+
+  // Toggle door direction glass overlay visibility from context menu
+  const handleDoorDirectionVisibilityToggle = useCallback(() => {
+    if (!contextMenu.visible || contextMenu.type !== 'door') return;
+
+    const { id } = contextMenu;
+    const updatedDoors = doors.map(door =>
+      door.id === id ? { ...door, showDirection: !door.showDirection } : door
+    );
+
+    setDoors(updatedDoors);
+    if (onDoorsChange) {
+      onDoorsChange(updatedDoors);
+    }
+
+    setContextMenu({ visible: false, x: 0, y: 0, type: null, id: null });
+  }, [contextMenu, doors, onDoorsChange]);
+
   // Close context menu on outside click
   useEffect(() => {
     const handleClick = () => {
@@ -544,7 +583,9 @@ const KonvaFloorPlan = forwardRef(({
             stroke: '#8B4513',
             strokeWidth: Math.max(6, 4 * scale),
             lineCap: 'round',
-            type: 'Door'
+            type: 'Door',
+            openingDirection: door.openingDirection || 'right',
+            showDirection: Boolean(door.showDirection)
           }));
         doorsData = [...doorsData, ...mapDoors];
       }
@@ -562,7 +603,9 @@ const KonvaFloorPlan = forwardRef(({
           stroke: '#8B4513',
           strokeWidth: Math.max(6, 4 * scale),
           lineCap: 'round',
-          type: 'Door'
+          type: 'Door',
+          openingDirection: door.openingDirection || 'right',
+          showDirection: Boolean(door.showDirection)
         }));
         doorsData = [...doorsData, ...directDoors];
       }
@@ -588,7 +631,9 @@ const KonvaFloorPlan = forwardRef(({
             stroke: '#8B4513',
             strokeWidth: Math.max(6, 4 * scale),
             lineCap: 'round',
-            roomId: room.id
+            roomId: room.id,
+            openingDirection: 'right',
+            showDirection: false
           });
         });
         
@@ -1251,7 +1296,9 @@ const KonvaFloorPlan = forwardRef(({
       stroke: doorColor,
       strokeWidth: doorWidth,
       lineCap: 'round',
-      type: 'Door'
+      type: 'Door',
+      openingDirection: 'right',
+      showDirection: false
     };
     const updatedDoors = [...doors, newDoor];
     setDoors(updatedDoors);
@@ -2055,7 +2102,9 @@ const KonvaFloorPlan = forwardRef(({
             points: [newElementStart.x, newElementStart.y, snappedX, snappedY],
             stroke: '#8B4513',
             strokeWidth: 6,
-            lineCap: 'round'
+            lineCap: 'round',
+            openingDirection: 'right',
+            showDirection: false
           };
           setDoors(prev => [...prev, newDoor]);
           setSelectedDoor(newDoor.id);
@@ -3250,11 +3299,65 @@ const KonvaFloorPlan = forwardRef(({
             const y1 = door.points[1];
             const x2 = door.points[2];
             const y2 = door.points[3];
+            const openingDirection = (door.openingDirection || 'right').toLowerCase();
+            const showDirection = Boolean(door.showDirection);
+            const doorLength = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
+            const doorAngle = Math.atan2(y2 - y1, x2 - x1);
+
+            const buildSwingSectorPoints = (swingSign) => {
+              const sectorPoints = [x1, y1];
+              const targetAngle = doorAngle + (Math.PI / 2) * swingSign;
+              const steps = 18;
+
+              for (let i = 0; i <= steps; i++) {
+                const t = i / steps;
+                const currentAngle = doorAngle + (targetAngle - doorAngle) * t;
+                sectorPoints.push(
+                  x1 + Math.cos(currentAngle) * doorLength,
+                  y1 + Math.sin(currentAngle) * doorLength
+                );
+              }
+
+              return sectorPoints;
+            };
             
             const isSelected = selectedDoor === door.id;
             
             return (
               <Group key={door.id}>
+                {/* Glass-like door opening direction overlay */}
+                {showDirection && openingDirection !== 'double' && (
+                  <Line
+                    points={buildSwingSectorPoints(openingDirection === 'left' ? -1 : 1)}
+                    closed={true}
+                    fill="rgba(173, 216, 230, 0.30)"
+                    stroke="rgba(135, 206, 235, 0.8)"
+                    strokeWidth={1}
+                    listening={false}
+                  />
+                )}
+
+                {showDirection && openingDirection === 'double' && (
+                  <>
+                    <Line
+                      points={buildSwingSectorPoints(1)}
+                      closed={true}
+                      fill="rgba(173, 216, 230, 0.24)"
+                      stroke="rgba(135, 206, 235, 0.7)"
+                      strokeWidth={1}
+                      listening={false}
+                    />
+                    <Line
+                      points={buildSwingSectorPoints(-1)}
+                      closed={true}
+                      fill="rgba(173, 216, 230, 0.24)"
+                      stroke="rgba(135, 206, 235, 0.7)"
+                      strokeWidth={1}
+                      listening={false}
+                    />
+                  </>
+                )}
+
                 {/* Simple door - bold brown line */}
                 <Line
                   x={0}
@@ -3457,6 +3560,12 @@ const KonvaFloorPlan = forwardRef(({
               <div className="text-xs text-gray-600">
                 End: ({Math.round(doors.find(d => d.id === selectedDoor)?.points[2] || 0)}, {Math.round(doors.find(d => d.id === selectedDoor)?.points[3] || 0)})
               </div>
+              <div className="text-xs text-gray-600">
+                Opening: {doors.find(d => d.id === selectedDoor)?.openingDirection || 'right'}
+              </div>
+              <div className="text-xs text-gray-600">
+                Direction Overlay: {doors.find(d => d.id === selectedDoor)?.showDirection ? 'shown' : 'hidden'}
+              </div>
             </>
           )}
           
@@ -3494,6 +3603,73 @@ const KonvaFloorPlan = forwardRef(({
           }}
           onClick={(e) => e.stopPropagation()}
         >
+          {/* Door opening options */}
+          {contextMenu.type === 'door' && (() => {
+            const currentDoor = doors.find(d => d.id === contextMenu.id);
+            const currentOpening = currentDoor?.openingDirection || 'right';
+            const isDirectionVisible = Boolean(currentDoor?.showDirection);
+
+            return (
+              <>
+                {doorOpeningOptions.map((option, index) => (
+                  <div
+                    key={option.value}
+                    style={{
+                      padding: '8px 16px',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      fontSize: '14px',
+                      color: '#1565c0',
+                      borderBottom: index < doorOpeningOptions.length - 1 ? '1px solid #f0f0f0' : 'none'
+                    }}
+                    onClick={() => handleDoorOpeningDirectionChange(option.value)}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = '#f5f5f5';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = 'transparent';
+                    }}
+                  >
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span style={{ fontSize: '16px', fontWeight: 'bold' }}>{option.icon}</span>
+                      {option.label}
+                    </span>
+                    <span style={{ fontWeight: 'bold', color: '#2e7d32' }}>
+                      {currentOpening === option.value ? '✓' : ''}
+                    </span>
+                  </div>
+                ))}
+                <div
+                  style={{
+                    padding: '8px 16px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    fontSize: '14px',
+                    color: '#00695c',
+                    borderTop: '1px solid #f0f0f0'
+                  }}
+                  onClick={handleDoorDirectionVisibilityToggle}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#f5f5f5';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                  }}
+                >
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontSize: '16px', fontWeight: 'bold' }}>◔</span>
+                    {isDirectionVisible ? 'Hide Direction' : 'Show Direction'}
+                  </span>
+                </div>
+                <div style={{ borderTop: '1px solid #e0e0e0', margin: '4px 0' }} />
+              </>
+            );
+          })()}
+
           {/* Direction options - only for stairs */}
           {contextMenu.type === 'stairs' && (() => {
             const currentStair = stairs.find(s => s.id === contextMenu.id);

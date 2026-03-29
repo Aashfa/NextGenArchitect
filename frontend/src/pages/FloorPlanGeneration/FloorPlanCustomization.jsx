@@ -267,7 +267,9 @@ const FloorPlanCustomization = () => {
           x1: (door.points[0] - offsetX) / coordScaleX,
           y1: (door.points[1] - offsetY) / coordScaleY,
           x2: (door.points[2] - offsetX) / coordScaleX,
-          y2: (door.points[3] - offsetY) / coordScaleY
+          y2: (door.points[3] - offsetY) / coordScaleY,
+          openingDirection: door.openingDirection || 'right',
+          showDirection: Boolean(door.showDirection)
         };
       });
       
@@ -278,6 +280,7 @@ const FloorPlanCustomization = () => {
       
       return {
         ...prevData,
+        doors: backendDoors,
         mapData: [
           ...nonDoorMapData,
           ...backendDoors
@@ -687,19 +690,33 @@ const FloorPlanCustomization = () => {
         const dy = y2 - y1;
         const doorLength = Math.sqrt(dx * dx + dy * dy);
         const angle = Math.atan2(dy, dx);
+        const openingDirection = (door.openingDirection || 'right').toLowerCase();
+
+        const drawSingleSwing = (swingSign) => {
+          const swingAngle = angle + (Math.PI / 2) * swingSign;
+
+          // Draw arc swing (90 degrees from hinge)
+          ctx.beginPath();
+          ctx.arc(x1, y1, doorLength, angle, swingAngle, swingSign < 0);
+          ctx.stroke();
+
+          // Draw door panel line
+          ctx.beginPath();
+          const endX = x1 + doorLength * Math.cos(swingAngle);
+          const endY = y1 + doorLength * Math.sin(swingAngle);
+          ctx.moveTo(x1, y1);
+          ctx.lineTo(endX, endY);
+          ctx.stroke();
+        };
         
-        // Draw arc swing (90 degrees from hinge)
-        ctx.beginPath();
-        ctx.arc(x1, y1, doorLength, angle, angle + Math.PI / 2, false);
-        ctx.stroke();
-        
-        // Draw door panel line
-        ctx.beginPath();
-        const endX = x1 + doorLength * Math.cos(angle + Math.PI / 2);
-        const endY = y1 + doorLength * Math.sin(angle + Math.PI / 2);
-        ctx.moveTo(x1, y1);
-        ctx.lineTo(endX, endY);
-        ctx.stroke();
+        if (openingDirection === 'left') {
+          drawSingleSwing(-1);
+        } else if (openingDirection === 'double') {
+          drawSingleSwing(1);
+          drawSingleSwing(-1);
+        } else {
+          drawSingleSwing(1);
+        }
         
         // Draw small hinge circle
         ctx.fillStyle = '#000000';

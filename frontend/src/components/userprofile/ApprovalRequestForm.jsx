@@ -126,7 +126,7 @@ const ApprovalRequestForm = () => {
 
     // --- Data Validation ---
     if (!selectedSocietyId || !selectedPlotId || !designType || !floorPlanFile) {
-      setMessage({ type: 'error', text: 'Please select a society & plot, fill out all required fields, and upload a floor plan.' });
+      setMessage({ type: 'error', text: 'Please select a society and plot, fill out all required fields, and upload a floor plan JSON file.' });
       setLoading(false);
       return;
     }
@@ -265,7 +265,7 @@ const ApprovalRequestForm = () => {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-600 mb-1">
-                Floor Plan Document <span className="text-red-500">*</span>
+                Floor Plan JSON File <span className="text-red-500">*</span>
               </label>
               <label
                 htmlFor="floorPlanFile"
@@ -273,7 +273,7 @@ const ApprovalRequestForm = () => {
               >
                 <FiUpload className="mr-3 text-gray-500" />
                 <span className="text-gray-700">
-                  {floorPlanFile ? floorPlanFile.name : 'Click to upload PDF or image'}
+                  {floorPlanFile ? floorPlanFile.name : 'Click to upload JSON file'}
                 </span>
               </label>
               <input

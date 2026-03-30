@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import KonvaFloorPlan from '../../components/FloorPlan/KonvaFloorPlan';
@@ -77,6 +79,30 @@ const FloorPlanGenerator = () => {
     areas: false,
     connections: false
   });
+
+  const complianceSetbacks = (() => {
+    const cr = location.state?.complianceRules;
+    if (!cr) return null;
+    const front = parseFloat(cr.front_setback) || 0;
+    const rear = parseFloat(cr.rear_setback) || 0;
+    const left = parseFloat(cr.side_setback_left) || 0;
+    const right = parseFloat(cr.side_setback_right) || 0;
+    if (!front && !rear && !left && !right) return null;
+    return { front, rear, left, right };
+  })();
+
+  const routedSetbacks = (() => {
+    const s = location.state?.setbacks;
+    if (!s) return null;
+    const front = parseFloat(s.front) || 0;
+    const rear = parseFloat(s.rear) || 0;
+    const left = parseFloat(s.left) || 0;
+    const right = parseFloat(s.right) || 0;
+    if (!front && !rear && !left && !right) return null;
+    return { front, rear, left, right };
+  })();
+
+  const effectiveSetbacks = complianceSetbacks || routedSetbacks;
 
   // Fetch society compliances to show only available plot sizes
   useEffect(() => {
@@ -190,10 +216,13 @@ const FloorPlanGenerator = () => {
       const width = '1000';
       const height = '1000';
 
-      // Calculate total plot area using actual dimensions from compliance for area validation
-      const actualWidth = parseFloat(complianceRules.plot_dimension_x) || parseFloat(plotData?.plot_dimension_x) || 1000;
-      const actualHeight = parseFloat(complianceRules.plot_dimension_y) || parseFloat(plotData?.plot_dimension_y) || 1000;
-      const totalPlotArea = actualWidth * actualHeight;
+      // Calculate total plot area for compliance validation.
+      // Use saved compliance total_plot_area as source of truth to keep upload + generation consistent.
+      const actualWidth = parseFloat(complianceRules.plot_dimension_x) || parseFloat(plotData?.plot_dimension_x) || parseFloat(plotData?.dimension_x) || 1000;
+      const actualHeight = parseFloat(complianceRules.plot_dimension_y) || parseFloat(plotData?.plot_dimension_y) || parseFloat(plotData?.dimension_y) || 1000;
+      const complianceTotalArea = parseFloat(complianceRules.total_plot_area) || 0;
+      const plotTotalArea = parseFloat(plotData?.total_plot_area) || parseFloat(plotData?.plot_area) || parseFloat(plotData?.area) || 0;
+      const totalPlotArea = complianceTotalArea > 0 ? complianceTotalArea : (plotTotalArea > 0 ? plotTotalArea : (actualWidth * actualHeight));
       
       // Set plot size and dimensions in UI based on plot data
       const marlaSize = plotData?.marla_size || complianceRules?.marla_size;
@@ -321,7 +350,8 @@ const FloorPlanGenerator = () => {
       console.log('[FloorPlanGenerator] Max allowed area:', maxAllowedArea, 'sq ft');
 
       // Check if total room area exceeds allowed coverage
-      if (totalRoomArea > maxAllowedArea) {
+      const areaTolerance = Math.max(1, maxAllowedArea * 0.005); // 0.5% tolerance, min 1 sq ft
+      if (totalRoomArea > (maxAllowedArea + areaTolerance)) {
         const exceededBy = totalRoomArea - maxAllowedArea;
         const exceededPercentage = ((totalRoomArea / maxAllowedArea) * 100) - 100;
         
@@ -342,6 +372,27 @@ const FloorPlanGenerator = () => {
         // Navigate back to prevent generation
         navigate(-1);
         return;
+      }
+
+      // Normalize to full area utilization for compliance-based generation.
+      // This keeps proportions while ensuring no buildable area remains unused.
+      if (totalPercentage > 0 && totalPercentage < 100) {
+        const scaleFactor = 100 / totalPercentage;
+        Object.keys(newRoomConfiguration).forEach((roomType) => {
+          const config = newRoomConfiguration[roomType];
+          if ((config.count || 0) > 0) {
+            const scaledAreaPercentage = (config.areaPercentage || 0) * scaleFactor;
+            const currentIndividual = Array.isArray(config.individualAreas) ? config.individualAreas : [];
+
+            newRoomConfiguration[roomType] = {
+              ...config,
+              areaPercentage: scaledAreaPercentage,
+              individualAreas: currentIndividual.length > 0
+                ? currentIndividual.map(area => area * scaleFactor)
+                : Array(config.count).fill((scaledAreaPercentage / config.count) || 0)
+            };
+          }
+        });
       }
 
       // Set room connections from compliance rules
@@ -752,6 +803,13 @@ const FloorPlanGenerator = () => {
   const [dimensionError, setDimensionError] = useState('');
   const [isCustomPlot, setIsCustomPlot] = useState(false);
   const [customDimensions, setCustomDimensions] = useState({ length: 26, width: 26 }); // 676 sq ft (3.01 Marla)
+  const isComplianceLocked = Boolean(location.state?.fromPlotDetail && location.state?.complianceRules && location.state?.plotData);
+  const complianceDisplayWidth = parseFloat(location.state?.plotData?.plot_dimension_x) || parseFloat(location.state?.plotData?.dimension_x) || parseFloat(location.state?.complianceRules?.plot_dimension_x) || parseFloat(plotDimensions.length) || 0;
+  const complianceDisplayHeight = parseFloat(location.state?.plotData?.plot_dimension_y) || parseFloat(location.state?.plotData?.dimension_y) || parseFloat(location.state?.complianceRules?.plot_dimension_y) || parseFloat(plotDimensions.width) || 0;
+  const complianceDisplayArea = (() => {
+    const directArea = parseFloat(location.state?.plotData?.total_plot_area) || parseFloat(location.state?.plotData?.plot_area) || parseFloat(location.state?.plotData?.area) || parseFloat(location.state?.complianceRules?.total_plot_area) || 0;
+    return directArea > 0 ? directArea : (complianceDisplayWidth * complianceDisplayHeight);
+  })();
 
   // Custom plot dimension handling with minimum area constraint (3 Marla = 675 sq ft)
   const handleCustomDimensionChange = (dimension, value) => {
@@ -800,6 +858,10 @@ const FloorPlanGenerator = () => {
 
   // Handle dimension changes with area validation
   const handleDimensionChange = (dimension, value) => {
+    if (isComplianceLocked) {
+      return;
+    }
+
     if (isCustomPlot) {
       handleCustomDimensionChange(dimension, value);
       return;
@@ -840,6 +902,10 @@ const FloorPlanGenerator = () => {
 
   // Handle plot size change
   const handlePlotSizeChange = (value) => {
+    if (isComplianceLocked) {
+      return;
+    }
+
     if (value === 'custom') {
       setIsCustomPlot(true);
       setDimensionError(`Area: ${customDimensions.length * customDimensions.width} sq ft (${(customDimensions.length * customDimensions.width / 225).toFixed(2)} Marla)`);
@@ -1081,14 +1147,8 @@ const FloorPlanGenerator = () => {
 
     // Navigate to customization page with floor plan data
     // Pass through isCreatingTemplate flag if we're in template creation mode
-    // Build setbacks from compliance rules if available
-    const cr = location.state?.complianceRules;
-    const setbacks = cr ? {
-      front: parseFloat(cr.front_setback) || 0,
-      rear:  parseFloat(cr.rear_setback)  || 0,
-      left:  parseFloat(cr.side_setback_left)  || 0,
-      right: parseFloat(cr.side_setback_right) || 0
-    } : null;
+    // Preserve compliance context so values don't disappear on return.
+    const setbacks = effectiveSetbacks;
 
     navigate('/floor-plan/customize', {
       state: {
@@ -1097,6 +1157,9 @@ const FloorPlanGenerator = () => {
         currentPlanIndex: currentPlanIndex, // pass index so we restore the right slot
         returnPath: '/floor-plan/generate',
         isCreatingTemplate: isCreatingTemplate,
+        fromPlotDetail: location.state?.fromPlotDetail || false,
+        plotData: location.state?.plotData || null,
+        complianceRules: location.state?.complianceRules || null,
         setbacks
       }
     });
@@ -1278,6 +1341,34 @@ const FloorPlanGenerator = () => {
         ctx.restore();
       }
       
+      if (effectiveSetbacks) {
+        const frontPx = effectiveSetbacks.front * scale;
+        const rearPx = effectiveSetbacks.rear * scale;
+        const leftPx = effectiveSetbacks.left * scale;
+        const rightPx = effectiveSetbacks.right * scale;
+        const buildX = bx + leftPx;
+        const buildY = by + rearPx;
+        const buildW = bw - leftPx - rightPx;
+        const buildH = bh - rearPx - frontPx;
+
+        if (buildW > 0 && buildH > 0) {
+          ctx.save();
+          ctx.fillStyle = 'rgba(0, 0, 0, 0.04)';
+          if (rearPx > 0) ctx.fillRect(bx, by, bw, rearPx);
+          if (frontPx > 0) ctx.fillRect(bx, by + bh - frontPx, bw, frontPx);
+          if (leftPx > 0) ctx.fillRect(bx, by + rearPx, leftPx, buildH);
+          if (rightPx > 0) ctx.fillRect(bx + bw - rightPx, by + rearPx, rightPx, buildH);
+
+          ctx.setLineDash([6, 4]);
+          ctx.strokeStyle = '#555555';
+          ctx.lineWidth = 1;
+          ctx.strokeRect(buildX, buildY, buildW, buildH);
+          ctx.setLineDash([]);
+
+          ctx.restore();
+        }
+      }
+
       // Top wall
       drawWallRect(bx, by, bx + bw, by, outerWallThickness);
       // Right wall
@@ -1429,6 +1520,56 @@ const FloorPlanGenerator = () => {
           ctx.fill();
         });
       }
+
+      // Draw setback labels at top-most layer so walls don't cover them.
+      if (effectiveSetbacks) {
+        const frontPx = effectiveSetbacks.front * scale;
+        const rearPx = effectiveSetbacks.rear * scale;
+        const leftPx = effectiveSetbacks.left * scale;
+        const rightPx = effectiveSetbacks.right * scale;
+        const buildH = bh - rearPx - frontPx;
+
+        const drawLabel = (text, x, y, rotate = 0) => {
+          ctx.save();
+          ctx.translate(x, y);
+          if (rotate !== 0) ctx.rotate(rotate);
+          ctx.font = 'bold 11px Arial';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          const tw = ctx.measureText(text).width;
+          const padX = 6;
+          const padY = 4;
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.96)';
+          ctx.fillRect(-(tw / 2) - padX, -8 - padY, tw + padX * 2, 16 + padY * 2);
+          ctx.strokeStyle = 'rgba(60, 60, 60, 0.8)';
+          ctx.lineWidth = 0.8;
+          ctx.strokeRect(-(tw / 2) - padX, -8 - padY, tw + padX * 2, 16 + padY * 2);
+          ctx.fillStyle = '#222222';
+          ctx.fillText(text, 0, 0);
+          ctx.restore();
+        };
+
+        const clamp = (value, min, max) => Math.max(min, Math.min(value, max));
+        const inset = 14;
+        const borderPad = outerWallThickness + 12;
+
+        if (rearPx > 0) {
+          const ry = clamp(by + (rearPx / 2), by + inset, by + rearPx - inset);
+          drawLabel(`Rear: ${effectiveSetbacks.rear}ft`, bx + (bw / 2), ry);
+        }
+        if (frontPx > 0) {
+          const fy = clamp(by + bh - (frontPx / 2), by + bh - frontPx + inset, by + bh - borderPad);
+          drawLabel(`Front: ${effectiveSetbacks.front}ft`, bx + (bw / 2), fy);
+        }
+        if (leftPx > 0) {
+          const lx = clamp(bx + (leftPx / 2), bx + inset, bx + leftPx - inset);
+          drawLabel(`Left: ${effectiveSetbacks.left}ft`, lx, by + rearPx + (buildH / 2), -Math.PI / 2);
+        }
+        if (rightPx > 0) {
+          const rx = clamp(bx + bw - (rightPx / 2), bx + bw - rightPx + inset, bx + bw - borderPad);
+          drawLabel(`Right: ${effectiveSetbacks.right}ft`, rx, by + rearPx + (buildH / 2), Math.PI / 2);
+        }
+      }
       
       // Convert to grayscale (ensure pure black and white)
       const imageData = ctx.getImageData(0, 0, canvasWidth, canvasHeight);
@@ -1462,7 +1603,7 @@ const FloorPlanGenerator = () => {
       console.error('Error generating PDF:', error);
       alert('Failed to generate PDF. Please try again.');
     }
-  }, [generatedPlans, currentPlanIndex]);
+  }, [generatedPlans, currentPlanIndex, effectiveSetbacks]);
 
   const generateFloorPlans = async (useGenAIFlag) => {
     const selectedRooms = getSelectedRooms();
@@ -1570,12 +1711,7 @@ const FloorPlanGenerator = () => {
 
       // Build setback data from compliance rules if available
       const complianceRules = location.state?.complianceRules;
-      const setbacks = complianceRules ? {
-        front: parseFloat(complianceRules.front_setback) || 0,
-        rear: parseFloat(complianceRules.rear_setback) || 0,
-        left: parseFloat(complianceRules.side_setback_left) || 0,
-        right: parseFloat(complianceRules.side_setback_right) || 0
-      } : null;
+      const setbacks = effectiveSetbacks;
 
       const backendData = {
         width,
@@ -1605,8 +1741,10 @@ const FloorPlanGenerator = () => {
         // Compliance setbacks and actual dimensions (for proper scaling)
         ...(setbacks && { setbacks }),
         ...(complianceRules && {
-          actual_plot_width: parseFloat(complianceRules.plot_dimension_x) || actualPlotLength,
-          actual_plot_height: parseFloat(complianceRules.plot_dimension_y) || actualPlotWidth,
+          plot_id: location.state?.plotData?._id,
+          actual_plot_width: actualPlotLength,
+          actual_plot_height: actualPlotWidth,
+          total_plot_area: actualPlotLength * actualPlotWidth,
           max_ground_coverage: parseFloat(complianceRules.max_ground_coverage) || 100
         })
       };
@@ -1736,7 +1874,7 @@ const FloorPlanGenerator = () => {
   return (
     <div className="h-screen bg-[#2F3D57] overflow-hidden flex flex-col">
       {/* Compact Header */}
-      <div className="bg-gradient-to-r from-[#2F3D57] to-[#1e2a3a] border-b border-[#ED7600] flex-shrink-0">
+      <div className="bg-linear-to-r from-[#2F3D57] to-[#1e2a3a] border-b border-[#ED7600] shrink-0">
         <div className="max-w-full mx-auto px-4 py-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
@@ -1770,7 +1908,7 @@ const FloorPlanGenerator = () => {
             <div className="bg-white rounded-lg shadow-lg border-2 border-[#ED7600] overflow-hidden flex flex-col h-full">
               
               {/* Tab Navigation - Acts as header */}
-              <div className="flex border-b border-gray-200 bg-gradient-to-r from-[#2F3D57] to-[#1e2a3a] flex-shrink-0">
+              <div className="flex border-b border-gray-200 bg-linear-to-r from-[#2F3D57] to-[#1e2a3a] shrink-0">
                 {[
                   { id: 'plot', label: 'Plot', icon: '📐' },
                   { id: 'rooms', label: 'Rooms', icon: '🏠' },
@@ -1800,13 +1938,13 @@ const FloorPlanGenerator = () => {
                     <div className="space-y-4">
                       {/* Compliance Badge */}
                       {location.state?.fromPlotDetail && location.state?.complianceRules && (
-                        <div className="p-3 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg">
+                        <div className="p-3 bg-linear-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg">
                           <div className="flex items-center gap-2 mb-1">
                             <div className="w-5 h-5 bg-green-500 text-white rounded-full flex items-center justify-center text-xs">✓</div>
                             <span className="font-medium text-green-800 text-sm">Compliance Applied</span>
                           </div>
                           <p className="text-xs text-green-700 mb-2">
-                            {location.state.complianceRules.plot_dimension_x}×{location.state.complianceRules.plot_dimension_y} ft • {location.state.complianceRules.max_ground_coverage}% coverage
+                            {complianceDisplayWidth}×{complianceDisplayHeight} ft • {complianceDisplayArea.toFixed(0)} sq ft • {location.state.complianceRules.max_ground_coverage}% coverage
                           </p>
                           {/* Setback Details */}
                           {(location.state.complianceRules.front_setback > 0 || location.state.complianceRules.rear_setback > 0 || location.state.complianceRules.side_setback_left > 0 || location.state.complianceRules.side_setback_right > 0) && (
@@ -1847,14 +1985,21 @@ const FloorPlanGenerator = () => {
                           <select
                             value={isCustomPlot ? 'custom' : selectedPlotSize}
                             onChange={(e) => handlePlotSizeChange(e.target.value)}
+                            disabled={isComplianceLocked}
                             className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ED7600]/20 focus:border-[#ED7600] transition-all text-sm bg-white"
                           >
-                            {Object.entries(plotSizes).map(([marla, info]) => (
-                              <option key={marla} value={marla}>
-                                {info.label || `${marla} Marla`} ({info.sqFt.toLocaleString()} sq ft)
+                            {isComplianceLocked ? (
+                              <option value={selectedPlotSize}>
+                                {(location.state?.plotData?.marla_size || `${selectedPlotSize} Marla`)} ({complianceDisplayArea.toFixed(0)} sq ft)
                               </option>
-                            ))}
-                            <option value="custom">Custom Plot Size (Min 3 Marla)</option>
+                            ) : (
+                              Object.entries(plotSizes).map(([marla, info]) => (
+                                <option key={marla} value={marla}>
+                                  {info.label || `${marla} Marla`} ({info.sqFt.toLocaleString()} sq ft)
+                                </option>
+                              ))
+                            )}
+                            {!isComplianceLocked && <option value="custom">Custom Plot Size (Min 3 Marla)</option>}
                           </select>
                         )}
                       </div>
@@ -1884,6 +2029,7 @@ const FloorPlanGenerator = () => {
                             min="1"
                             value={isCustomPlot ? customDimensions.length : plotDimensions.length}
                             onChange={(e) => handleDimensionChange('length', e.target.value)}
+                            disabled={isComplianceLocked}
                             className="w-full px-2.5 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#ED7600] text-sm"
                           />
                         </div>
@@ -1895,6 +2041,7 @@ const FloorPlanGenerator = () => {
                             min="1"
                             value={isCustomPlot ? customDimensions.width : plotDimensions.width}
                             onChange={(e) => handleDimensionChange('width', e.target.value)}
+                            disabled={isComplianceLocked}
                             className="w-full px-2.5 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#ED7600] text-sm"
                           />
                         </div>
@@ -1909,6 +2056,7 @@ const FloorPlanGenerator = () => {
                               key={index}
                               type="button"
                               onClick={() => setPlotDimensions(dim)}
+                              disabled={isComplianceLocked}
                               className="text-xs bg-white border border-[#ED7600]/30 px-2 py-1 rounded hover:bg-[#ED7600]/10 transition-colors"
                             >
                               {dim.length}×{dim.width}
@@ -1946,9 +2094,9 @@ const FloorPlanGenerator = () => {
                       </div>
                       
                       {/* Compact Room Cards Grid */}
-                      <div className="grid grid-cols-2 gap-2">
+                      <div className="grid grid-cols-2 gap-2 items-start">
                         {roomTypes.map((roomType) => (
-                          <div key={roomType.key} className="bg-white rounded-lg p-2.5 border border-gray-200 hover:border-[#ED7600]/50 transition-colors">
+                          <div key={roomType.key} className="bg-white rounded-lg p-2.5 border border-gray-200 hover:border-[#ED7600]/50 transition-colors self-start">
                             <div className="flex items-center justify-between mb-2">
                               <span className="text-xs font-medium text-gray-800 truncate">{roomType.label}</span>
                               <span className="text-[10px] text-gray-500">
@@ -1963,7 +2111,7 @@ const FloorPlanGenerator = () => {
                               >
                                 −
                               </button>
-                              <span className="text-sm font-semibold text-[#2F3D57] min-w-[20px] text-center">
+                              <span className="text-sm font-semibold text-[#2F3D57] min-w-5 text-center">
                                 {formData.roomConfiguration[roomType.key]?.count || 0}
                               </span>
                               <button
@@ -1975,18 +2123,41 @@ const FloorPlanGenerator = () => {
                               </button>
                             </div>
                             
-                            {/* Area Slider - Only show if count > 0 */}
+                            {/* Area Slider(s) - show one bar per room when count > 1 */}
                             {(formData.roomConfiguration[roomType.key]?.count || 0) > 0 && (
-                              <div className="mt-2 pt-2 border-t border-gray-100">
-                                <input
-                                  type="range"
-                                  min="0"
-                                  max="50"
-                                  step="1"
-                                  value={formData.roomConfiguration[roomType.key]?.areaPercentage || 0}
-                                  onChange={(e) => updateRoomConfiguration(roomType.key, 'areaPercentage', e.target.value)}
-                                  className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#ED7600]"
-                                />
+                              <div className="mt-2 pt-2 border-t border-gray-100 space-y-2">
+                                {(formData.roomConfiguration[roomType.key]?.count || 0) === 1 ? (
+                                  <input
+                                    type="range"
+                                    min="0"
+                                    max="50"
+                                    step="1"
+                                    value={formData.roomConfiguration[roomType.key]?.areaPercentage || 0}
+                                    onChange={(e) => updateRoomConfiguration(roomType.key, 'areaPercentage', e.target.value)}
+                                    className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#ED7600]"
+                                  />
+                                ) : (
+                                  Array.from({ length: formData.roomConfiguration[roomType.key]?.count || 0 }, (_, index) => {
+                                    const currentArea = formData.roomConfiguration[roomType.key]?.individualAreas?.[index] ?? ((formData.roomConfiguration[roomType.key]?.areaPercentage || 0) / (formData.roomConfiguration[roomType.key]?.count || 1));
+                                    return (
+                                      <div key={`${roomType.key}-slider-${index}`}>
+                                        <div className="flex items-center justify-between mb-1">
+                                          <span className="text-[10px] text-gray-500">{roomType.label} {index + 1}</span>
+                                          <span className="text-[10px] text-gray-500">{(currentArea || 0).toFixed(1)}%</span>
+                                        </div>
+                                        <input
+                                          type="range"
+                                          min="0"
+                                          max="50"
+                                          step="0.5"
+                                          value={currentArea || 0}
+                                          onChange={(e) => updateIndividualRoomArea(roomType.key, index, e.target.value)}
+                                          className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#ED7600]"
+                                        />
+                                      </div>
+                                    );
+                                  })
+                                )}
                               </div>
                             )}
                           </div>
@@ -2093,7 +2264,7 @@ const FloorPlanGenerator = () => {
               </div>
 
               {/* Fixed Bottom: Area Status + Generate Buttons */}
-              <div className="border-t border-gray-200 bg-gray-50 p-2 space-y-2 flex-shrink-0">
+              <div className="border-t border-gray-200 bg-gray-50 p-2 space-y-2 shrink-0">
                 {/* Area Progress */}
                 <div>
                   <div className="flex justify-between text-xs mb-1">
@@ -2122,7 +2293,7 @@ const FloorPlanGenerator = () => {
                     type="button"
                     onClick={handleSubmit}
                     disabled={(isGenerating && generatingEngine === 'ga') || getSelectedRooms().length === 0 || getTotalAreaPercentage() > 100}
-                    className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 disabled:from-gray-400 disabled:to-gray-500 text-white font-medium py-2.5 px-3 rounded-lg text-xs transition-all flex items-center justify-center gap-1.5"
+                    className="bg-linear-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 disabled:from-gray-400 disabled:to-gray-500 text-white font-medium py-2.5 px-3 rounded-lg text-xs transition-all flex items-center justify-center gap-1.5"
                   >
                     {isGenerating && generatingEngine === 'ga' ? (
                       <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -2134,7 +2305,7 @@ const FloorPlanGenerator = () => {
                     type="button"
                     onClick={handleGenAISubmit}
                     disabled={(isGenerating && generatingEngine === 'genai') || getSelectedRooms().length === 0 || getTotalAreaPercentage() > 100}
-                    className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 disabled:from-gray-400 disabled:to-gray-500 text-white font-medium py-2.5 px-3 rounded-lg text-xs transition-all flex items-center justify-center gap-1.5"
+                    className="bg-linear-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 disabled:from-gray-400 disabled:to-gray-500 text-white font-medium py-2.5 px-3 rounded-lg text-xs transition-all flex items-center justify-center gap-1.5"
                   >
                     {isGenerating && generatingEngine === 'genai' ? (
                       <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -2159,7 +2330,7 @@ const FloorPlanGenerator = () => {
             
             {/* Floor Plan Visualization */}
             <div className="bg-white rounded-lg shadow-lg border-2 border-[#ED7600] overflow-hidden flex-1 flex flex-col min-h-0">
-              <div className="px-3 py-2 border-b border-gray-200 bg-gradient-to-r from-[#2F3D57] to-[#1e2a3a] flex items-center justify-between flex-shrink-0">
+              <div className="px-3 py-2 border-b border-gray-200 bg-linear-to-r from-[#2F3D57] to-[#1e2a3a] flex items-center justify-between shrink-0">
                 <div className="flex items-center space-x-2">
                   <h2 className="text-sm font-semibold text-white">Floor Plan Preview</h2>
                   {generatedPlans.length > 0 && (
@@ -2234,16 +2405,7 @@ const FloorPlanGenerator = () => {
                           width={canvasSize.width}
                           height={canvasSize.height}
                           isEditable={false}
-                          setbacks={(() => {
-                            const cr = location.state?.complianceRules;
-                            if (!cr) return null;
-                            const front = parseFloat(cr.front_setback);
-                            const rear  = parseFloat(cr.rear_setback);
-                            const left  = parseFloat(cr.side_setback_left);
-                            const right = parseFloat(cr.side_setback_right);
-                            if (!front && !rear && !left && !right) return null;
-                            return { front: front || 0, rear: rear || 0, left: left || 0, right: right || 0 };
-                          })()}
+                          setbacks={effectiveSetbacks}
                           onPlanUpdate={(updatedPlan) => {
                             setGeneratedPlans(prev => {
                               const newPlans = [...prev];
@@ -2275,7 +2437,7 @@ const FloorPlanGenerator = () => {
                     </div>
 
                     {/* Variations Panel - Narrower */}
-                    <div className="w-24 flex flex-col gap-1 overflow-y-auto flex-shrink-0">
+                    <div className="w-24 flex flex-col gap-1 overflow-y-auto shrink-0">
                       <p className="text-[9px] font-medium text-gray-500 uppercase tracking-wide text-center">Variations</p>
                       {generatedPlans.slice(0, 5).map((plan, index) => (
                         <button
@@ -2340,7 +2502,7 @@ const FloorPlanGenerator = () => {
 
             {/* GA Parameters - Collapsible (only show when plans exist) */}
             {generatedPlans.length > 0 && (
-              <details className="bg-white rounded-lg shadow border border-gray-200 overflow-hidden flex-shrink-0">
+              <details className="bg-white rounded-lg shadow border border-gray-200 overflow-hidden shrink-0">
                 <summary className="px-3 py-2 cursor-pointer bg-gray-50 hover:bg-gray-100 flex items-center justify-between text-xs">
                   <span className="font-medium text-gray-700">⚙️ Advanced GA Parameters</span>
                   <svg className="w-3 h-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">

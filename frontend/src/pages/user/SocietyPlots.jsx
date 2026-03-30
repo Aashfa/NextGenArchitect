@@ -161,7 +161,7 @@ const SocietyPlots = () => {
         return (
             <div className="bg-white min-h-screen flex flex-col">
                 <Navbar />
-                <div className="flex-grow container mx-auto px-4 py-16 flex flex-col items-center justify-center text-center">
+                <div className="grow container mx-auto px-4 py-16 flex flex-col items-center justify-center text-center">
                     <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-[#ED7600]"></div>
                     <p className="mt-4 text-lg text-gray-600">Loading plots...</p>
                 </div>
@@ -175,7 +175,7 @@ const SocietyPlots = () => {
         return (
             <div className="bg-white min-h-screen flex flex-col">
                 <Navbar />
-                <div className="flex-grow container mx-auto px-4 py-16 flex flex-col items-center justify-center text-center">
+                <div className="grow container mx-auto px-4 py-16 flex flex-col items-center justify-center text-center">
                     <h1 className="text-4xl font-bold text-red-600">Error Loading Plots</h1>
                     <p className="mt-4 text-lg text-gray-600">{error}</p>
                     <button
@@ -195,7 +195,7 @@ const SocietyPlots = () => {
         return (
             <div className="bg-white min-h-screen flex flex-col">
                 <Navbar />
-                <div className="flex-grow container mx-auto px-4 py-16 flex flex-col items-center justify-center text-center">
+                <div className="grow container mx-auto px-4 py-16 flex flex-col items-center justify-center text-center">
                     <h1 className="text-4xl font-bold text-gray-800">Society Not Found</h1>
                     <p className="mt-4 text-lg text-gray-600">The society you are looking for does not exist.</p>
                     <button
@@ -273,7 +273,7 @@ const SocietyPlots = () => {
                                     setSearchFilterType(e.target.value);
                                     setPlotSearch(""); // Clear search when filter type changes
                                 }}
-                                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#ED7600] focus:border-[#ED7600] outline-none bg-white min-w-[140px]"
+                                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#ED7600] focus:border-[#ED7600] outline-none bg-white min-w-35"
                             >
                                 <option value="plot_number">Plot Number</option>
                                 <option value="plot_size">Plot Size</option>

@@ -1,29 +1,27 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import {
   getSocietyCompliances,
   createCompliance,
   updateCompliance,
-  deleteCompliance,
-  getMarlaDimensions,
-  getAvailableMarlas
+  deleteCompliance
 } from '../../services/complianceAPI';
 import { FiPlus, FiEdit2, FiTrash2, FiSave, FiX, FiCheckCircle, FiAlertCircle } from 'react-icons/fi';
-import { getDimensionsForPlotSize, getAvailablePlotSizes } from '../../utils/marlaCalculator';
+import { getDimensionsForPlotSize } from '../../utils/marlaCalculator';
 import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 const ComplianceManagement = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [compliances, setCompliances] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [societyPlots, setSocietyPlots] = useState([]);
   const [loadingPlots, setLoadingPlots] = useState(true);
-  const [totalAreaPercentage, setTotalAreaPercentage] = useState(0);
-  const [availableAreaPercentage, setAvailableAreaPercentage] = useState(100);
   const [societyMarlaData, setSocietyMarlaData] = useState(null);
   
   // Get society ID - for society users, their user ID is their society ID
@@ -50,7 +48,11 @@ const ComplianceManagement = () => {
     }
   };
   const [formData, setFormData] = useState({
+    plot_id: '',
+    plot_number: '',
     marla_size: '',
+    plot_dimension_x: 0,
+    plot_dimension_y: 0,
     total_plot_area: '', // Display-only, calculated from marla_size
     // Room count requirements
     bedrooms: 0,
@@ -118,10 +120,13 @@ const ComplianceManagement = () => {
 
   const marlaOptions = getSocietyPlotSizes();
 
-  // Get available plot sizes (exist in society but not yet configured in compliance)
-  const getAvailablePlotSizes = () => {
-    const existingCompliances = compliances.map(c => c.marla_size);
-    return marlaOptions.filter(size => !existingCompliances.includes(size));
+  const getAvailableMarlaOptions = () => {
+    const configured = new Set((compliances || []).map(c => c.marla_size).filter(Boolean));
+    return marlaOptions.filter(size => !configured.has(size));
+  };
+
+  const getPlotMarlaSize = (plot) => {
+    return plot.marla_size || plot['Plot Size'] || plot.plotSize || '';
   };
 
   // Area calculation functions
@@ -281,19 +286,6 @@ const ComplianceManagement = () => {
   };
 
   useEffect(() => {
-    const breakdown = calculateAreaBreakdown();
-    if (breakdown) {
-      const { totalRoomArea, groundCoverageArea } = breakdown;
-      const percentage = groundCoverageArea > 0 ? (totalRoomArea / groundCoverageArea) * 100 : 0;
-      setTotalAreaPercentage(percentage);
-      setAvailableAreaPercentage(100 - percentage);
-    } else {
-      setTotalAreaPercentage(0);
-      setAvailableAreaPercentage(100);
-    }
-  }, [formData]);
-
-  useEffect(() => {
     const initData = async () => {
       const societyId = await getSocietyId();
       if (societyId) {
@@ -308,6 +300,7 @@ const ComplianceManagement = () => {
       }
     };
     initData();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   const fetchSocietyPlots = async (societyId) => {
@@ -446,14 +439,35 @@ const ComplianceManagement = () => {
       showAlert(errorMessage, 'error');
       return;
     }
+
+    const breakdown = calculateAreaBreakdown();
+    const remainingThreshold = breakdown ? Math.max(1, (breakdown.groundCoverageArea || 0) * 0.005) : 0;
+    if (breakdown && breakdown.remainingArea > remainingThreshold) {
+      const proceed = window.confirm(
+        `Warning: ${breakdown.remainingArea.toFixed(0)} sq ft buildable area is unused (${(100 - breakdown.utilizationPercentage).toFixed(1)}% not utilized).\n\n` +
+        'Do you want to continue saving compliance rules?'
+      );
+      if (!proceed) {
+        showAlert('Please adjust room areas/counts to utilize more available area.', 'warning');
+        return;
+      }
+    }
     
     try {
+      const payload = {
+        ...formData,
+        plot_id: '',
+        plot_number: '',
+        plot_dimension_x: formData.plot_dimension_x || 0,
+        plot_dimension_y: formData.plot_dimension_y || 0
+      };
+
       if (editingId) {
-        const response = await updateCompliance(editingId, formData);
+        const response = await updateCompliance(editingId, payload);
         console.log('[Compliance] Update response:', response);
         showAlert('Compliance rules updated successfully! ✅', 'success');
       } else {
-        const response = await createCompliance(formData);
+        const response = await createCompliance(payload);
         console.log('[Compliance] Create response:', response);
         showAlert('Compliance rules created successfully! ✅', 'success');
       }
@@ -475,7 +489,11 @@ const ComplianceManagement = () => {
 
   const handleEdit = (compliance) => {
     setFormData({
+      plot_id: compliance.plot_id || '',
+      plot_number: compliance.plot_number || '',
       marla_size: compliance.marla_size,
+      plot_dimension_x: compliance.plot_dimension_x || 0,
+      plot_dimension_y: compliance.plot_dimension_y || 0,
       total_plot_area: compliance.total_plot_area || '',
       // Room count requirements
       bedrooms: compliance.bedrooms || 0,
@@ -518,14 +536,38 @@ const ComplianceManagement = () => {
       if (societyId) {
         fetchCompliances(societyId);
       }
-    } catch (error) {
+    } catch {
       showAlert('Failed to delete compliance rules', 'error');
     }
   };
 
+  const handleGenerateFloorplan = (compliance) => {
+    let selectedPlot = societyPlots.find(plot => plot._id === compliance.plot_id);
+    if (!selectedPlot) {
+      selectedPlot = societyPlots.find(plot => getPlotMarlaSize(plot) === compliance.marla_size);
+    }
+
+    if (!selectedPlot) {
+      showAlert(`No plot found for ${compliance.marla_size}. Please add a plot of this marla size first.`, 'error');
+      return;
+    }
+
+    navigate('/floor-plan/generate', {
+      state: {
+        fromPlotDetail: true,
+        plotData: selectedPlot,
+        complianceRules: compliance
+      }
+    });
+  };
+
   const resetForm = () => {
     setFormData({
+      plot_id: '',
+      plot_number: '',
       marla_size: '',
+      plot_dimension_x: 0,
+      plot_dimension_y: 0,
       total_plot_area: '',
       // Room count requirements
       bedrooms: 0,
@@ -561,7 +603,7 @@ const ComplianceManagement = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    
+
     // Auto-populate area when marla_size is selected (compliance is area-based, not dimension-based)
     if (name === 'marla_size') {
       const dimensions = societyMarlaData ? getDimensionsForPlotSize(value, societyMarlaData) : null;
@@ -571,6 +613,10 @@ const ComplianceManagement = () => {
         const area = dimensions.x * dimensions.y;
         setFormData(prev => ({
           ...prev,
+          plot_id: '',
+          plot_number: '',
+          plot_dimension_x: dimensions.x,
+          plot_dimension_y: dimensions.y,
           marla_size: value,
           total_plot_area: area, // Area-based compliance applies to ALL plot dimensions of this marla size
           ...defaults
@@ -578,6 +624,8 @@ const ComplianceManagement = () => {
       } else {
         setFormData(prev => ({
           ...prev,
+          plot_id: '',
+          plot_number: '',
           marla_size: value,
           ...defaults
         }));
@@ -677,11 +725,13 @@ const ComplianceManagement = () => {
       {alert.show && (
         <div className={`fixed top-4 right-4 z-50 max-w-md rounded-lg shadow-2xl ${
           alert.type === 'success' 
-            ? 'bg-green-500' 
+            ? 'bg-green-500'
+            : alert.type === 'warning'
+            ? 'bg-amber-500'
             : 'bg-red-500'
         } text-white animate-slide-in`}>
           <div className="flex items-start gap-3 p-4">
-            <div className="flex-shrink-0 mt-0.5">
+            <div className="shrink-0 mt-0.5">
               {alert.type === 'success' ? (
                 <FiCheckCircle size={24} />
               ) : (
@@ -690,7 +740,7 @@ const ComplianceManagement = () => {
             </div>
             <div className="flex-1">
               <h3 className="font-bold text-lg mb-1">
-                {alert.type === 'success' ? 'Success!' : 'Validation Error'}
+                {alert.type === 'success' ? 'Success!' : alert.type === 'warning' ? 'Warning' : 'Validation Error'}
               </h3>
               <div className="text-sm whitespace-pre-line">
                 {alert.message}
@@ -698,7 +748,7 @@ const ComplianceManagement = () => {
             </div>
             <button
               onClick={() => setAlert({ show: false, message: '', type: '' })}
-              className="flex-shrink-0 hover:bg-white hover:bg-opacity-20 rounded p-1 transition"
+              className="shrink-0 hover:bg-white hover:bg-opacity-20 rounded p-1 transition"
             >
               <FiX size={20} />
             </button>
@@ -716,7 +766,7 @@ const ComplianceManagement = () => {
           <button
             onClick={() => setShowForm(true)}
             className="flex items-center gap-2 bg-orange-500 text-white px-6 py-3 rounded-lg hover:bg-orange-600 transition disabled:bg-gray-400 disabled:cursor-not-allowed"
-            disabled={getAvailablePlotSizes().length === 0}
+            disabled={getAvailableMarlaOptions().length === 0}
           >
             <FiPlus /> Add Compliance Rules
           </button>
@@ -725,9 +775,9 @@ const ComplianceManagement = () => {
 
       {/* Status Info */}
       {!showForm && (
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4 mb-6">
+        <div className="bg-linear-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4 mb-6">
           <div className="flex items-start gap-3">
-            <FiCheckCircle className="text-blue-600 mt-1 flex-shrink-0" size={20} />
+            <FiCheckCircle className="text-blue-600 mt-1 shrink-0" size={20} />
             <div className="flex-1">
               <h3 className="font-semibold text-gray-800 mb-1">
                 Society Plot Status
@@ -746,13 +796,13 @@ const ComplianceManagement = () => {
                   </p>
                   {compliances.length > 0 && (
                     <p className="text-sm text-gray-700">
-                      <strong>{compliances.length} of {marlaOptions.length}</strong> plot sizes have compliance rules
-                      {getAvailablePlotSizes().length > 0 && (
+                      <strong>{compliances.length} of {societyPlots.length}</strong> plots have compliance rules
+                      {getAvailableMarlaOptions().length > 0 && (
                         <span className="ml-2">
-                          • Pending: <span className="font-semibold text-orange-600">{getAvailablePlotSizes().join(', ')}</span>
+                          • Pending marla sizes: <span className="font-semibold text-orange-600">{getAvailableMarlaOptions().length}</span>
                         </span>
                       )}
-                      {getAvailablePlotSizes().length === 0 && marlaOptions.length > 0 && (
+                      {getAvailableMarlaOptions().length === 0 && societyPlots.length > 0 && (
                         <span className="ml-2 text-green-600 font-semibold">
                           • All configured! ✅
                         </span>
@@ -798,34 +848,49 @@ const ComplianceManagement = () => {
             {/* Plot Size */}
             <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
               <label className="block text-sm font-semibold text-gray-800 mb-2">
-                📐 Plot Size *
+                📐 Plot Size (Marla) *
               </label>
               <select
                 name="marla_size"
                 value={formData.marla_size}
                 onChange={handleChange}
                 required
-                disabled={editingId}
-                className="w-full px-4 py-3 border-2 border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 text-lg font-semibold"
+                className="w-full px-4 py-3 border-2 border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-lg font-semibold"
               >
-                <option value="">Select plot size</option>
-                {(editingId ? marlaOptions : getAvailablePlotSizes()).map(size => (
-                  <option key={size} value={size}>{size}</option>
+                <option value="">Select marla size</option>
+                {(editingId ? marlaOptions : getAvailableMarlaOptions()).map(option => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
                 ))}
               </select>
-              {!editingId && getAvailablePlotSizes().length === 0 && (
+              {!editingId && getAvailableMarlaOptions().length === 0 && (
                 <p className="text-xs text-red-600 mt-2 font-medium">
-                  ⚠️ All plot sizes have been configured. Edit existing rules to make changes.
+                  ⚠️ Compliance rules already exist for all available marla sizes. Edit existing rules to make changes.
                 </p>
               )}
-              {!editingId && getAvailablePlotSizes().length > 0 && (
+            </div>
+
+            <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+              <label className="block text-sm font-semibold text-gray-800 mb-2">
+                📐 Plot Size *
+              </label>
+              <input
+                type="text"
+                name="marla_size"
+                value={formData.marla_size}
+                readOnly
+                className="w-full px-4 py-3 border-2 border-blue-300 rounded-lg bg-gray-100 text-lg font-semibold"
+                placeholder="Select marla size first"
+              />
+              {!editingId && getAvailableMarlaOptions().length > 0 && (
                 <p className="text-xs text-blue-700 mt-2 font-medium">
-                  ✨ Auto-fills recommended values based on Pakistani building standards
+                  ✨ Auto-filled from marla size and Pakistani building standards
                 </p>
               )}
               {editingId && (
                 <p className="text-xs text-gray-500 mt-2 font-medium">
-                  📝 Editing existing compliance rules for this plot size
+                  📝 Editing existing compliance rules for this marla size
                 </p>
               )}
             </div>
@@ -861,10 +926,9 @@ const ComplianceManagement = () => {
                   </div>
                 </div>
                 <p className="text-xs text-green-700 mt-3 font-medium">
-                  ✅ These compliance rules apply to <strong>ALL {formData.marla_size} plots</strong> in your society, 
-                  regardless of their specific dimensions (X, Y). 
-                  If society wants to change plot dimensions, the total area ({formData.total_plot_area} sq ft) remains constant, 
-                  and the same compliance rules will apply automatically.
+                  ✅ These compliance rules apply to <strong>{formData.marla_size}</strong> plots
+                  with standard dimensions <strong>{formData.plot_dimension_x || 0} ft × {formData.plot_dimension_y || 0} ft</strong>
+                  and total area <strong>{formData.total_plot_area || 0} sq ft</strong>.
                 </p>
               </div>
             )}
@@ -1014,7 +1078,7 @@ const ComplianceManagement = () => {
                             min="0"
                             className="w-20 px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                           />
-                          <span className="text-xs text-gray-500 min-w-[35px]">sq ft</span>
+                          <span className="text-xs text-gray-500 min-w-8.75">sq ft</span>
                         </div>
                       </div>
                     ))}
@@ -1058,7 +1122,7 @@ const ComplianceManagement = () => {
                             min="0"
                             className="w-20 px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                           />
-                          <span className="text-xs text-gray-500 min-w-[35px]">sq ft</span>
+                          <span className="text-xs text-gray-500 min-w-8.75">sq ft</span>
                         </div>
                       </div>
                     ))}
@@ -1102,7 +1166,7 @@ const ComplianceManagement = () => {
                             min="0"
                             className="w-20 px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                           />
-                          <span className="text-xs text-gray-500 min-w-[35px]">sq ft</span>
+                          <span className="text-xs text-gray-500 min-w-8.75">sq ft</span>
                         </div>
                       </div>
                     ))}
@@ -1146,7 +1210,7 @@ const ComplianceManagement = () => {
                             min="0"
                             className="w-20 px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                           />
-                          <span className="text-xs text-gray-500 min-w-[35px]">sq ft</span>
+                          <span className="text-xs text-gray-500 min-w-8.75">sq ft</span>
                         </div>
                       </div>
                     ))}
@@ -1190,7 +1254,7 @@ const ComplianceManagement = () => {
                             min="0"
                             className="w-20 px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                           />
-                          <span className="text-xs text-gray-500 min-w-[35px]">sq ft</span>
+                          <span className="text-xs text-gray-500 min-w-8.75">sq ft</span>
                         </div>
                       </div>
                     ))}
@@ -1234,7 +1298,7 @@ const ComplianceManagement = () => {
                             min="0"
                             className="w-20 px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                           />
-                          <span className="text-xs text-gray-500 min-w-[35px]">sq ft</span>
+                          <span className="text-xs text-gray-500 min-w-8.75">sq ft</span>
                         </div>
                       </div>
                     ))}
@@ -1278,7 +1342,7 @@ const ComplianceManagement = () => {
                             min="0"
                             className="w-20 px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                           />
-                          <span className="text-xs text-gray-500 min-w-[35px]">sq ft</span>
+                          <span className="text-xs text-gray-500 min-w-8.75">sq ft</span>
                         </div>
                       </div>
                     ))}
@@ -1376,7 +1440,7 @@ const ComplianceManagement = () => {
             {(() => {
               const areaBreakdown = calculateAreaBreakdown();
               return areaBreakdown && (
-                <div className="bg-gradient-to-r from-teal-50 to-cyan-50 p-6 rounded-lg border border-teal-200">
+                <div className="bg-linear-to-r from-teal-50 to-cyan-50 p-6 rounded-lg border border-teal-200">
                   <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
                     📊 Area Utilization Analysis
                   </h3>
@@ -1458,14 +1522,14 @@ const ComplianceManagement = () => {
                     </div>
                   )}
                   
-                  {areaBreakdown.remainingArea > 0 && areaBreakdown.utilizationPercentage < 50 && (
-                    <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg mt-4">
-                      <div className="flex items-center gap-2 text-blue-700 font-medium">
-                        💡 Optimization Opportunity
+                  {areaBreakdown.remainingArea > 0 && (
+                    <div className="bg-amber-50 border border-amber-200 p-4 rounded-lg mt-4">
+                      <div className="flex items-center gap-2 text-amber-700 font-medium">
+                        ⚠️ Unused Buildable Area
                       </div>
-                      <div className="text-sm text-blue-600 mt-1">
-                        You're using only {areaBreakdown.utilizationPercentage.toFixed(1)}% of buildable area. 
-                        Consider adding more rooms or increasing room sizes.
+                      <div className="text-sm text-amber-700 mt-1">
+                        {areaBreakdown.remainingArea.toLocaleString()} sq ft is still unused ({(100 - areaBreakdown.utilizationPercentage).toFixed(1)}% not utilized).
+                        Consider increasing room areas/counts so generated plans use the full available area.
                       </div>
                     </div>
                   )}
@@ -1474,7 +1538,7 @@ const ComplianceManagement = () => {
             })()}
 
             {/* Ground Floor Coverage */}
-            <div className="bg-gradient-to-r from-orange-50 to-amber-50 p-4 rounded-lg border border-orange-200">
+            <div className="bg-linear-to-r from-orange-50 to-amber-50 p-4 rounded-lg border border-orange-200">
               <label className="block text-sm font-semibold text-gray-800 mb-2">
                 🏗️ Maximum Ground Coverage (%) *
               </label>
@@ -1660,8 +1724,17 @@ const ComplianceManagement = () => {
               <div>
                 <h3 className="text-xl font-bold text-gray-800">{compliance.marla_size}</h3>
                 <span className="text-sm text-gray-500">{compliance.building_type_allowed}</span>
+                <div className="text-xs text-blue-600 font-medium mt-1">
+                  Compliance Type: Marla-based
+                </div>
               </div>
               <div className="flex gap-2">
+                <button
+                  onClick={() => handleGenerateFloorplan(compliance)}
+                  className="px-3 py-2 text-xs font-semibold text-green-700 bg-green-50 hover:bg-green-100 rounded-lg transition"
+                >
+                  Generate
+                </button>
                 <button
                   onClick={() => handleEdit(compliance)}
                   className="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition"

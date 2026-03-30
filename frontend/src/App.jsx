@@ -118,12 +118,12 @@ function App() {
 
           {/* Floor Plan Generation - User Only */}
           <Route path="/floor-plan/generate" element={
-            <RoleBasedRoute allowedRoles={['user','society']}>
+            <RoleBasedRoute allowedRoles={['user','society','subadmin']}>
               <FloorPlanGen />
             </RoleBasedRoute>
           } />
           <Route path="/floor-plan/customize" element={
-            <RoleBasedRoute allowedRoles={['user','society']}>
+            <RoleBasedRoute allowedRoles={['user','society','subadmin']}>
               <FloorPlanCustomization />
             </RoleBasedRoute>
           } />

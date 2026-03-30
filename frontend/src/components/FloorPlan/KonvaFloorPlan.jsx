@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useCallback, useRef, useEffect, forwardRef, useImperativeHandle, useMemo } from 'react';
 import { Stage, Layer, Rect, Text, Line, Group, Arc, Circle } from 'react-konva';
 
@@ -610,8 +612,10 @@ const KonvaFloorPlan = forwardRef(({
         doorsData = [...doorsData, ...directDoors];
       }
       
-      // Method 3: Auto-generate doors on room walls if no doors found
-      if (doorsData.length === 0 && roomsData.length > 0) {
+      // Method 3: Auto-generate doors only for read-only preview mode.
+      // In editable mode, regenerating doors can resurrect previously deleted doors
+      // during floorPlanData sync updates.
+      if (!isEditable && doorsData.length === 0 && roomsData.length > 0) {
         const generatedDoors = [];
         
         roomsData.forEach((room, roomIndex) => {
@@ -640,7 +644,30 @@ const KonvaFloorPlan = forwardRef(({
         doorsData = [...doorsData, ...generatedDoors];
       }
 
-      const finalDoorsData = doorsData;
+      // Deduplicate doors because some plans carry doors in both mapData and direct doors arrays.
+      // Without this, overlapping duplicates can make repeated delete actions look inconsistent.
+      const seenDoorIds = new Set();
+      const seenDoorGeometry = new Set();
+      const finalDoorsData = doorsData.filter((door) => {
+        const hasId = door.id !== undefined && door.id !== null && door.id !== '';
+        const idKey = hasId ? String(door.id) : null;
+        const points = Array.isArray(door.points) ? door.points : [];
+        const geometryKey = points.length === 4
+          ? points.map(v => Number(v || 0).toFixed(2)).join('|')
+          : null;
+
+        if (idKey && seenDoorIds.has(idKey)) {
+          return false;
+        }
+
+        if (geometryKey && seenDoorGeometry.has(geometryKey)) {
+          return false;
+        }
+
+        if (idKey) seenDoorIds.add(idKey);
+        if (geometryKey) seenDoorGeometry.add(geometryKey);
+        return true;
+      });
       
       // Convert windows data with proper scaling
       let windowsData = [];
@@ -2209,7 +2236,7 @@ const KonvaFloorPlan = forwardRef(({
       <div className="flex bg-gray-50" style={{ height: '100%' }}>
         {/* Left Sidebar - Quick Add Tools */}
         {isEditable && (
-        <div className="w-56 bg-white border-r border-gray-300 p-3 space-y-3 overflow-y-auto flex-shrink-0">
+        <div className="w-56 bg-white border-r border-gray-300 p-3 space-y-3 overflow-y-auto shrink-0">
           {/* Quick Add Section */}
           <div className="bg-white border border-gray-200 rounded-lg p-3 shadow-sm">
             <div className="text-xs font-medium text-gray-900 mb-2">

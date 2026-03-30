@@ -10,12 +10,18 @@ class Compliance:
     def __init__(self, society_id, marla_size, **kwargs):
         self.society_id = ObjectId(society_id) if isinstance(society_id, str) else society_id
         self.marla_size = marla_size  # e.g., "5 Marla", "7 Marla", "10 Marla"
+        self.plot_id = ObjectId(kwargs.get('plot_id')) if kwargs.get('plot_id') and isinstance(kwargs.get('plot_id'), str) else kwargs.get('plot_id')
+        self.plot_number = kwargs.get('plot_number', '')
         
         # Auto-calculated plot dimensions (unchangeable) - same as in plot management
         marla_dimensions = self.get_marla_dimensions(marla_size)
-        self.plot_dimension_x = kwargs.get('plot_dimension_x', marla_dimensions['x'])  # feet
-        self.plot_dimension_y = kwargs.get('plot_dimension_y', marla_dimensions['y'])  # feet  
-        self.total_plot_area = kwargs.get('total_plot_area', marla_dimensions['area'])  # sq ft
+        self.plot_dimension_x = float(kwargs.get('plot_dimension_x', marla_dimensions['x']) or marla_dimensions['x'])  # feet
+        self.plot_dimension_y = float(kwargs.get('plot_dimension_y', marla_dimensions['y']) or marla_dimensions['y'])  # feet
+        provided_area = kwargs.get('total_plot_area')
+        if provided_area is not None and str(provided_area).strip() != '':
+            self.total_plot_area = float(provided_area)
+        else:
+            self.total_plot_area = self.plot_dimension_x * self.plot_dimension_y  # sq ft
         
         # Building regulations (Ground floor only - Pakistan Building Code)
         self.max_ground_coverage = kwargs.get('max_ground_coverage', 0)  # Percentage (e.g., 60%)
@@ -100,6 +106,8 @@ class Compliance:
         return {
             'society_id': self.society_id,
             'marla_size': self.marla_size,
+            'plot_id': self.plot_id,
+            'plot_number': self.plot_number,
             'plot_dimension_x': self.plot_dimension_x,
             'plot_dimension_y': self.plot_dimension_y,
             'total_plot_area': self.total_plot_area,

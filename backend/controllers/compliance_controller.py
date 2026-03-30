@@ -17,14 +17,36 @@ class ComplianceController:
             compliances = compliance_collection(db)
             
             marla_size = compliance_data.get('marla_size')
+            plot_id = compliance_data.get('plot_id')
+
+            # Normalize optional plot link fields
+            if not plot_id:
+                compliance_data.pop('plot_id', None)
+                compliance_data.pop('plot_number', None)
             
-            # Check if compliance already exists for this society and marla size
-            existing = compliances.find_one({
-                'society_id': ObjectId(society_id),
-                'marla_size': marla_size
-            })
+            # Check if compliance already exists.
+            # If plot is selected, enforce one compliance per society+plot.
+            # Otherwise keep legacy one compliance per society+marla for general rules.
+            if plot_id:
+                existing = compliances.find_one({
+                    'society_id': ObjectId(society_id),
+                    'plot_id': ObjectId(plot_id),
+                    'is_active': True
+                })
+            else:
+                existing = compliances.find_one({
+                    'society_id': ObjectId(society_id),
+                    'marla_size': marla_size,
+                    'is_active': True,
+                    '$or': [
+                        {'plot_id': {'$exists': False}},
+                        {'plot_id': None}
+                    ]
+                })
             
             if existing:
+                if plot_id:
+                    return None, "Compliance rules for this plot already exist in your society. Please edit the existing rules or choose another plot."
                 return None, f"Compliance rules for '{marla_size}' already exist in your society. Please edit the existing rules or choose a different plot size."
             
             # Add created_by field
@@ -62,6 +84,8 @@ class ComplianceController:
             for comp in society_compliances:
                 comp['_id'] = str(comp['_id'])
                 comp['society_id'] = str(comp['society_id'])
+                if comp.get('plot_id'):
+                    comp['plot_id'] = str(comp['plot_id'])
                 if comp.get('created_by'):
                     comp['created_by'] = str(comp['created_by'])
             
@@ -87,6 +111,8 @@ class ComplianceController:
             if compliance:
                 compliance['_id'] = str(compliance['_id'])
                 compliance['society_id'] = str(compliance['society_id'])
+                if compliance.get('plot_id'):
+                    compliance['plot_id'] = str(compliance['plot_id'])
                 if compliance.get('created_by'):
                     compliance['created_by'] = str(compliance['created_by'])
                 return compliance
@@ -112,6 +138,15 @@ class ComplianceController:
             compliance_data.pop('society_id', None)
             compliance_data.pop('created_by', None)
             compliance_data.pop('created_at', None)
+
+            # Normalize optional plot link fields
+            if 'plot_id' in compliance_data and compliance_data.get('plot_id'):
+                compliance_data['plot_id'] = ObjectId(compliance_data['plot_id'])
+            elif 'plot_id' in compliance_data:
+                compliance_data['plot_id'] = None
+
+            if 'plot_number' in compliance_data and not compliance_data.get('plot_id'):
+                compliance_data['plot_number'] = ''
             
             result = compliances.update_one(
                 {'_id': ObjectId(compliance_id)},
@@ -163,28 +198,56 @@ class ComplianceController:
             society_id = plot.get('societyId')
             marla_size = plot.get('marla_size')
             
-            if not society_id or not marla_size:
-                return None, "Plot missing society or marla size information"
+            if not society_id:
+                return None, "Plot missing society information"
             
-            # Convert society_id to ObjectId if it's a string
-            if isinstance(society_id, str):
-                society_id = ObjectId(society_id)
-            
-            # Get compliance rules
+            # Build tolerant candidates for society_id/plot_id because older data can store ids
+            # as either ObjectId or string.
+            society_candidates = []
+            if isinstance(society_id, ObjectId):
+                society_candidates.extend([society_id, str(society_id)])
+            elif isinstance(society_id, str):
+                society_candidates.append(society_id)
+                if ObjectId.is_valid(society_id):
+                    society_candidates.append(ObjectId(society_id))
+            else:
+                society_candidates.append(society_id)
+
+            plot_candidates = []
+            if ObjectId.is_valid(plot_id):
+                plot_candidates.append(ObjectId(plot_id))
+            plot_candidates.append(plot_id)
+
+            # 1) Prefer strict plot-level compliance when present.
             compliance = compliances.find_one({
-                'society_id': society_id,
-                'marla_size': marla_size,
+                'society_id': {'$in': society_candidates},
+                'plot_id': {'$in': plot_candidates},
                 'is_active': True
             })
+
+            # 2) Fallback to marla-level compliance for this society if no plot-level rule exists.
+            if not compliance and marla_size:
+                compliance = compliances.find_one({
+                    'society_id': {'$in': society_candidates},
+                    'marla_size': marla_size,
+                    'is_active': True,
+                    '$or': [
+                        {'plot_id': {'$exists': False}},
+                        {'plot_id': None},
+                        {'plot_id': ''}
+                    ]
+                })
             
             if compliance:
                 compliance['_id'] = str(compliance['_id'])
                 compliance['society_id'] = str(compliance['society_id'])
+                if compliance.get('plot_id'):
+                    compliance['plot_id'] = str(compliance['plot_id'])
                 if compliance.get('created_by'):
                     compliance['created_by'] = str(compliance['created_by'])
                 return compliance, "Compliance rules found"
             
-            return None, "No compliance rules set for this plot size"
+            return None, "No compliance rules set for this plot or its marla size"
         
         except Exception as e:
             print(f"Error getting compliance for floor plan: {str(e)}")

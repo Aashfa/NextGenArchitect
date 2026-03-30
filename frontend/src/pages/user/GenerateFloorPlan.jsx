@@ -11,7 +11,7 @@ const SaveProjectModal = ({ isOpen, onClose, onSave, projectName, setProjectName
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-[100] flex justify-center items-center">
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-100 flex justify-center items-center">
       <div className="bg-white p-8 rounded-xl shadow-2xl w-full max-w-md relative">
         <button onClick={onClose} className="absolute top-4 right-4 text-gray-500 hover:text-gray-800">
           <MdClose size={24} />
@@ -178,7 +178,7 @@ const GenerateFloorPlan = () => {
           <Navbar />
         </div>
 
-        <div className="w-full max-w-[1500px] mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div className="w-full max-w-375 mx-auto px-4 sm:px-6 lg:px-8 py-10">
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-3xl font-bold text-[#2F3D57]">Floor Plan Generator</h1>
             <div className="flex gap-4">

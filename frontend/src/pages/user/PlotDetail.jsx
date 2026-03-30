@@ -110,8 +110,8 @@ const PlotDetail = () => {
   const [plotData, setPlotData] = useState(null);
   const [societyData, setSocietyData] = useState(null);
   const [complianceRules, setComplianceRules] = useState(null);
+  const [selectedProfileFloorplan, setSelectedProfileFloorplan] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [showPdfViewer, setShowPdfViewer] = useState(false);
 
   useEffect(() => {
     if (plotId && societyId) {
@@ -119,6 +119,7 @@ const PlotDetail = () => {
     } else {
       setLoading(false);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [plotId, societyId]);
 
   const fetchPlotDetails = async () => {
@@ -139,9 +140,31 @@ const PlotDetail = () => {
         if (plot && !plot.error) {
           setPlotData(plot);
           console.log('[PlotDetail] Plot data set:', plot);
+
+          // If this plot uses a selected saved floorplan from society profile,
+          // fetch that floorplan so "View Base Template" can use it.
+          if (plot.saved_floorplan_id) {
+            try {
+              const floorplanResponse = await axios.get(
+                `${API_URL}/floorplan/${plot.saved_floorplan_id}`,
+                getAuthHeaders()
+              );
+              if (floorplanResponse?.data?.success && floorplanResponse?.data?.floor_plan) {
+                setSelectedProfileFloorplan(floorplanResponse.data.floor_plan);
+              } else {
+                setSelectedProfileFloorplan(null);
+              }
+            } catch (fpError) {
+              console.log('[PlotDetail] Saved profile floorplan not found:', fpError.message);
+              setSelectedProfileFloorplan(null);
+            }
+          } else {
+            setSelectedProfileFloorplan(null);
+          }
         } else {
           console.error('[PlotDetail] No valid plot data received');
           setPlotData(null);
+          setSelectedProfileFloorplan(null);
         }
 
         // Fetch society details if we have a society ID
@@ -170,6 +193,7 @@ const PlotDetail = () => {
         console.error('[PlotDetail] Error fetching plot:', plotError);
         // Use fallback data if API fails
         setPlotData(null);
+        setSelectedProfileFloorplan(null);
       }
       
     } catch (error) {
@@ -232,16 +256,20 @@ const PlotDetail = () => {
   };
 
   const parseApprovedFloorplanJson = () => {
-    if (!displayData?.json_template) {
+    const selectedFloorplanData = selectedProfileFloorplan?.floor_plan_data || selectedProfileFloorplan;
+    const templateSource = displayData?.json_template || selectedFloorplanData;
+
+    if (!templateSource) {
       return null;
     }
 
     try {
-      const parsed = typeof displayData.json_template === 'string'
-        ? JSON.parse(displayData.json_template)
-        : displayData.json_template;
+      const parsed = typeof templateSource === 'string'
+        ? JSON.parse(templateSource)
+        : templateSource;
 
       const floorData = parsed.floor_plan_data || parsed.floorPlanData || parsed;
+      const normalizedMapData = floorData.mapData || parsed.mapData || (Array.isArray(floorData) ? floorData : []);
 
       return {
         ...parsed,
@@ -250,7 +278,7 @@ const PlotDetail = () => {
         walls: floorData.walls || parsed.walls || [],
         doors: floorData.doors || parsed.doors || [],
         windows: floorData.windows || parsed.windows || [],
-        mapData: floorData.mapData || parsed.mapData || [],
+        mapData: normalizedMapData,
         plotWidth: floorData.plotWidth || parsed.plotWidth || 1000,
         plotHeight: floorData.plotHeight || parsed.plotHeight || 1000,
         actualLength: floorData.actualLength || parsed.actualLength || Number(displayData.dimension_x) || 55,
@@ -300,7 +328,7 @@ const PlotDetail = () => {
       : (plotData.description ? [plotData.description] : []),
   } : samplePlotData;
 
-  const hasApprovedFloorplanJson = Boolean(displayData?.json_template);
+  const hasApprovedFloorplanJson = Boolean(displayData?.json_template || selectedProfileFloorplan?.floor_plan_data);
   const hasApprovedFloorplanPdf = Boolean(displayData?.pdf_template);
   
   console.log('[PlotDetail] Displaying data:', displayData);
@@ -316,7 +344,7 @@ const PlotDetail = () => {
         <div className="sticky top-0 z-50">
           <Navbar />
         </div>
-        <div className="flex-grow flex items-center justify-center">
+        <div className="grow flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto mb-4"></div>
             <p className="text-gray-600">Loading plot details...</p>
@@ -334,7 +362,7 @@ const PlotDetail = () => {
       </div>
 
       {/* Dashboard Container Wrapper */}
-      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow bg-white">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 grow bg-white">
         
         {/* Debug indicator */}
         {!plotData && (
@@ -378,7 +406,7 @@ const PlotDetail = () => {
             
             {/* Image & Quick Stats Banner */}
             <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-              <div className="h-[250px] md:h-[350px] rounded-lg overflow-hidden bg-gray-100 relative group">
+              <div className="h-62.5 md:h-87.5 rounded-lg overflow-hidden bg-gray-100 relative group">
                 <img
                   src={displayData.image || plotImage}
                   alt={`Plot ${displayData.plot_number || plotId}`}
@@ -388,7 +416,7 @@ const PlotDetail = () => {
                     e.target.src = plotImage;
                   }}
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-gray-900/60 via-transparent to-transparent opacity-80"></div>
+                <div className="absolute inset-0 bg-linear-to-t from-gray-900/60 via-transparent to-transparent opacity-80"></div>
                 <div className="absolute bottom-4 left-4 flex gap-2">
                   <div className="bg-black/50 backdrop-blur-md text-white px-3 py-1.5 rounded text-xs font-medium flex items-center gap-1.5 border border-white/20">
                     <FiHome className="text-sm" /> {displayData.type}
@@ -436,7 +464,7 @@ const PlotDetail = () => {
                 <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {displayData.description.map((item, index) => (
                     <li key={index} className="flex items-start gap-2 text-gray-700">
-                      <FiCheckCircle className="text-[#ED7600] text-sm flex-shrink-0 mt-1" />
+                      <FiCheckCircle className="text-[#ED7600] text-sm shrink-0 mt-1" />
                       <span className="text-sm leading-relaxed">{item}</span>
                     </li>
                   ))}
@@ -482,7 +510,7 @@ const PlotDetail = () => {
                   <div className="space-y-2">
                     {generateComplianceInstructions(complianceRules).map((instruction, index) => (
                       <div key={index} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg border border-gray-100">
-                        <div className="w-6 h-6 rounded-full bg-orange-50 flex items-center justify-center flex-shrink-0">
+                        <div className="w-6 h-6 rounded-full bg-orange-50 flex items-center justify-center shrink-0">
                           <span className="text-orange-600 font-semibold text-xs">{index + 1}</span>
                         </div>
                         <p className="text-sm text-gray-700">

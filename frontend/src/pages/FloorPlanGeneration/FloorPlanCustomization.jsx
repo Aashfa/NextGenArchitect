@@ -442,6 +442,45 @@ const FloorPlanCustomization = () => {
       const by = sy(0);
       const bw = plotWidth * scale;
       const bh = plotHeight * scale;
+
+      const effectiveSetbacks = (() => {
+        const s = location.state?.setbacks;
+        if (!s) return null;
+        const front = parseFloat(s.front) || 0;
+        const rear = parseFloat(s.rear) || 0;
+        const left = parseFloat(s.left) || 0;
+        const right = parseFloat(s.right) || 0;
+        if (!front && !rear && !left && !right) return null;
+        return { front, rear, left, right };
+      })();
+
+      if (effectiveSetbacks) {
+        const frontPx = effectiveSetbacks.front * scale;
+        const rearPx = effectiveSetbacks.rear * scale;
+        const leftPx = effectiveSetbacks.left * scale;
+        const rightPx = effectiveSetbacks.right * scale;
+        const buildX = bx + leftPx;
+        const buildY = by + rearPx;
+        const buildW = bw - leftPx - rightPx;
+        const buildH = bh - rearPx - frontPx;
+
+        if (buildW > 0 && buildH > 0) {
+          ctx.save();
+          ctx.fillStyle = 'rgba(0, 0, 0, 0.04)';
+          if (rearPx > 0) ctx.fillRect(bx, by, bw, rearPx);
+          if (frontPx > 0) ctx.fillRect(bx, by + bh - frontPx, bw, frontPx);
+          if (leftPx > 0) ctx.fillRect(bx, by + rearPx, leftPx, buildH);
+          if (rightPx > 0) ctx.fillRect(bx + bw - rightPx, by + rearPx, rightPx, buildH);
+
+          ctx.setLineDash([6, 4]);
+          ctx.strokeStyle = '#555555';
+          ctx.lineWidth = 1;
+          ctx.strokeRect(buildX, buildY, buildW, buildH);
+          ctx.setLineDash([]);
+
+          ctx.restore();
+        }
+      }
       
       // Draw grey diagonal hatching for empty space (before rooms and walls)
       if (floorPlanData.rooms && Array.isArray(floorPlanData.rooms) && floorPlanData.rooms.length === 0) {
@@ -887,6 +926,56 @@ const FloorPlanCustomization = () => {
         ctx.font = 'bold 10px Arial';
         ctx.fillText('STAIRS', stairX + stairWidth / 2, stairY + stairHeight / 2 + 10);
       });
+
+      // Draw setback labels at top-most layer so walls don't cover them.
+      if (effectiveSetbacks) {
+        const frontPx = effectiveSetbacks.front * scale;
+        const rearPx = effectiveSetbacks.rear * scale;
+        const leftPx = effectiveSetbacks.left * scale;
+        const rightPx = effectiveSetbacks.right * scale;
+        const buildH = bh - rearPx - frontPx;
+
+        const drawLabel = (text, x, y, rotate = 0) => {
+          ctx.save();
+          ctx.translate(x, y);
+          if (rotate !== 0) ctx.rotate(rotate);
+          ctx.font = 'bold 11px Arial';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          const tw = ctx.measureText(text).width;
+          const padX = 6;
+          const padY = 4;
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.96)';
+          ctx.fillRect(-(tw / 2) - padX, -8 - padY, tw + padX * 2, 16 + padY * 2);
+          ctx.strokeStyle = 'rgba(60, 60, 60, 0.8)';
+          ctx.lineWidth = 0.8;
+          ctx.strokeRect(-(tw / 2) - padX, -8 - padY, tw + padX * 2, 16 + padY * 2);
+          ctx.fillStyle = '#222222';
+          ctx.fillText(text, 0, 0);
+          ctx.restore();
+        };
+
+        const clamp = (value, min, max) => Math.max(min, Math.min(value, max));
+        const inset = 14;
+        const borderPad = outerWallThickness + 12;
+
+        if (rearPx > 0) {
+          const ry = clamp(by + (rearPx / 2), by + inset, by + rearPx - inset);
+          drawLabel(`Rear: ${effectiveSetbacks.rear}ft`, bx + (bw / 2), ry);
+        }
+        if (frontPx > 0) {
+          const fy = clamp(by + bh - (frontPx / 2), by + bh - frontPx + inset, by + bh - borderPad);
+          drawLabel(`Front: ${effectiveSetbacks.front}ft`, bx + (bw / 2), fy);
+        }
+        if (leftPx > 0) {
+          const lx = clamp(bx + (leftPx / 2), bx + inset, bx + leftPx - inset);
+          drawLabel(`Left: ${effectiveSetbacks.left}ft`, lx, by + rearPx + (buildH / 2), -Math.PI / 2);
+        }
+        if (rightPx > 0) {
+          const rx = clamp(bx + bw - (rightPx / 2), bx + bw - rightPx + inset, bx + bw - borderPad);
+          drawLabel(`Right: ${effectiveSetbacks.right}ft`, rx, by + rearPx + (buildH / 2), Math.PI / 2);
+        }
+      }
       
       // Convert to grayscale (ensure pure black and white)
       const imageData = ctx.getImageData(0, 0, canvasWidth, canvasHeight);

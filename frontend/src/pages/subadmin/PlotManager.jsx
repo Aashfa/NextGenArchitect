@@ -236,7 +236,7 @@ const PlotManager = () => {
   const sold = plots.filter((p) => p.status === "Sold").length;
 
   return (
-    <div className="p-4 sm:p-6 min-h-screen bg-gradient-to-br from-[#f5f7fa] to-[#e6e9f0] text-[#2F3D57]">
+    <div className="p-4 sm:p-6 min-h-screen bg-linear-to-br from-[#f5f7fa] to-[#e6e9f0] text-[#2F3D57]">
       {/* Header */}
       <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center mb-8">
         <h1 className="text-2xl md:text-3xl font-bold text-[#2F3D57]">
@@ -273,15 +273,15 @@ const PlotManager = () => {
 
       {/* Stats Cards - Removed Reserved */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-gradient-to-r from-[#2F3D57] to-[#4a5a7a] text-white p-6 rounded-xl shadow-lg transform hover:scale-[1.02] transition duration-300">
+        <div className="bg-linear-to-r from-[#2F3D57] to-[#4a5a7a] text-white p-6 rounded-xl shadow-lg transform hover:scale-[1.02] transition duration-300">
           <h3 className="text-sm font-medium">Total Residential Plots</h3>
           <p className="text-3xl font-bold mt-2">{totalResidential}</p>
         </div>
-        <div className="bg-gradient-to-r from-[#ED7600] to-[#f5923e] text-white p-6 rounded-xl shadow-lg transform hover:scale-[1.02] transition duration-300">
+        <div className="bg-linear-to-r from-[#ED7600] to-[#f5923e] text-white p-6 rounded-xl shadow-lg transform hover:scale-[1.02] transition duration-300">
           <h3 className="text-sm font-medium">Available</h3>
           <p className="text-3xl font-bold mt-2">{available}</p>
         </div>
-        <div className="bg-gradient-to-r from-[#28a745] to-[#20c997] text-white p-6 rounded-xl shadow-lg transform hover:scale-[1.02] transition duration-300">
+        <div className="bg-linear-to-r from-[#28a745] to-[#20c997] text-white p-6 rounded-xl shadow-lg transform hover:scale-[1.02] transition duration-300">
           <h3 className="text-sm font-medium">Sold</h3>
           <p className="text-3xl font-bold mt-2">{sold}</p>
         </div>
@@ -311,7 +311,7 @@ const PlotManager = () => {
             />
           </div>
           <div className="flex gap-4">
-            <div className="flex items-center bg-white border border-gray-200 rounded-lg px-3 flex-grow">
+            <div className="flex items-center bg-white border border-gray-200 rounded-lg px-3 grow">
               <FaFilter className="text-gray-400 mr-2" />
               <select
                 value={filterStatus}

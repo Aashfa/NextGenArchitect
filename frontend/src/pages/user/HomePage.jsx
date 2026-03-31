@@ -113,6 +113,17 @@ const HomePage = () => {
   const [mainView, setMainView] = useState('3d'); // Track which view is in main position
   const [platformStats, setPlatformStats] = useState({ averageRating: 4.8, totalReviews: 150, totalUsers: 1000 });
 
+  const POPUP_FALLBACK_IMAGE = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="600" height="320"%3E%3Cdefs%3E%3ClinearGradient id="g" x1="0" x2="1" y1="0" y2="1"%3E%3Cstop offset="0%25" stop-color="%232F3D57"/%3E%3Cstop offset="100%25" stop-color="%231E2936"/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect fill="url(%23g)" width="600" height="320"/%3E%3Ctext fill="%23ED7600" font-size="30" font-family="Arial" font-weight="700" x="50%25" y="46%25" dominant-baseline="middle" text-anchor="middle"%3ESpecial Offer%3C/text%3E%3Ctext fill="%23ffffff" font-size="16" font-family="Arial" x="50%25" y="58%25" dominant-baseline="middle" text-anchor="middle"%3EClick to learn more%3C/text%3E%3C/svg%3E';
+  const POPUP_ROTATE_MS = 10000;
+
+  const mapAdToPopup = (ad) => ({
+    id: ad?._id,
+    title: ad?.title || ad?.society_name || 'Special Offer!',
+    message: 'Click to learn more',
+    image: ad?.featured_image || ad?.image || ad?.image_url || POPUP_FALLBACK_IMAGE,
+    link: ad?.link_url || ad?.website_url || ''
+  });
+
   // Helper function to track impression only once per ad
   const trackImpressionOnce = (adId) => {
     if (adId && !trackedImpressions.current.has(adId)) {
@@ -161,16 +172,6 @@ const HomePage = () => {
     }, 5000);
     return () => clearInterval(interval);
   }, [slides.length]);
-
-  // Simulate receiving an advertisement from admin
-  useEffect(() => {
-    setTimeout(() => {
-      setAdvertisement({
-        title: "Special Offer!",
-      });
-      setShowPopup(true);
-    }, 3000); // Show ad 3 seconds after load
-  }, []);
 
   // Fetch featured advertisements
   useEffect(() => {
@@ -228,26 +229,20 @@ const HomePage = () => {
         setIsScrolledDown(false);
         setShowPopup(true);
         // Resume cycling if there are multiple ads
-        if (allAds.length > 1 && !popupCycleInterval) {
+        if (allAdsRef.current.length > 1 && !popupCycleInterval) {
           const newInterval = setInterval(() => {
             setCurrentAdIndex(prevIndex => {
-              const nextIndex = (prevIndex + 1) % allAds.length;
-              const nextAd = allAds[nextIndex];
+              const nextIndex = (prevIndex + 1) % allAdsRef.current.length;
+              const nextAd = allAdsRef.current[nextIndex];
               
               setRandomAd(nextAd);
-              setAdvertisement({
-                id: nextAd._id,
-                title: nextAd.title,
-                message: 'Click to learn more',
-                image: nextAd.featured_image,
-                link: nextAd.link_url
-              });
+              setAdvertisement(mapAdToPopup(nextAd));
               
               trackImpressionOnce(nextAd._id);
               
               return nextIndex;
             });
-          }, 3000);
+          }, POPUP_ROTATE_MS);
           setPopupCycleInterval(newInterval);
         }
       }
@@ -258,7 +253,7 @@ const HomePage = () => {
     return () => {
       window.removeEventListener('scroll', handleScroll);
     };
-  }, [isScrolledDown, initialLoadComplete, advertisement, popupCycleInterval, allAds]);
+  }, [isScrolledDown, initialLoadComplete, advertisement, popupCycleInterval, POPUP_ROTATE_MS]);
 
   // Fetch random advertisement for popup
   useEffect(() => {
@@ -277,13 +272,7 @@ const HomePage = () => {
           const firstAd = result.data[0];
           setRandomAd(firstAd);
           
-          setAdvertisement({
-            id: firstAd._id,
-            title: firstAd.title,
-            message: 'Click to learn more',
-            image: firstAd.featured_image,
-            link: firstAd.link_url
-          });
+          setAdvertisement(mapAdToPopup(firstAd));
           
           // Show popup after 3 seconds
           popupTimeout = setTimeout(() => {
@@ -301,20 +290,14 @@ const HomePage = () => {
                 const nextAd = allAdsRef.current[nextIndex];
                 
                 setRandomAd(nextAd);
-                setAdvertisement({
-                  id: nextAd._id,
-                  title: nextAd.title,
-                  message: 'Click to learn more',
-                  image: nextAd.featured_image,
-                  link: nextAd.link_url
-                });
+                setAdvertisement(mapAdToPopup(nextAd));
                 
                 // Track impression for the new ad (only once)
                 trackImpressionOnce(nextAd._id);
                 
                 return nextIndex;
               });
-            }, 3000);
+            }, POPUP_ROTATE_MS);
 
             setPopupCycleInterval(cycleInterval);
           }
@@ -323,11 +306,11 @@ const HomePage = () => {
         console.error('Error fetching ads for popup:', error);
         // Fallback to static ad
         popupTimeout = setTimeout(() => {
-          setAdvertisement({
-            title: "Special Offer!",
-            message: "Get 20% off on your first 3D plan conversion.",
-            image: "https://via.placeholder.com/600x400/ED7600/ffffff?text=Special+Offer"
-          });
+            setAdvertisement({
+              title: "Special Offer!",
+              message: "Get 20% off on your first 3D plan conversion.",
+              image: POPUP_FALLBACK_IMAGE
+            });
           setShowPopup(true);
           setInitialLoadComplete(true);
         }, 3000);
@@ -386,13 +369,7 @@ const HomePage = () => {
       const nextAd = allAds[nextIndex];
       
       setRandomAd(nextAd);
-      setAdvertisement({
-        id: nextAd._id,
-        title: nextAd.title,
-        message: 'Click to learn more',
-        image: nextAd.featured_image,
-        link: nextAd.link_url
-      });
+      setAdvertisement(mapAdToPopup(nextAd));
       
       // Track impression for manually viewed ad (only once)
       trackImpressionOnce(nextAd._id);
@@ -407,13 +384,7 @@ const HomePage = () => {
       const prevAd = allAds[prevIndex];
       
       setRandomAd(prevAd);
-      setAdvertisement({
-        id: prevAd._id,
-        title: prevAd.title,
-        message: 'Click to learn more',
-        image: prevAd.featured_image,
-        link: prevAd.link_url
-      });
+      setAdvertisement(mapAdToPopup(prevAd));
       
       // Track impression for manually viewed ad (only once)
       trackImpressionOnce(prevAd._id);
@@ -1480,13 +1451,7 @@ const HomePage = () => {
                         setCurrentAdIndex(index);
                         const selectedAd = allAds[index];
                         setRandomAd(selectedAd);
-                        setAdvertisement({
-                          id: selectedAd._id,
-                          title: selectedAd.title,
-                          message: 'Click to learn more',
-                          image: selectedAd.featured_image,
-                          link: selectedAd.link_url
-                        });
+                        setAdvertisement(mapAdToPopup(selectedAd));
                       }}
                       className={`relative overflow-hidden rounded-full transition-all duration-500 ${
                         index === currentAdIndex 
@@ -1612,11 +1577,11 @@ const HomePage = () => {
                         }
                         closePopup();
                       }}
-                      className="group relative overflow-hidden flex-1 bg-white/5 border border-white/20 hover:border-[#ED7600]/50 text-white py-2 px-3 rounded-lg text-xs font-semibold transition-all duration-500 flex items-center justify-center gap-1.5"
+                      className="group relative overflow-hidden flex-1 bg-[#E8EEF6] border border-[#C8D6EA] hover:border-[#9FB6D8] text-[#2F3D57] py-2 px-3 rounded-lg text-xs font-semibold transition-all duration-500 flex items-center justify-center gap-1.5"
                       whileHover={{ 
                         scale: 1.02,
                         boxShadow: "0 6px 15px rgba(237, 118, 0, 0.2)",
-                        backgroundColor: "rgba(237, 118, 0, 0.08)"
+                        backgroundColor: "rgba(232, 238, 246, 0.95)"
                       }}
                       whileTap={{ scale: 0.98 }}
                       initial={{ opacity: 0, y: 20 }}
@@ -1632,7 +1597,7 @@ const HomePage = () => {
             </div>
           </motion.div>
         )}
-        
+
         {/* Enhanced Reopen Button */}
         {!showPopup && advertisement && (
           <motion.button

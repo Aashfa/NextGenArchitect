@@ -171,10 +171,11 @@ class AdvertisementAPI {
   async getPopupAdvertisements(limit = 20) {
     try {
       const params = limit ? `?limit=${limit}` : '';
-      const response = await cachedFetch(`${API_BASE_URL}/advertisements/popup${params}`, {
+      // Always fetch fresh popup ads to avoid stale rotation data from cache.
+      const response = await fetch(`${API_BASE_URL}/advertisements/popup${params}`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' }
-      }, 'getPopupAdvertisements');
+      });
 
       const data = await response.json();
       return data;

@@ -1,34 +1,43 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Navbar from '../../components/user/Navbar';
 import Footer from '../../components/user/Footer';
 import advertisementAPI from '../../services/advertisementAPI';
-import { FaMapMarkerAlt, FaTag, FaCalendarAlt } from 'react-icons/fa';
+import { FaMapMarkerAlt, FaTag, FaCalendarAlt, FaEye } from 'react-icons/fa';
 
 const OffersPage = () => {
   const [offers, setOffers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState('all'); // all, active, featured
+  const [filter, setFilter] = useState('all'); // all, active, featured, unfeatured
   const [selectedOffer, setSelectedOffer] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [previewImage, setPreviewImage] = useState(null);
 
-  useEffect(() => {
-    fetchOffers();
-  }, [filter]);
+  const getOfferImage = (offer) => {
+    const image = offer?.featured_image || offer?.image_url || offer?.image;
+    if (!image) return null;
+    if (typeof image !== 'string') return null;
 
-  const fetchOffers = async () => {
+    if (image.startsWith('data:image') || image.startsWith('http')) {
+      return image;
+    }
+
+    return `http://localhost:5000${image}`;
+  };
+
+  const fetchOffers = useCallback(async () => {
     try {
       setLoading(true);
       let response;
       
       if (filter === 'featured') {
-        // Fetch only featured advertisements
+        // Fetch only active featured advertisements (public)
         response = await advertisementAPI.getFeaturedAdvertisements(50);
-      } else if (filter === 'active') {
-        // Fetch only active advertisements
-        response = await advertisementAPI.getAllAdvertisements({ status: 'active' });
+      } else if (filter === 'unfeatured') {
+        // Fetch only active non-featured advertisements (public)
+        response = await advertisementAPI.getPopupAdvertisements(50);
       } else {
-        // Fetch all advertisements from database
-        response = await advertisementAPI.getAllAdvertisements();
+        // Fetch all active advertisements (featured + non-featured, public)
+        response = await advertisementAPI.getActiveAdvertisements(50);
       }
       
       if (response.success) {
@@ -43,7 +52,11 @@ const OffersPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filter]);
+
+  useEffect(() => {
+    fetchOffers();
+  }, [fetchOffers]);
 
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
@@ -62,6 +75,16 @@ const OffersPage = () => {
   const closeModal = () => {
     setShowModal(false);
     setSelectedOffer(null);
+  };
+
+  const openImagePreview = (offer) => {
+    const image = getOfferImage(offer);
+    if (!image) return;
+    setPreviewImage(image);
+  };
+
+  const closeImagePreview = () => {
+    setPreviewImage(null);
   };
 
   return (
@@ -113,6 +136,16 @@ const OffersPage = () => {
           >
             Active Deals
           </button>
+          <button
+            onClick={() => setFilter('unfeatured')}
+            className={`px-6 py-2 rounded-full font-medium transition-colors ${
+              filter === 'unfeatured'
+                ? 'bg-[#ED7600] text-white'
+                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+            }`}
+          >
+            Unfeatured
+          </button>
         </div>
 
         {/* Offers Grid */}
@@ -130,6 +163,19 @@ const OffersPage = () => {
               >
                 {/* Header with Featured Badge and Status */}
                 <div className="relative">
+                  {getOfferImage(offer) && (
+                    <div className="w-full h-56 bg-gray-100">
+                      <img
+                        src={getOfferImage(offer)}
+                        alt={offer.title || 'Advertisement'}
+                        className="w-full h-full object-contain bg-gradient-to-br from-gray-100 to-gray-200"
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                        }}
+                      />
+                    </div>
+                  )}
+
                   {offer.is_featured && (
                     <div className="absolute top-3 left-3 bg-[#ED7600] text-white text-xs font-bold px-3 py-1 rounded-md flex items-center z-10">
                       ⭐ Featured
@@ -209,9 +255,18 @@ const OffersPage = () => {
 
                   {/* Action Buttons */}
                   <div className="flex gap-2">
+                    {getOfferImage(offer) && (
+                      <button
+                        onClick={() => openImagePreview(offer)}
+                        className="px-3 bg-white border border-[#2F3D57] text-[#2F3D57] rounded-lg font-semibold hover:bg-gray-100 transition-colors flex items-center justify-center"
+                        title="View full image"
+                      >
+                        <FaEye />
+                      </button>
+                    )}
                     <button
                       onClick={() => handleOfferClick(offer)}
-                      className="flex-1 bg-[#2F3D57] text-white text-center py-2 rounded-lg font-semibold hover:bg-[#1E2936] transition-colors flex items-center justify-center"
+                      className="flex-1 bg-[#E8EEF6] text-[#2F3D57] text-center py-2 rounded-lg font-semibold hover:bg-[#DCE6F3] transition-colors flex items-center justify-center"
                     >
                       👁️ View Details
                     </button>
@@ -271,14 +326,12 @@ const OffersPage = () => {
               )}
 
               {/* Image */}
-              {selectedOffer.image_url && (
+              {getOfferImage(selectedOffer) && (
                 <div className="mb-6 rounded-lg overflow-hidden">
                   <img
-                    src={selectedOffer.image_url.startsWith('http') 
-                      ? selectedOffer.image_url 
-                      : `http://localhost:5000${selectedOffer.image_url}`}
+                    src={getOfferImage(selectedOffer)}
                     alt={selectedOffer.title}
-                    className="w-full h-64 object-cover"
+                    className="w-full h-80 object-contain bg-gray-100"
                     onError={(e) => {
                       e.target.style.display = 'none';
                     }}
@@ -363,6 +416,31 @@ const OffersPage = () => {
                 </a>
               )}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Full Image Preview Modal */}
+      {previewImage && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-75 z-[60] flex items-center justify-center p-4"
+          onClick={closeImagePreview}
+        >
+          <div
+            className="relative bg-white rounded-lg p-2 max-w-6xl w-full max-h-[92vh]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={closeImagePreview}
+              className="absolute top-2 right-2 z-10 bg-black/60 text-white w-9 h-9 rounded-full flex items-center justify-center hover:bg-black/80"
+            >
+              ×
+            </button>
+            <img
+              src={previewImage}
+              alt="Advertisement Preview"
+              className="w-full max-h-[88vh] object-contain"
+            />
           </div>
         </div>
       )}

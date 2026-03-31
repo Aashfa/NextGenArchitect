@@ -211,8 +211,22 @@ class Advertisement:
         now = datetime.utcnow()
         query = {
             "status": "active",
-            "start_date": {"$lte": now},
-            "end_date": {"$gte": now}
+            "$and": [
+                {
+                    "$or": [
+                        {"start_date": {"$exists": False}},
+                        {"start_date": None},
+                        {"start_date": {"$lte": now}}
+                    ]
+                },
+                {
+                    "$or": [
+                        {"end_date": {"$exists": False}},
+                        {"end_date": None},
+                        {"end_date": {"$gte": now}}
+                    ]
+                }
+            ]
         }
 
         if is_featured is not None:

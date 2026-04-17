@@ -5,6 +5,7 @@ import {
   FiUser,
   FiCheckSquare,
   FiClock,
+  FiActivity,
   FiClipboard, 
   FiSend,
   FiLogOut,
@@ -91,6 +92,18 @@ const UserProfile = ({ activeTab, setActiveTab }) => {
           }`}
         >
           <FiCheckSquare className="mr-4 text-xl" />
+          <span className="font-medium">Track Approval Status</span>
+        </button>
+
+        <button
+          onClick={() => handleTabClick('activity')}
+          className={`flex items-center px-6 py-4 text-left w-full rounded-xl mb-2 transition-all duration-200 shadow-md ${
+            activeTab === 'activity' 
+              ? 'bg-gradient-to-r from-[#ED7600] to-[#f59e0b] text-white font-semibold shadow-lg transform scale-105' 
+              : 'text-gray-300 hover:bg-slate-700 hover:text-white hover:shadow-lg'
+          }`}
+        >
+          <FiActivity className="mr-4 text-xl" />
           <span className="font-medium">Activity</span>
         </button>
                

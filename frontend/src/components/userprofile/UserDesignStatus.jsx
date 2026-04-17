@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { userProfileAPI } from "../../services/userProfileAPI";
-import { Eye, FileText, Calendar, MapPin, AlertCircle } from "lucide-react";
+import { Eye, FileText, Calendar, MapPin, AlertCircle, Search } from "lucide-react";
 
 const UserDesignStatus = () => {
   const [myRequests, setMyRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedRequest, setSelectedRequest] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     fetchApprovalRequests();
@@ -44,6 +45,43 @@ const UserDesignStatus = () => {
     Rejected: "bg-red-100 text-red-700 border border-red-300",
     "In Review": "bg-blue-100 text-blue-700 border border-blue-300",
   };
+
+  const normalizeSearchValue = (value) =>
+    String(value || "")
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, "");
+
+  const filteredRequests = myRequests.filter((req) => {
+    const query = searchQuery.trim();
+    if (!query) return true;
+
+    const normalizedQuery = normalizeSearchValue(query);
+
+    const trackingNumber = req.tracking_number || req.request_number || req._id || "";
+    const shortRequestId = req._id ? req._id.slice(-6).toUpperCase() : "";
+
+    const searchableValues = [
+      trackingNumber,
+      shortRequestId,
+      `#${shortRequestId}`,
+      req.plot_number,
+      req.society_name,
+      req.design_type,
+      req.status,
+      req.requested_by_email,
+    ].filter(Boolean);
+
+    const directMatch = searchableValues.some((value) =>
+      String(value).toLowerCase().includes(query.toLowerCase())
+    );
+
+    if (directMatch) return true;
+
+    // Fallback match for ID-like inputs such as #ABC123, req-ABC123, spaces, and dashes.
+    return searchableValues.some((value) =>
+      normalizeSearchValue(value).includes(normalizedQuery)
+    );
+  });
 
   if (loading) {
     return (
@@ -91,6 +129,23 @@ const UserDesignStatus = () => {
           </p>
         </div>
 
+        {/* Search */}
+        <div className="mb-6">
+          <div className="relative max-w-lg">
+            <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search by Request ID (e.g. #ABC123), tracking number, plot number, status..."
+              className="w-full pl-10 pr-4 py-3 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ED7600] focus:border-transparent"
+            />
+          </div>
+          <p className="text-xs text-gray-500 mt-2">
+            Enter tracking number to quickly find your approval request.
+          </p>
+        </div>
+
         {/* Stats Summary */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
           <div className="bg-white rounded-lg shadow p-4 border-l-4 border-blue-500">
@@ -128,6 +183,16 @@ const UserDesignStatus = () => {
               You haven't submitted any plot design requests. Start by requesting approval for your plot design!
             </p>
           </div>
+        ) : filteredRequests.length === 0 ? (
+          <div className="bg-white rounded-2xl shadow-lg p-12 text-center border border-gray-200">
+            <Search className="w-16 h-16 mx-auto text-gray-400 mb-4" />
+            <h3 className="text-xl font-semibold text-gray-800 mb-2">
+              No Matching Requests
+            </h3>
+            <p className="text-gray-600">
+              No approval request matched "{searchQuery}". Try a different tracking number or keyword.
+            </p>
+          </div>
         ) : (
           <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-200">
             <div className="overflow-x-auto">
@@ -144,7 +209,7 @@ const UserDesignStatus = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {myRequests.map((req, index) => (
+                  {filteredRequests.map((req, index) => (
                     <tr
                       key={req._id}
                       className={`transition-all duration-200 ${
@@ -215,7 +280,7 @@ const UserDesignStatus = () => {
       {/* Detail Modal */}
       {selectedRequest && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+          className="fixed inset-0 bg-white/20 backdrop-blur-md flex items-center justify-center p-4 z-50"
           onClick={() => setSelectedRequest(null)}
         >
           <div

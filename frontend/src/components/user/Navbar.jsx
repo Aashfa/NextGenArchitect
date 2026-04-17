@@ -50,7 +50,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="flex items-center justify-between p-4 md:p-6 md:px-8 bg-[#2F3D57] shadow-sm relative z-[1000]">
+    <nav className="flex items-center justify-between p-4 md:p-6 md:px-8 bg-[#2F3D57] shadow-sm relative z-1000">
       <div className="flex items-center space-x-3">
         <img src={logo} alt="Logo" className="h-8 w-8 md:h-10 md:w-10" />
         <div className="text-xl md:text-2xl font-bold text-white">NextGenArchitect</div>
@@ -112,23 +112,21 @@ const Navbar = () => {
                   }}
                 />
               ) : null}
-              {!user.profileImage || true ? (
-                <div 
-                  className="w-10 h-10 rounded-full bg-[#ED7600] flex items-center justify-center text-white font-bold border-2 border-white hover:border-[#ED7600] transition-colors cursor-pointer"
-                  style={{ display: user.profileImage ? 'none' : 'flex' }}
-                >
-                  {user.firstName 
-                    ? user.firstName.charAt(0).toUpperCase() 
-                    : user.username 
-                      ? user.username.charAt(0).toUpperCase() 
-                      : user.email.charAt(0).toUpperCase()}
-                </div>
-              ) : null}
+              <div 
+                className="w-10 h-10 rounded-full bg-[#ED7600] flex items-center justify-center text-white font-bold border-2 border-white hover:border-[#ED7600] transition-colors cursor-pointer"
+                style={{ display: user.profileImage ? 'none' : 'flex' }}
+              >
+                {user.firstName 
+                  ? user.firstName.charAt(0).toUpperCase() 
+                  : user.username 
+                    ? user.username.charAt(0).toUpperCase() 
+                    : user.email.charAt(0).toUpperCase()}
+              </div>
             </button>
 
             {/* Dropdown Menu */}
             {showDropdown && (
-              <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg py-2 z-[9999] border border-gray-200">
+              <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg py-2 z-9999 border border-gray-200">
                 {/* User Info */}
                 <div className="px-4 py-3 border-b border-gray-200">
                   <p className="text-sm font-semibold text-gray-800">
@@ -160,6 +158,17 @@ const Navbar = () => {
                 >
                   <svg className="w-4 h-4 mr-3 text-[#ED7600]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                  Track Approval Status
+                </Link>
+
+                <Link
+                  to="/userprofile?tab=activity"
+                  onClick={() => setShowDropdown(false)}
+                  className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                >
+                  <svg className="w-4 h-4 mr-3 text-[#ED7600]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H5a2 2 0 01-2-2V5a2 2 0 012-2h14a2 2 0 012 2v14a2 2 0 01-2 2z" />
                   </svg>
                   Activity
                 </Link>
@@ -214,7 +223,7 @@ const Navbar = () => {
 
       {/* Mobile Navigation Menu */}
       {isMobileMenuOpen && (
-        <div className="md:hidden absolute top-full left-0 right-0 bg-[#2F3D57] shadow-lg z-[9999] border-t border-gray-600">
+        <div className="md:hidden absolute top-full left-0 right-0 bg-[#2F3D57] shadow-lg z-9999 border-t border-gray-600">
           <div className="flex flex-col p-4 space-y-2">
             <Link 
               to="/" 
@@ -256,6 +265,13 @@ const Navbar = () => {
                 </Link>
                 <Link 
                   to="/userprofile?tab=approvalRequests" 
+                  onClick={closeMobileMenu}
+                  className="px-4 py-3 rounded-md text-gray-300 hover:bg-[#ED7600] hover:text-white transition-colors"
+                >
+                  Track Approval Status
+                </Link>
+                <Link 
+                  to="/userprofile?tab=activity" 
                   onClick={closeMobileMenu}
                   className="px-4 py-3 rounded-md text-gray-300 hover:bg-[#ED7600] hover:text-white transition-colors"
                 >

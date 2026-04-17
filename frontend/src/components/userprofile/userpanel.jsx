@@ -12,6 +12,8 @@ const UserPanel = ({ activeTab,  approvalRequests,  }) => {
       case 'personalInfo':
         return <PersonalInfoForm />;
       case 'approvalRequests':
+        return <UserDesignStatus />;
+      case 'activity':
         return <Activity />;
       case 'progress':
         return <MyProgress />;

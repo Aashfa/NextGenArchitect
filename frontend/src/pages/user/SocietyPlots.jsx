@@ -14,6 +14,7 @@ import bahria from '../../assets/bahria.png';
 
 
 const SocietyPlots = () => {
+    const REVIEW_WORD_LIMIT = 150;
     const { societyId } = useParams();
     const navigate = useNavigate();
     const { user } = useAuth();
@@ -27,6 +28,16 @@ const SocietyPlots = () => {
     const [reviewsLoading, setReviewsLoading] = useState(false);
     const [newReview, setNewReview] = useState({ rating: 5, comment: '' });
     const [submittingReview, setSubmittingReview] = useState(false);
+
+    const getWordCount = (text = '') => text.trim().split(/\s+/).filter(Boolean).length;
+
+    const truncateToWordLimit = (text = '', limit = REVIEW_WORD_LIMIT) => {
+        const words = text.trim().split(/\s+/).filter(Boolean);
+        if (words.length <= limit) {
+            return text;
+        }
+        return words.slice(0, limit).join(' ');
+    };
 
     // Fetch society and plots data from backend
     useEffect(() => {
@@ -79,7 +90,7 @@ const SocietyPlots = () => {
         const fetchReviews = async () => {
             try {
                 setReviewsLoading(true);
-                const response = await reviewAPI.getReviewsByPlot(societyId);
+                const response = await reviewAPI.getReviewsBySociety(societyId);
                 if (response.success) {
                     setReviews(response.data || []);
                 }
@@ -110,6 +121,11 @@ const SocietyPlots = () => {
             return;
         }
 
+        if (getWordCount(newReview.comment) > REVIEW_WORD_LIMIT) {
+            alert(`Review cannot exceed ${REVIEW_WORD_LIMIT} words.`);
+            return;
+        }
+
         try {
             setSubmittingReview(true);
             
@@ -122,7 +138,7 @@ const SocietyPlots = () => {
             }
             
             const response = await reviewAPI.createReview({
-                plot_id: societyId,
+                society_id: societyId,
                 rating: newReview.rating,
                 comment: newReview.comment
             });
@@ -131,7 +147,7 @@ const SocietyPlots = () => {
                 alert('Review submitted successfully!');
                 setNewReview({ rating: 5, comment: '' });
                 // Refresh reviews
-                const reviewsResponse = await reviewAPI.getReviewsByPlot(societyId);
+                const reviewsResponse = await reviewAPI.getReviewsBySociety(societyId);
                 if (reviewsResponse.success) {
                     setReviews(reviewsResponse.data || []);
                 }
@@ -396,12 +412,18 @@ const SocietyPlots = () => {
                                         <label className="block text-gray-700 font-medium mb-2">Your Review</label>
                                         <textarea
                                             value={newReview.comment}
-                                            onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })}
+                                            onChange={(e) => {
+                                                const limitedComment = truncateToWordLimit(e.target.value);
+                                                setNewReview({ ...newReview, comment: limitedComment });
+                                            }}
                                             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ED7600]"
                                             rows="4"
                                             placeholder="Share your experience with this society..."
                                             required
                                         />
+                                        <p className="mt-2 text-sm text-gray-500 text-right">
+                                            {getWordCount(newReview.comment)}/{REVIEW_WORD_LIMIT} words
+                                        </p>
                                     </div>
                                     <button
                                         type="submit"

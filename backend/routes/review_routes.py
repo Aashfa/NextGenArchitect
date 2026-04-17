@@ -5,6 +5,14 @@ from controllers.review_controller import ReviewController
 from bson import ObjectId
 
 review_bp = Blueprint('review', __name__)
+REVIEW_WORD_LIMIT = 150
+
+
+def _count_words(text):
+    """Count words in a text value."""
+    if not isinstance(text, str):
+        return 0
+    return len([word for word in text.strip().split() if word])
 
 # CREATE - Create a new review
 @review_bp.route('/reviews', methods=['POST'])
@@ -27,6 +35,9 @@ def create_review():
             return jsonify({"success": False, "error": "rating is required"}), 400
         if not comment:
             return jsonify({"success": False, "error": "comment is required"}), 400
+
+        if _count_words(comment) > REVIEW_WORD_LIMIT:
+            return jsonify({"success": False, "error": f"comment must not exceed {REVIEW_WORD_LIMIT} words"}), 400
         
         # Validate rating range
         if not isinstance(rating, (int, float)) or rating < 1 or rating > 5:
@@ -170,6 +181,9 @@ def update_review(review_id):
         # Validate rating if provided
         if rating is not None and (not isinstance(rating, (int, float)) or rating < 1 or rating > 5):
             return jsonify({"success": False, "error": "rating must be between 1 and 5"}), 400
+
+        if comment is not None and _count_words(comment) > REVIEW_WORD_LIMIT:
+            return jsonify({"success": False, "error": f"comment must not exceed {REVIEW_WORD_LIMIT} words"}), 400
         
         result = ReviewController.update_review(review_id, user_email, rating, comment)
         

@@ -232,7 +232,7 @@ const Activity = () => {
 
         {/* Activity Timeline */}
         <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
-          <div className="bg-gradient-to-r from-[#ED7600] to-[#ff8c1a] p-6 text-white">
+          <div className="bg-linear-to-r from-[#ED7600] to-[#ff8c1a] p-6 text-white">
             <div className="flex items-center gap-2">
               <FiActivity className="text-2xl" />
               <h3 className="text-xl font-bold">Recent Activity</h3>

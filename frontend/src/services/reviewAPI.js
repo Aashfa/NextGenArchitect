@@ -111,6 +111,37 @@ class ReviewAPI {
     }
   }
 
+  // GET /api/societies/:society_id/reviews - Get reviews by society
+  async getReviewsBySociety(societyId) {
+    try {
+      const response = await cachedFetch(`${API_BASE_URL}/societies/${societyId}/reviews`, {
+        method: 'GET',
+        headers: this.getAuthHeaders()
+      }, 'getReviewsBySociety');
+
+      const data = await response.json();
+
+      if (response.ok) {
+        return {
+          success: true,
+          data: data.data || [],
+          message: data.message
+        };
+      } else {
+        return {
+          success: false,
+          error: data.error || 'Failed to fetch society reviews'
+        };
+      }
+    } catch (error) {
+      console.error('Error fetching society reviews:', error);
+      return {
+        success: false,
+        error: error.message || 'Network error occurred'
+      };
+    }
+  }
+
   // POST /api/reviews - Create new review
   async createReview(reviewData) {
     try {

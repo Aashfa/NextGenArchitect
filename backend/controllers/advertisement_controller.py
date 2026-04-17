@@ -312,6 +312,14 @@ class AdvertisementController:
             # Don't allow updating payment_status (handled by Stripe)
             if 'payment_status' in update_data:
                 return {"success": False, "error": "Payment status cannot be updated directly"}
+
+            # Prevent bypass: ads cannot be approved/activated until payment is completed.
+            requested_status = (update_data.get('status') or '').lower()
+            if requested_status in ['active', 'approved'] and ad.get('payment_status') != 'paid':
+                return {
+                    "success": False,
+                    "error": "Cannot approve advertisement. Payment is unpaid or pending."
+                }
             
             # Convert ObjectIds if needed
             if 'plan_id' in update_data and isinstance(update_data['plan_id'], str):

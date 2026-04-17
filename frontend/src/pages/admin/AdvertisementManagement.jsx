@@ -156,6 +156,13 @@ const AdvertisementManagement = () => {
   };
 
   const handleEdit = async () => {
+    const currentPaymentStatus = (selectedAd?.payment_status || 'pending').toLowerCase();
+
+    if (editForm.status === 'active' && currentPaymentStatus !== 'paid') {
+      setError('Cannot set status to Active. Advertisement payment is unpaid/pending.');
+      return;
+    }
+
     try {
       setProcessing(true);
       setError('');
@@ -170,7 +177,7 @@ const AdvertisementManagement = () => {
       
       const result = await advertisementAPI.updateAdvertisement(selectedAd._id, updateData);
       if (result.success) {
-        setSuccess('Advertisement updated successfully');
+        setSuccess('Advertisement details updated successfully');
         closeModal();
         if (activeTab === 'pending') {
           fetchPendingAds();
@@ -627,10 +634,20 @@ const AdvertisementManagement = () => {
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
                     >
                       <option value="pending">Pending</option>
-                      <option value="active">Active (Approved)</option>
+                      <option
+                        value="active"
+                        disabled={(selectedAd?.payment_status || 'pending').toLowerCase() !== 'paid'}
+                      >
+                        Active (Approved){(selectedAd?.payment_status || 'pending').toLowerCase() !== 'paid' ? ' - Payment Required' : ''}
+                      </option>
                       <option value="rejected">Rejected</option>
                       <option value="expired">Expired</option>
                     </select>
+                    {(selectedAd?.payment_status || 'pending').toLowerCase() !== 'paid' && (
+                      <p className="mt-2 text-xs text-red-600">
+                        Activation is blocked until payment status becomes PAID.
+                      </p>
+                    )}
                   </div>
 
                   <div className="flex items-center gap-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">

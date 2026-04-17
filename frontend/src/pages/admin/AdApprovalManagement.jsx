@@ -36,6 +36,14 @@ const AdApprovalManagement = () => {
     setError('');
     setSuccess('');
 
+    const adToApprove = pendingAds.find((ad) => ad._id === adId);
+    const paymentStatus = (adToApprove?.payment_status || 'pending').toLowerCase();
+
+    if (paymentStatus !== 'paid') {
+      setError('Cannot approve or activate this advertisement. Payment is unpaid/pending.');
+      return;
+    }
+
     try {
       const result = await advertisementAPI.approveAdvertisement(adId, display);
       
@@ -159,6 +167,16 @@ const AdApprovalManagement = () => {
                         <div className="meta-item">
                           <span className="label">Submitted:</span>
                           <span className="value">{formatDate(ad.created_at)}</span>
+                        </div>
+                        <div className="meta-item">
+                          <span className="label">Payment:</span>
+                          <span className={`value ${
+                            (ad.payment_status || 'pending').toLowerCase() === 'paid'
+                              ? 'text-green-600 font-semibold'
+                              : 'text-red-600 font-semibold'
+                          }`}>
+                            {(ad.payment_status || 'pending').toUpperCase()}
+                          </span>
                         </div>
                       </div>
 

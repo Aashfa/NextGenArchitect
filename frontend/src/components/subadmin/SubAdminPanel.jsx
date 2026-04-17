@@ -105,7 +105,7 @@ const SubAdminPanel = ({ activeTab, setActiveTab }) => {
           }`}
         >
           <FiLayers className="mr-3 text-lg" />
-          Floor Plans
+          Templates
         </button>
         <button
           onClick={() => handleTabClick('approvals')}

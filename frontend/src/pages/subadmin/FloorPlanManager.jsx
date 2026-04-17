@@ -339,7 +339,7 @@ const FloorPlanManager = () => {
   const [notification, setNotification] = useState(null);
 
   return (
-    <div className="flex-1 overflow-auto bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
+    <div className="flex-1 overflow-auto bg-linear-to-br from-gray-50 to-gray-100 min-h-screen">
       <div className="p-4 sm:p-6 md:p-8">
         <div className="max-w-7xl mx-auto">
           {/* Notification Toast */}
@@ -369,10 +369,10 @@ const FloorPlanManager = () => {
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <h2 className="text-2xl md:text-3xl font-extrabold text-gray-800 tracking-tight">
-                  Society Floor Plans
+                  Society Templates
                 </h2>
                 <p className="text-gray-600 mt-2">
-                  Manage and track all floor plan designs for your society
+                  Manage and track all reusable templates for your society
                 </p>
               </div>
               
@@ -382,31 +382,31 @@ const FloorPlanManager = () => {
                   className="bg-[#ED7600] hover:bg-[#d46000] text-white font-bold py-3 px-6 rounded-lg flex items-center gap-2 transition-all shadow-lg hover:shadow-xl"
                 >
                   <FiPlus size={20} />
-                  Generate Floor Plan
+                  Generate Template
                 </button>
               </div>
             </div>
           </div>
 
-          {/* Floor Plans Grid */}
+          {/* Templates Grid */}
           {loading ? (
             <div className="text-center py-20">
               <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-[#ED7600]"></div>
-              <p className="mt-4 text-gray-600">Loading floor plans...</p>
+              <p className="mt-4 text-gray-600">Loading templates...</p>
             </div>
           ) : floorPlans.length === 0 ? (
             <div className="bg-white rounded-xl shadow-lg p-12 text-center">
               <div className="text-gray-400 mb-4">
                 <FiLayers size={64} className="mx-auto" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-700 mb-2">No Floor Plans Yet</h3>
-              <p className="text-gray-500 mb-6">Create your first floor plan to get started</p>
+              <h3 className="text-xl font-semibold text-gray-700 mb-2">No Templates Yet</h3>
+              <p className="text-gray-500 mb-6">Create your first template to get started</p>
               <button
                 onClick={handleGenerateFloorPlan}
                 className="bg-[#ED7600] hover:bg-[#d46000] text-white font-bold py-3 px-6 rounded-lg inline-flex items-center gap-2 transition-all"
               >
                 <FiPlus size={20} />
-                Generate Floor Plan
+                Generate Template
               </button>
             </div>
           ) : (
@@ -417,7 +417,7 @@ const FloorPlanManager = () => {
                   className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
                 >
                   {/* Card Header */}
-                  <div className="bg-gradient-to-r from-[#ED7600] to-[#ff8c1a] p-4 text-white">
+                  <div className="bg-linear-to-r from-[#ED7600] to-[#ff8c1a] p-4 text-white">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <h3 className="font-bold text-lg truncate">

@@ -42,6 +42,25 @@ def count_words(text):
         return 0
     return len(re.findall(r"\S+", text.strip()))
 
+
+def _is_non_empty(value):
+    """Return True when value is meaningfully populated."""
+    if value is None:
+        return False
+    if isinstance(value, str):
+        return value.strip() != ''
+    if isinstance(value, (list, tuple, set, dict)):
+        return len(value) > 0
+    return True
+
+
+def calculate_profile_completeness(profile):
+    """Single source of truth for society profile completeness checks."""
+    required_fields = ['name', 'description', 'location', 'available_plots', 'price_range']
+    fields_complete = all(_is_non_empty(profile.get(field)) for field in required_fields)
+    logo_complete = _is_non_empty(profile.get('society_logo'))
+    return fields_complete and logo_complete
+
 def get_user_id_from_email(email):
     """Helper function to get user_id from email"""
     db = get_db()
@@ -327,13 +346,10 @@ def create_or_update_society_profile():
             update_data['marla_data'] = profile_data['marla_data']
             print(f"[DEBUG] Marla data added to update: {profile_data['marla_data']}")
         
-        # Check completeness
-        required_fields = ['name', 'description', 'location', 'price_range']
-        complete_fields = [f for f in required_fields if update_data.get(f)]
-        has_logo = 'society_logo' in update_data and update_data['society_logo']
-        has_plots = 'available_plots' in update_data and update_data['available_plots']
-        
-        is_complete = len(complete_fields) == len(required_fields) and has_logo and has_plots
+        # Check completeness using merged data (existing + incoming update)
+        merged_profile = dict(existing_profile or {})
+        merged_profile.update(update_data)
+        is_complete = calculate_profile_completeness(merged_profile)
         update_data['is_complete'] = is_complete
         
         print(f"[DEBUG] Updating fields: {list(update_data.keys())}")
@@ -395,13 +411,9 @@ def check_profile_completeness():
                 "message": "Profile not found"
             }), 200
         
-        # Check completeness - location is auto-populated, so don't require it to be filled manually
-        required_fields = ['name', 'description', 'available_plots', 'price_range']
-        missing_fields = [f for f in required_fields if not profile.get(f)]
-        
-        if not profile.get('society_logo'):
-            missing_fields.append('society_logo')
-        
+        # Use the same completeness logic as profile update flow.
+        required_fields = ['name', 'description', 'location', 'available_plots', 'price_range', 'society_logo']
+        missing_fields = [f for f in required_fields if not _is_non_empty(profile.get(f))]
         is_complete = len(missing_fields) == 0
         
         print(f"[COMPLETENESS CHECK] Profile - Name: {profile.get('name')}, Location: {profile.get('location')}, Complete: {is_complete}, Missing: {missing_fields}")

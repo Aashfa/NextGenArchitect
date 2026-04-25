@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Logo from '../../assets/Logo.png';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { signupUser, loginUser, checkEmail, googleLogin } from '../../services/apiService';
+import { signupUser, loginUser, googleLogin } from '../../services/apiService';
 import PopupModal from '../../components/common/PopupModal';
 import { useAuth } from '../../context/AuthContext';
 import GoogleSignInButton from '../../components/auth/GoogleSignInButton';
@@ -13,6 +13,7 @@ const Login = () => {
     const [signupError, setSignupError] = useState('');
     const [loginForm, setLoginForm] = useState({ email: '', password: '' });
     const [loginError, setLoginError] = useState('');
+    const [loginNeedsVerification, setLoginNeedsVerification] = useState(false);
     const [showSignupType, setShowSignupType] = useState(false);
     const [showForgotPassword, setShowForgotPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -152,6 +153,17 @@ const Login = () => {
         setShowForgotPassword(true);
     };
 
+    const handleVerifyEmailClick = () => {
+        if (!loginForm.email) {
+            setLoginError('Please enter your email address first.');
+            return;
+        }
+
+        navigate('/verify-email', {
+            state: { email: loginForm.email }
+        });
+    };
+
     const handleForgotPasswordSuccess = (message) => {
         showPopup(
             'Password Reset Successful!',
@@ -177,6 +189,9 @@ const Login = () => {
         setSignupForm({ ...signupForm, [e.target.name]: e.target.value });
     };
     const handleLoginInput = (e) => {
+        if (loginNeedsVerification) {
+            setLoginNeedsVerification(false);
+        }
         setLoginForm({ ...loginForm, [e.target.name]: e.target.value });
     };
 
@@ -354,6 +369,7 @@ const Login = () => {
     const handleLoginSubmit = async (e) => {
         e.preventDefault();
         setLoginError(''); // Clear previous errors
+        setLoginNeedsVerification(false);
         setIsLoading(true);
         
         try {
@@ -365,6 +381,18 @@ const Login = () => {
             
             // Check if login was successful
             if (!result.success) {
+                if (result.error === 'email_not_verified') {
+                    setLoginNeedsVerification(true);
+                    setLoginError('Your email is not verified yet. Please verify your email to continue.');
+
+                    showPopup(
+                        'Verify Your Email',
+                        'Your account exists, but email verification is pending. Click OK to continue with the same verification flow used during signup.',
+                        'warning',
+                        () => navigate('/verify-email', { state: { email: loginForm.email } })
+                    );
+                    return;
+                }
                 throw new Error(result.error || result.message || 'Login failed');
             }
             
@@ -438,6 +466,9 @@ const Login = () => {
                     'There appears to be an issue with your registration status in our system. Please contact the administrator at admin@nextgenarchitect.com for immediate assistance.',
                     'error'
                 );
+            } else if (error.message?.includes('email_not_verified')) {
+                setLoginNeedsVerification(true);
+                setLoginError('Your email is not verified yet. Please verify your email to continue.');
             } else if (error.message?.includes('Invalid password')) {
                 setLoginError('Invalid email or password. Please try again.');
             } else if (error.message?.includes('User not found')) {
@@ -459,43 +490,13 @@ const Login = () => {
         setIsLoginMode(!isLoginMode);
         setSignupError('');
         setLoginError('');
+        setLoginNeedsVerification(false);
         setSignupForm({ name: '', email: '', password: '', confirmPassword: '' });
         setLoginForm({ email: '', password: '' });
     };
 
-    // Enhanced validation with real-time feedback
-    const validateField = (field, value, formType = 'signup') => {
-        switch (field) {
-            case 'email': {
-                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                if (!value) return 'Email is required';
-                if (!emailRegex.test(value)) return 'Please enter a valid email address';
-                return '';
-            }
-            case 'password':
-                if (!value) return 'Password is required';
-                if (formType === 'signup') {
-                    if (value.length < 8) return 'Password must be at least 8 characters';
-                    if (!/[A-Z]/.test(value)) return 'Password must contain at least one uppercase letter';
-                    if (!/[a-z]/.test(value)) return 'Password must contain at least one lowercase letter';
-                    if (!/[0-9]/.test(value)) return 'Password must contain at least one number';
-                }
-                return '';
-            case 'name':
-                if (!value.trim()) return 'Name is required';
-                if (value.trim().length < 2) return 'Name must be at least 2 characters';
-                return '';
-            case 'confirmPassword':
-                if (!value) return 'Please confirm your password';
-                if (value !== signupForm.password) return 'Passwords do not match';
-                return '';
-            default:
-                return '';
-        }
-    };
-
     return (
-        <div className="min-h-screen bg-gradient-to-br from-[#2F3D57] via-[#3a4b66] to-[#2F3D57] flex items-center justify-center p-3 sm:p-4">
+        <div className="min-h-screen bg-linear-to-br from-[#2F3D57] via-[#3a4b66] to-[#2F3D57] flex items-center justify-center p-3 sm:p-4">
             <div className={`w-full max-w-xs sm:max-w-sm lg:max-w-md bg-white p-3 sm:p-5 lg:p-6 rounded-2xl shadow-2xl transform hover:scale-[1.01] transition-all duration-300 ${showSignupType ? 'invisible' : ''}`}>
                 {/* Logo and Company Name */}
                 <div className='flex flex-col items-center mb-3 sm:mb-4 space-y-1.5 sm:space-y-2'>
@@ -507,7 +508,7 @@ const Login = () => {
                         />
                     </div>
                     <h1 className='text-lg sm:text-xl lg:text-2xl font-extrabold text-[#2F3D57] tracking-wide text-center'>
-                        <span className='bg-clip-text text-transparent bg-gradient-to-r from-[#2F3D57] to-[#ED7600]'>
+                        <span className='bg-clip-text text-transparent bg-linear-to-r from-[#2F3D57] to-[#ED7600]'>
                             NextGenArchitect
                         </span>
                     </h1>
@@ -545,7 +546,7 @@ const Login = () => {
                         Sign Up
                     </button>
                     <div 
-                        className={`absolute top-0 h-full w-1/2 rounded-full bg-gradient-to-r from-[#2F3D57] to-[#ED7600] shadow-lg ${
+                        className={`absolute top-0 h-full w-1/2 rounded-full bg-linear-to-r from-[#2F3D57] to-[#ED7600] shadow-lg ${
                             isLoginMode ? "left-0" : "left-1/2"
                         } transition-all duration-300 ease-in-out`}
                     ></div>
@@ -656,7 +657,7 @@ const Login = () => {
                     {signupError && !isLoginMode && (
                         <div className="bg-red-50 border border-red-200 rounded-lg p-2 animate-pulse">
                             <div className="flex items-start">
-                                <svg className="w-4 h-4 text-red-500 mt-0.5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg className="w-4 h-4 text-red-500 mt-0.5 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                 </svg>
                                 <span className="text-red-700 text-xs sm:text-sm font-medium">{signupError}</span>
@@ -666,10 +667,21 @@ const Login = () => {
                     {loginError && isLoginMode && (
                         <div className="bg-red-50 border border-red-200 rounded-lg p-2 animate-pulse">
                             <div className="flex items-start">
-                                <svg className="w-4 h-4 text-red-500 mt-0.5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg className="w-4 h-4 text-red-500 mt-0.5 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                 </svg>
-                                <span className="text-red-700 text-xs sm:text-sm font-medium">{loginError}</span>
+                                <div className="w-full">
+                                    <span className="text-red-700 text-xs sm:text-sm font-medium block">{loginError}</span>
+                                    {loginNeedsVerification && (
+                                        <button
+                                            type="button"
+                                            onClick={handleVerifyEmailClick}
+                                            className="mt-2 text-xs sm:text-sm font-semibold text-[#ED7600] hover:text-[#2F3D57] hover:underline"
+                                        >
+                                            Verify Email
+                                        </button>
+                                    )}
+                                </div>
                             </div>
                         </div>
                     )}
@@ -692,7 +704,7 @@ const Login = () => {
                     <button 
                         type="submit"
                         disabled={isLoading || isGoogleLoading}
-                        className='w-full p-2 sm:p-2.5 bg-gradient-to-r from-[#2F3D57] to-[#ED7600] text-white rounded-lg text-sm sm:text-base font-bold hover:from-[#ED7600] hover:to-[#2F3D57] transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:hover:shadow-lg flex items-center justify-center'
+                        className='w-full p-2 sm:p-2.5 bg-linear-to-r from-[#2F3D57] to-[#ED7600] text-white rounded-lg text-sm sm:text-base font-bold hover:from-[#ED7600] hover:to-[#2F3D57] transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:hover:shadow-lg flex items-center justify-center'
                     >
                         {isLoading ? (
                             <>
@@ -748,7 +760,7 @@ const Login = () => {
                             <button 
                                 onClick={handleModeSwitch}
                                 disabled={isLoading || isGoogleLoading}
-                                className='ml-1 font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#2F3D57] to-[#ED7600] hover:underline transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed'
+                                className='ml-1 font-bold text-transparent bg-clip-text bg-linear-to-r from-[#2F3D57] to-[#ED7600] hover:underline transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed'
                             >
                                 {isLoginMode ? "Sign up now" : "Sign in"}
                             </button>
@@ -759,7 +771,7 @@ const Login = () => {
             
             {/* Signup Type Modal */}
             {showSignupType && (
-                <div className="fixed inset-0 flex items-center justify-center z-50 p-4 bg-gradient-to-br from-[#2F3D57] via-[#3a4b66] to-[#2F3D57]">
+                <div className="fixed inset-0 flex items-center justify-center z-50 p-4 bg-linear-to-br from-[#2F3D57] via-[#3a4b66] to-[#2F3D57]">
                     <div className="bg-white rounded-2xl shadow-2xl flex flex-col items-center justify-center animate-fadeIn" style={{ position: 'relative', width: '500px', height: '500px', padding: '3rem' }}>
                             <button 
                                 className="absolute top-4 right-6 text-gray-400 hover:text-[#ED7600] text-2xl font-bold transition-colors duration-200" 
@@ -787,7 +799,7 @@ const Login = () => {
                             
                             <div className="flex flex-row gap-6 mb-8 w-full">
                                 <button 
-                                    className="flex-1 px-8 py-6 bg-gradient-to-r from-[#ED7600] to-[#2F3D57] text-white rounded-xl font-semibold text-xl shadow-lg hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center" 
+                                    className="flex-1 px-8 py-6 bg-linear-to-r from-[#ED7600] to-[#2F3D57] text-white rounded-xl font-semibold text-xl shadow-lg hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center" 
                                     onClick={() => handleSignupType('society')}
                                     disabled={isLoading}
                                 >
@@ -795,7 +807,7 @@ const Login = () => {
                                     <span>Society</span>
                                 </button>
                                 <button 
-                                    className="flex-1 px-8 py-6 bg-gradient-to-r from-[#2F3D57] to-[#ED7600] text-white rounded-xl font-semibold text-xl shadow-lg hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center" 
+                                    className="flex-1 px-8 py-6 bg-linear-to-r from-[#2F3D57] to-[#ED7600] text-white rounded-xl font-semibold text-xl shadow-lg hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center" 
                                     onClick={() => handleSignupType('user')}
                                     disabled={isLoading}
                                 >

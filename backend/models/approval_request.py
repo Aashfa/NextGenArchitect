@@ -9,10 +9,13 @@ class ApprovalRequest:
         self.user_id = ObjectId(user_id) if isinstance(user_id, str) else user_id
         # Optional link to society that owns the plot
         self.society_id = kwargs.get('society_id', '')  # store as string
+        self.society_name = kwargs.get('society_name', '')
         # Plot reference: database ID only; plot_number comes from plots collection
         self.plot_id = kwargs.get('plot_id', '')  # plot document _id (string)
+        self.plot_number = kwargs.get('plot_number', '')
         self.design_type = kwargs.get('design_type', '')
         self.floor_plan_file_url = kwargs.get('floor_plan_file_url', '')
+        self.floor_plan_file_name = kwargs.get('floor_plan_file_name', '')
         # Store floor plan JSON data directly in database instead of as file
         self.floor_plan_data = kwargs.get('floor_plan_data', None)
         self.notes = kwargs.get('notes', '')
@@ -29,9 +32,12 @@ class ApprovalRequest:
         return {
             'user_id': self.user_id,  # Keep as ObjectId for database queries
             'society_id': self.society_id,
+            'society_name': self.society_name,
             'plot_id': self.plot_id,
+            'plot_number': self.plot_number,
             'design_type': self.design_type,
             'floor_plan_file_url': self.floor_plan_file_url,
+            'floor_plan_file_name': self.floor_plan_file_name,
             'floor_plan_data': self.floor_plan_data,
             'notes': self.notes,
             'status': self.status,

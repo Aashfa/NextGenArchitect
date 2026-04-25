@@ -224,17 +224,17 @@ const UserDesignStatus = () => {
                           <MapPin className="w-4 h-4 text-gray-400" />
                           <div>
                             <div className="font-medium text-gray-900">
-                              {req.plot_number || "N/A"}
+                              {req.plot_number || req.plotNumber || "N/A"}
                             </div>
                             <div className="text-xs text-gray-500">
-                              {req.society_name || "Unknown Society"}
+                              {req.society_name || req.societyName || "Unknown Society"}
                             </div>
                           </div>
                         </div>
                       </td>
                       <td className="px-6 py-4">
                         <span className="font-medium text-gray-900">
-                          {req.design_type || "N/A"}
+                          {req.design_type || req.designType || "N/A"}
                         </span>
                       </td>
                       <td className="px-6 py-4">
@@ -316,15 +316,15 @@ const UserDesignStatus = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="text-sm font-semibold text-gray-700">Plot Number</label>
-                  <p className="mt-1 text-gray-900">{selectedRequest.plot_number || "N/A"}</p>
+                  <p className="mt-1 text-gray-900">{selectedRequest.plot_number || selectedRequest.plotNumber || "N/A"}</p>
                 </div>
                 <div>
                   <label className="text-sm font-semibold text-gray-700">Society</label>
-                  <p className="mt-1 text-gray-900">{selectedRequest.society_name || "N/A"}</p>
+                  <p className="mt-1 text-gray-900">{selectedRequest.society_name || selectedRequest.societyName || "N/A"}</p>
                 </div>
                 <div>
                   <label className="text-sm font-semibold text-gray-700">Design Type</label>
-                  <p className="mt-1 text-gray-900">{selectedRequest.design_type || "N/A"}</p>
+                  <p className="mt-1 text-gray-900">{selectedRequest.design_type || selectedRequest.designType || "N/A"}</p>
                 </div>
                 <div>
                   <label className="text-sm font-semibold text-gray-700">Request Date</label>
@@ -373,6 +373,17 @@ const UserDesignStatus = () => {
               )}
 
               {/* Floor Plan */}
+              {selectedRequest.floor_plan_file_name && (
+                <div>
+                  <label className="text-sm font-semibold text-gray-700 mb-2 block">
+                    Uploaded File
+                  </label>
+                  <p className="mt-1 text-gray-700 bg-gray-50 p-3 rounded-lg border border-gray-200">
+                    {selectedRequest.floor_plan_file_name}
+                  </p>
+                </div>
+              )}
+
               {selectedRequest.floor_plan_file_url && (
                 <div>
                   <label className="text-sm font-semibold text-gray-700 mb-2 block">

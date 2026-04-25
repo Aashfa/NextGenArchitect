@@ -82,7 +82,9 @@ def create_approval_request():
         request_data = {
             # Society info comes from the user form (optional but useful for filtering by society)
             'society_id': request.form.get('societyId', ''),
+            'society_name': request.form.get('societyName', ''),
             'plot_id': request.form.get('plotId', ''),
+            'plot_number': request.form.get('plotNumber', ''),
             'design_type': request.form.get('designType', ''),
             'notes': request.form.get('notes', ''),
             'status': 'Pending',

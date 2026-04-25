@@ -317,6 +317,7 @@ const FloorPlanCustomization = () => {
       
       return {
         ...prevData,
+        windows: backendWindows,
         mapData: [
           ...nonWindowMapData,
           ...backendWindows

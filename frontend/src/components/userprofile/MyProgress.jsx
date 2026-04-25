@@ -120,6 +120,7 @@ const MyProgress = () => {
             rooms: plan.floor_plan_data?.rooms || plan.room_data || [],
             walls: plan.floor_plan_data?.walls || [],
             doors: plan.floor_plan_data?.doors || [],
+            windows: plan.floor_plan_data?.windows || [],
             plotDimensions: plan.dimensions || plan.floor_plan_data?.plotDimensions || { width: 1000, height: 1000 },
             mapData: plan.floor_plan_data?.mapData || [],
             constraints: plan.constraints || {},

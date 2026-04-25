@@ -523,8 +523,8 @@ const Window3D = memo(({ position, rotation = [0, 0, 0], width = 1.2, height = 1
     // Use brown/wood frame color like doors, not blue
     const defaultStyling = {
       frameColor: "#8B4513", // Brown wood frame like doors
-      glassColor: "#E0F4FF", // Light blue sky tint
-      glassOpacity: 0.3,
+      glassColor: "#87CEEB", // Light blue (sky color - more visible)
+      glassOpacity: 0.5, // Increased opacity for better visibility
       dividerColor: "#654321" // Darker brown for dividers
     };
     
@@ -1194,36 +1194,32 @@ const generateSmartWindows = (rooms, bounds, detectedWindows = []) => {
     detectedWindows.forEach((window, idx) => {
       console.log(`🪟 Processing detected window ${idx}:`, window);
       
-      // Convert window position to 3D world coordinates
+      // Convert window position to 3D world coordinates using same method as doors
       const x1 = window.x || 0;
       const y1 = window.y || 0;
-      const x2 = x1 + (window.width || 40);
-      const y2 = y1 + (window.height || 60);
+      const windowWidth = window.width || 40;  // Already calculated as abs difference
+      const windowHeight = window.height || 60; // Already calculated as abs difference
       
-      const centerX = (x1 + x2) / 2;
-      const centerY = (y1 + y2) / 2;
-      const windowWidth = Math.abs(x2 - x1);
-      const windowHeight = Math.abs(y2 - y1);
+      const centerX = x1 + windowWidth / 2;
+      const centerY = y1 + windowHeight / 2;
       
-      // Convert to world coordinates
-      const worldPos = convertToWorld3D(centerX, centerY, 1, 1, bounds);
-      
-      // Determine window orientation (horizontal or vertical)
-      const isHorizontal = windowWidth > windowHeight;
+      // Convert to world coordinates using same scaling as doors
+      const worldPos = convertToWorld3D(centerX, centerY, windowWidth, windowHeight, bounds);
       
       // Detect which rooms this window borders (LIKE DOORS)
       const connectedRooms = [];
       // Increased tolerance to match door detection for better snap-to-wall
       const tolerance = 2.0;
       
+      // Check all walls without restriction - don't use isHorizontal here
       rooms.forEach(room => {
         const roomWorld = convertToWorld3D(room.x, room.y, room.width, room.height, bounds);
         const roomCenterX = roomWorld.x + roomWorld.width / 2;
         const roomCenterZ = roomWorld.z + roomWorld.height / 2;
         
         // Check if window is on any of the room's walls
-        // North wall (top edge)
-        if (isHorizontal && Math.abs(worldPos.z - roomWorld.z) < tolerance &&
+        // North wall (top edge) - horizontal wall
+        if (Math.abs(worldPos.z - roomWorld.z) < tolerance &&
             worldPos.x >= roomWorld.x - tolerance && worldPos.x <= roomWorld.x + roomWorld.width + tolerance) {
           connectedRooms.push({
             room: room,
@@ -1231,8 +1227,8 @@ const generateSmartWindows = (rooms, bounds, detectedWindows = []) => {
             wallPosition: worldPos.x - roomCenterX
           });
         }
-        // South wall (bottom edge)
-        else if (isHorizontal && Math.abs(worldPos.z - (roomWorld.z + roomWorld.height)) < tolerance &&
+        // South wall (bottom edge) - horizontal wall
+        else if (Math.abs(worldPos.z - (roomWorld.z + roomWorld.height)) < tolerance &&
                  worldPos.x >= roomWorld.x - tolerance && worldPos.x <= roomWorld.x + roomWorld.width + tolerance) {
           connectedRooms.push({
             room: room,
@@ -1240,8 +1236,8 @@ const generateSmartWindows = (rooms, bounds, detectedWindows = []) => {
             wallPosition: worldPos.x - roomCenterX
           });
         }
-        // West wall (left edge)
-        else if (!isHorizontal && Math.abs(worldPos.x - roomWorld.x) < tolerance &&
+        // West wall (left edge) - vertical wall
+        else if (Math.abs(worldPos.x - roomWorld.x) < tolerance &&
                  worldPos.z >= roomWorld.z - tolerance && worldPos.z <= roomWorld.z + roomWorld.height + tolerance) {
           connectedRooms.push({
             room: room,
@@ -1249,8 +1245,8 @@ const generateSmartWindows = (rooms, bounds, detectedWindows = []) => {
             wallPosition: worldPos.z - roomCenterZ
           });
         }
-        // East wall (right edge)
-        else if (!isHorizontal && Math.abs(worldPos.x - (roomWorld.x + roomWorld.width)) < tolerance &&
+        // East wall (right edge) - vertical wall
+        else if (Math.abs(worldPos.x - (roomWorld.x + roomWorld.width)) < tolerance &&
                  worldPos.z >= roomWorld.z - tolerance && worldPos.z <= roomWorld.z + roomWorld.height + tolerance) {
           connectedRooms.push({
             room: room,
@@ -1266,7 +1262,8 @@ const generateSmartWindows = (rooms, bounds, detectedWindows = []) => {
       // Position window at the exact wall boundary if between two rooms
       let finalX = worldPos.x;
       let finalZ = worldPos.z;
-      let finalRotation = isHorizontal ? [0, 0, 0] : [0, Math.PI/2, 0];
+      let finalRotation = [0, 0, 0];
+      let finalWindowWidth = worldPos.width;  // Default to width
       
       if (connectedRooms.length >= 1) {
         const firstRoom = connectedRooms[0];
@@ -1276,23 +1273,31 @@ const generateSmartWindows = (rooms, bounds, detectedWindows = []) => {
         const roomCenterZ = roomWorld.z + roomWorld.height / 2;
         const wallThickness = 0.08; // Must match Room3D wall thickness
         
-        // Position at exact wall boundary based on wall type
+        // Position at exact wall boundary based on wall type AND set proper rotation
         if (firstRoom.wall === 'north') {
+          // Horizontal wall - window spans in X direction, rotation stays [0, 0, 0]
           finalZ = roomCenterZ - roomWorld.height/2 + wallThickness/2;
           finalX = roomCenterX + firstRoom.wallPosition;
           finalRotation = [0, 0, 0];
+          finalWindowWidth = worldPos.width;  // Width spans the wall (X direction)
         } else if (firstRoom.wall === 'south') {
+          // Horizontal wall - window spans in X direction
           finalZ = roomCenterZ + roomWorld.height/2 - wallThickness/2;
           finalX = roomCenterX + firstRoom.wallPosition;
           finalRotation = [0, Math.PI, 0];
+          finalWindowWidth = worldPos.width;  // Width spans the wall (X direction)
         } else if (firstRoom.wall === 'east') {
+          // Vertical wall - window spans in Z direction, needs rotation
           finalX = roomCenterX + roomWorld.width/2 - wallThickness/2;
           finalZ = roomCenterZ + firstRoom.wallPosition;
           finalRotation = [0, -Math.PI/2, 0];
+          finalWindowWidth = worldPos.height;  // Use height for Z-direction wall
         } else if (firstRoom.wall === 'west') {
+          // Vertical wall - window spans in Z direction, needs rotation
           finalX = roomCenterX - roomWorld.width/2 + wallThickness/2;
           finalZ = roomCenterZ + firstRoom.wallPosition;
           finalRotation = [0, Math.PI/2, 0];
+          finalWindowWidth = worldPos.height;  // Use height for Z-direction wall
         }
       }
       
@@ -1304,8 +1309,8 @@ const generateSmartWindows = (rooms, bounds, detectedWindows = []) => {
         id: uniqueId,
         position: [finalX, 0, finalZ], // Global position at wall boundary
         rotation: finalRotation,
-        width: Math.max(0.6, (isHorizontal ? windowWidth : windowHeight) / 100),
-        height: 1.2,
+        width: Math.max(0.6, finalWindowWidth),  // Use properly scaled width based on wall orientation
+        height: 1.2,  // Standard window height (1.2m)
         roomType: 'detected',
         isDetected: true,
         connectedRooms: connectedRooms.map(cr => cr.room.id), // Room IDs like doors
@@ -2135,9 +2140,11 @@ const Room3D = ({ room, bounds, showLabels = true, doors = [], windows = [], wal
                   const roomPosData = window.roomPositions.find(rp => rp.roomId === room.id);
                   wallPosition = roomPosData?.wallPosition || 0;
                 }
+                // Scale window width for proper wall cutouts
+                const scaledWindowWidth = Math.max(1.2, Math.min(window.width * 0.02, world.width * 0.5));
                 return {
                   type: 'window',
-                  width: window.width || 1.2,
+                  width: scaledWindowWidth,
                   position: wallPosition
                 };
               })
@@ -2322,8 +2329,8 @@ const Room3D = ({ room, bounds, showLabels = true, doors = [], windows = [], wal
             key={window.id || `local-window-${room.id}-${idx}`}
             position={[windowX, 0, windowZ]}
             rotation={windowRotation}
-            width={window.width || 1.4}
-            height={window.height || 1.2}
+            width={Math.max(1.2, Math.min(window.width * 0.02, world.width * 0.5))}
+            height={Math.max(0.9, Math.min(window.height * 0.015, 1.4))}
             roomType={window.roomType || room.type || 'default'}
             customColors={customColors}
           />

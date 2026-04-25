@@ -138,6 +138,53 @@ const KonvaFloorPlan = forwardRef(({
     setTotalFloorArea(realTotalArea);
   }, [floorPlanData?.actualLength, floorPlanData?.actualWidth]);
 
+  // Initialize windows, doors, and stairs from floorPlanData on first load
+  // This runs before the main conversion useEffect to ensure data is loaded
+  useEffect(() => {
+    if (!floorPlanData || isUserInteracting.current) return;
+    
+    console.log('🔄 KonvaFloorPlan: Initializing windows/doors/stairs from floorPlanData');
+    console.log('   Windows in data:', floorPlanData.windows?.length || 0);
+    console.log('   Doors in data:', floorPlanData.doors?.length || 0);
+    console.log('   MapData items:', floorPlanData.mapData?.length || 0);
+    
+    // Extract windows from floorPlanData (before layout conversion)
+    const windowsFromData = [];
+    if (floorPlanData.mapData && Array.isArray(floorPlanData.mapData)) {
+      const mapWindows = floorPlanData.mapData.filter(item => item.type === 'Window');
+      windowsFromData.push(...mapWindows);
+      if (mapWindows.length > 0) {
+        console.log(`   Found ${mapWindows.length} windows in mapData`);
+      }
+    }
+    if (floorPlanData.windows && Array.isArray(floorPlanData.windows)) {
+      windowsFromData.push(...floorPlanData.windows);
+      if (floorPlanData.windows.length > 0) {
+        console.log(`   Found ${floorPlanData.windows.length} windows in windows array`);
+      }
+    }
+    
+    // Extract doors from floorPlanData (before layout conversion)
+    const doorsFromData = [];
+    if (floorPlanData.mapData && Array.isArray(floorPlanData.mapData)) {
+      const mapDoors = floorPlanData.mapData.filter(item => item.type === 'Door');
+      doorsFromData.push(...mapDoors);
+      if (mapDoors.length > 0) {
+        console.log(`   Found ${mapDoors.length} doors in mapData`);
+      }
+    }
+    if (floorPlanData.doors && Array.isArray(floorPlanData.doors)) {
+      doorsFromData.push(...floorPlanData.doors);
+      if (floorPlanData.doors.length > 0) {
+        console.log(`   Found ${floorPlanData.doors.length} doors in doors array`);
+      }
+    }
+    
+    if (windowsFromData.length > 0 || doorsFromData.length > 0) {
+      console.log('✅ Windows and doors will be converted to Konva coordinates in main useEffect');
+    }
+  }, [floorPlanData?.windows?.length, floorPlanData?.doors?.length, floorPlanData?.mapData?.length]);
+
   // Helper function to check and constrain room within allocated area
   const constrainRoomToBoundary = useCallback((x, y, roomWidth, roomHeight, showWarning = true) => {
     const { offsetX, offsetY, scaledWidth, scaledHeight } = layoutProps;
@@ -710,6 +757,18 @@ const KonvaFloorPlan = forwardRef(({
 
       const finalWindowsData = windowsData;
       
+      console.log('💾 KonvaFloorPlan: Converted data summary:');
+      console.log(`   Rooms: ${roomsData.length}`);
+      console.log(`   Doors: ${finalDoorsData.length}`);
+      console.log(`   Windows: ${finalWindowsData.length}`);
+      
+      if (finalWindowsData.length > 0) {
+        console.log('   First window (Konva coords):', finalWindowsData[0]);
+      }
+      if (finalDoorsData.length > 0) {
+        console.log('   First door (Konva coords):', finalDoorsData[0]);
+      }
+      
       // Merge with existing manually created rooms (those not from floorPlanData)
       setRooms(prevRooms => {
         // Find manually created rooms (IDs starting with 'new-room-' or 'created-room-')
@@ -782,8 +841,15 @@ const KonvaFloorPlan = forwardRef(({
           !window.id || !window.id.toString().startsWith('new-window-')
         );
         
+        const finalWindows = [...floorPlanOnlyWindows, ...manualWindows];
+        console.log('🪟 setWindows called:', { 
+          manual: manualWindows.length, 
+          fromFloorPlan: floorPlanOnlyWindows.length,
+          total: finalWindows.length 
+        });
+        
         // Combine: windows from floorPlanData (excluding manual ones) + manual windows
-        return [...floorPlanOnlyWindows, ...manualWindows];
+        return finalWindows;
       });
 
       // Convert stairs data with proper scaling

@@ -70,6 +70,12 @@ const PersonalInfoForm = () => {
     setMessage({ type: '', text: '' });
 
     try {
+      if (!/^\d{13}$/.test(form.cnic)) {
+        setMessage({ type: 'error', text: 'CNIC must be exactly 13 digits.' });
+        setLoading(false);
+        return;
+      }
+
       // Create FormData for API request
       const profileData = {
         firstName: form.firstName,
@@ -162,7 +168,7 @@ const PersonalInfoForm = () => {
       <div className="flex-1 overflow-y-auto p-6">
         <div className="w-full space-y-6">
           {/* Header */}
-          <div className="bg-gradient-to-r from-[#2F3D57] to-[#1e293b] rounded-2xl p-6 text-white">
+          <div className="bg-linear-to-r from-[#2F3D57] to-[#1e293b] rounded-2xl p-6 text-white">
             <div className="flex items-center space-x-4">
               <div className="bg-white/20 p-3 rounded-xl">
                 <FiUser className="w-6 h-6" />
@@ -182,7 +188,7 @@ const PersonalInfoForm = () => {
                 : 'bg-red-50 border-red-400 text-red-700'
             }`}>
               <div className="flex items-center">
-                <div className="flex-shrink-0">
+                <div className="shrink-0">
                   {message.type === 'success' ? (
                     <FiCheckCircle className="h-4 w-4" />
                   ) : (
@@ -295,11 +301,17 @@ const PersonalInfoForm = () => {
                   }
                 }}
                 maxLength={13}
+                pattern="^\d{13}$"
+                inputMode="numeric"
+                title="CNIC must be exactly 13 digits"
                 className="w-full px-4 py-4 border border-gray-200 rounded-xl bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#ED7600] focus:border-transparent transition-all duration-200 text-gray-800 placeholder-gray-400"
                 placeholder="13-digit CNIC without dashes"
                 required
               />
-              <p className="text-xs text-gray-500 mt-2 ml-1">Enter 13 digits without dashes</p>
+              <p className="text-xs text-gray-500 mt-2 ml-1">Enter exactly 13 digits without dashes</p>
+              {form.cnic && form.cnic.length !== 13 && (
+                <p className="text-xs text-red-600 mt-1 ml-1">CNIC must be exactly 13 digits</p>
+              )}
             </div>
             
             <div className="space-y-2">
@@ -309,7 +321,7 @@ const PersonalInfoForm = () => {
               </label>
               <div className="flex items-center space-x-6">
                 <div className="relative group">
-                  <div className="w-24 h-24 rounded-2xl overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center border-2 border-gray-200 shadow-md">
+                  <div className="w-24 h-24 rounded-2xl overflow-hidden bg-linear-to-br from-gray-100 to-gray-200 flex items-center justify-center border-2 border-gray-200 shadow-md">
                     {form.profileImage ? (
                       <img
                         src={URL.createObjectURL(form.profileImage)}
@@ -331,7 +343,7 @@ const PersonalInfoForm = () => {
                     )}
                   </div>
                 </div>
-                <label className="cursor-pointer bg-gradient-to-r from-[#ED7600] to-[#f59e0b] hover:from-[#D56900] hover:to-[#ea580c] text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105">
+                <label className="cursor-pointer bg-linear-to-r from-[#ED7600] to-[#f59e0b] hover:from-[#D56900] hover:to-[#ea580c] text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105">
                   <FiCamera className="w-4 h-4 inline mr-2" />
                   {existingProfile?.profile_image_url ? 'Change Photo' : 'Upload Photo'}
                   <input
@@ -359,7 +371,7 @@ const PersonalInfoForm = () => {
                     className={`px-6 py-3 rounded-xl font-semibold shadow-lg transition-all duration-200 transform hover:scale-105 ${
                       loading 
                         ? 'bg-gray-400 cursor-not-allowed text-white' 
-                        : 'bg-gradient-to-r from-[#ED7600] to-[#f59e0b] hover:from-[#D56900] hover:to-[#ea580c] text-white hover:shadow-xl'
+                        : 'bg-linear-to-r from-[#ED7600] to-[#f59e0b] hover:from-[#D56900] hover:to-[#ea580c] text-white hover:shadow-xl'
                     }`}
                   >
                     {loading ? (

@@ -468,10 +468,10 @@ const MyProgress = () => {
             )}
             {savedPlans.length === 0 && (
               <button
-                onClick={() => navigate('/user/plot-browsing')}
+                onClick={() => navigate('/floor-plan/generate')}
                 className="bg-[#ED7600] text-white px-6 py-3 rounded-lg hover:bg-[#d46000] transition-colors font-semibold"
               >
-                Browse Plots
+                Generate
               </button>
             )}
           </div>

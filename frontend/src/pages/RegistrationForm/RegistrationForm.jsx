@@ -191,11 +191,11 @@ const RegistrationForm = () => {
     } 
     // Website URL validation
     else if (name === 'website') {
-      // Validate URL format: https://www.domain.com
-      const urlPattern = /^https:\/\/www\..+\..+$/;
+      // Validate URL format: https://domain.com
+      const urlPattern = /^https:\/\/.+\..+$/;
       
       if (value.length > 0 && !urlPattern.test(value)) {
-        setWebsiteError('Website must be in format: https://www.example.com');
+        setWebsiteError('Website must be in format: https://example.com');
       } else {
         setWebsiteError('');
       }
@@ -323,7 +323,7 @@ const RegistrationForm = () => {
     if (websiteError) {
       showPopup(
         'Validation Error',
-        'Please enter a valid website URL in format: https://www.example.com',
+        'Please enter a valid website URL in format: https://example.com',
         'error'
       );
       return;
@@ -331,7 +331,7 @@ const RegistrationForm = () => {
 
     // Check if website URL is provided and valid
     if (form.website && form.website.trim().length > 0) {
-      const urlPattern = /^https:\/\/www\..+\..+$/;
+      const urlPattern = /^https:\/\/.+\..+$/;
       if (!urlPattern.test(form.website)) {
         showPopup(
           'Validation Error',
@@ -1162,7 +1162,7 @@ const RegistrationForm = () => {
                 </Typography>
                 <TextField 
                   name="website"
-                  placeholder="https://www.yoursociety.com"
+                  placeholder="https://yoursociety.com"
                   value={form.website} 
                   onChange={handleChange} 
                   onFocus={() => setFocusedField('website')}
@@ -1170,7 +1170,7 @@ const RegistrationForm = () => {
                   fullWidth 
                   required
                   error={!!websiteError}
-                  helperText={getHelperText('website', 'Use format: https://www.example.com', websiteError)}
+                  helperText={getHelperText('website', 'Use format: https://example.com', websiteError)}
                   sx={{
                     '& .MuiOutlinedInput-root': {
                       borderRadius: 2,

@@ -1,11 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Box, Grid, TextField, Button, Typography, Alert, Paper, MenuItem } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { getSocietyProfile, updateSocietyProfile } from '../../services/apiService';
+import { AuthContext } from '../../context/AuthContext';
 import PopupModal from '../../components/common/PopupModal';
 
 const SocietyProfileSetup = () => {
   const navigate = useNavigate();
+  const { logout } = useContext(AuthContext);
+
+  const handleLogout = async () => {
+    await logout();
+    window.location.href = '/login';
+  };
 
   const formatPhoneForInput = (phone) => {
     if (!phone) return '';
@@ -492,9 +499,32 @@ const SocietyProfileSetup = () => {
     <Box className="subadmin-panel-typography" sx={{ minHeight: '100vh', background: '#f5f5f5', p: 3 }}>
       <Box sx={{ maxWidth: 1000, mx: 'auto' }}>
         <Paper elevation={3} sx={{ p: 4, mb: 3 }}>
-          <Typography variant="h4" sx={{ color: '#2F3D57', fontWeight: 700, mb: 2, textAlign: 'center' }}>
-            Complete Your Society Profile
-          </Typography>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+            <Typography variant="h4" sx={{ color: '#2F3D57', fontWeight: 700 }}>
+              Complete Your Society Profile
+            </Typography>
+            <Button
+              onClick={handleLogout}
+              variant="contained"
+              sx={{
+                backgroundColor: '#ED7600',
+                color: 'white',
+                fontWeight: 600,
+                textTransform: 'none',
+                fontSize: 14,
+                px: 3,
+                py: 1,
+                borderRadius: 2,
+                '&:hover': {
+                  backgroundColor: '#d65c00',
+                  boxShadow: '0 4px 8px rgba(237, 118, 0, 0.3)'
+                },
+                transition: 'all 0.3s ease'
+              }}
+            >
+              Logout
+            </Button>
+          </Box>
           <Typography variant="body1" sx={{ color: '#666', mb: 3, textAlign: 'center' }}>
             Please fill in all required information to access your dashboard
           </Typography>

@@ -875,11 +875,6 @@ function SocietyRow({ society, onDelete, onEdit, onView, onStatusUpdate, isSelec
     }
   };
 
-  const formatPlots = (plotsString) => {
-    if (!plotsString) return 'N/A';
-    return plotsString.split(',').map(plot => plot.trim()).join(', ');
-  };
-
   const getAuthorityIcon = (authority) => {
     switch(authority?.toLowerCase()) {
       case 'lda': return '🏛️';
@@ -967,71 +962,70 @@ function SocietyRow({ society, onDelete, onEdit, onView, onStatusUpdate, isSelec
         </div>
       </td>
       <td className="py-4 px-3">
-        <div className="text-gray-700">
-          <div className="font-medium text-xs mb-1">Available Plots:</div>
-          <div className="text-xs bg-gray-100 px-2 py-1 rounded text-center">
-            {formatPlots(society.plots)}
+        <div className="space-y-4 min-w-70">
+          <div>
+            <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500 mb-2">Current Status</div>
+            <StatusBadge status={society.status || 'pending'} />
+            <div className="text-xs text-gray-500 mt-2">
+              Created: {formatDate(society.created_at)}
+            </div>
           </div>
-        </div>
-      </td>
-      <td className="py-4 px-3">
-        <div className="space-y-2">
-          <StatusBadge status={society.status || 'pending'} />
-          <div className="text-xs text-gray-500">
-            Created: {formatDate(society.created_at)}
-          </div>
-          
+
           {/* Project Status Badges */}
           {(society.land_acquisition_status || society.procurement_status) && (
-            <div className="space-y-1 pt-2 border-t border-gray-200">
+            <div className="space-y-2 pt-3 border-t border-gray-200">
+              <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">Project Progress</div>
               {society.land_acquisition_status && (
-                <div className="flex items-center text-xs">
-                  <span className="text-gray-500 mr-1">Land:</span>
-                  <span className="px-2 py-0.5 bg-orange-100 text-orange-700 rounded font-medium capitalize">
+                <div className="flex items-center justify-between gap-2 text-xs">
+                  <span className="text-gray-500">Land Acquisition</span>
+                  <span className="px-2 py-0.5 bg-orange-100 text-orange-700 rounded font-medium capitalize whitespace-nowrap">
                     {society.land_acquisition_status}
                   </span>
                 </div>
               )}
               {society.procurement_status && (
-                <div className="flex items-center text-xs">
-                  <span className="text-gray-500 mr-1">Proc:</span>
-                  <span className="px-2 py-0.5 bg-teal-100 text-teal-700 rounded font-medium capitalize">
+                <div className="flex items-center justify-between gap-2 text-xs">
+                  <span className="text-gray-500">Procurement</span>
+                  <span className="px-2 py-0.5 bg-teal-100 text-teal-700 rounded font-medium capitalize whitespace-nowrap">
                     {society.procurement_status}
                   </span>
                 </div>
               )}
             </div>
           )}
-          
+
           {/* Status Update Buttons */}
-          <div className="flex flex-wrap gap-1">
-            {society.status !== 'approved' && (
-              <button
-                onClick={() => handleStatusChange('approved')}
-                className="px-2 py-1 text-xs bg-green-100 text-green-700 rounded hover:bg-green-200 transition-colors"
-                title="Approve"
-              >
-                ✓ Approve
-              </button>
-            )}
-            {society.status !== 'rejected' && (
-              <button
-                onClick={() => handleStatusChange('rejected')}
-                className="px-2 py-1 text-xs bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors"
-                title="Reject"
-              >
-                ✗ Reject
-              </button>
-            )}
-            {society.status !== 'pending' && (
-              <button
-                onClick={() => handleStatusChange('pending')}
-                className="px-2 py-1 text-xs bg-yellow-100 text-yellow-700 rounded hover:bg-yellow-200 transition-colors"
-                title="Mark Pending"
-              >
-                ⏳ Pending
-              </button>
-            )}
+          <div className="space-y-2 pt-3 border-t border-gray-200">
+            <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">Update Status</div>
+            <div className="grid grid-cols-1 gap-2">
+              {society.status !== 'approved' && (
+                <button
+                  onClick={() => handleStatusChange('approved')}
+                  className="w-full px-3 py-2 text-xs bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors border border-green-200 font-semibold"
+                  title="Approve"
+                >
+                  ✓ Approve
+                </button>
+              )}
+              {society.status !== 'rejected' && (
+                <button
+                  onClick={() => handleStatusChange('rejected')}
+                  className="w-full px-3 py-2 text-xs bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors border border-red-200 font-semibold"
+                  title="Reject"
+                >
+                  ✗ Reject
+                </button>
+              )}
+              {society.status !== 'pending' && (
+                <button
+                  onClick={() => handleStatusChange('pending')}
+                  className="w-full px-3 py-2 text-xs bg-yellow-100 text-yellow-700 rounded-lg hover:bg-yellow-200 transition-colors border border-yellow-200 font-semibold"
+                  title="Mark Pending"
+                >
+                  ⏳ Pending
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </td>
@@ -1529,7 +1523,6 @@ export default function SocietyVerificationDashboard() {
                     <th className="py-4 px-3 text-left text-[11px] font-semibold text-gray-700 uppercase">Type & Reg No</th>
                     <th className="py-4 px-3 text-left text-[11px] font-semibold text-gray-700 uppercase">Authority & Date</th>
                     <th className="py-4 px-3 text-left text-[11px] font-semibold text-gray-700 uppercase">Contact Info</th>
-                    <th className="py-4 px-3 text-left text-[11px] font-semibold text-gray-700 uppercase">Available Plots</th>
                     <th className="py-4 px-3 text-left text-[11px] font-semibold text-gray-700 uppercase">Status</th>
                     <th className="py-4 px-3 text-center text-[11px] font-semibold text-gray-700 uppercase">Actions</th>
                   </tr>
@@ -1537,7 +1530,7 @@ export default function SocietyVerificationDashboard() {
                 <tbody className="divide-y divide-gray-200">
                   {displayedSocieties.length === 0 ? (
                     <tr>
-                      <td colSpan={8} className="text-center py-16">
+                      <td colSpan={7} className="text-center py-16">
                         <Building className="mx-auto text-gray-400 mb-4" size={48} />
                         <h3 className="text-lg font-semibold text-gray-600 mb-2">No society registrations found</h3>
                         <p className="text-gray-500">

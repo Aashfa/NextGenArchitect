@@ -719,43 +719,88 @@ const KonvaFloorPlan = forwardRef(({
       // Convert windows data with proper scaling
       let windowsData = [];
       
-      // Check mapData for windows
+      // Check mapData for windows (both 'Window' and 'window')
       if (floorPlanData.mapData && Array.isArray(floorPlanData.mapData)) {
         const mapWindows = floorPlanData.mapData
-          .filter(item => item.type === 'Window')
-          .map((window, index) => ({
-            id: window.id || `window-${index}`,
-            points: [
-              (window.x1 || 0) * coordScaleX + offsetX, 
-              (window.y1 || 0) * coordScaleY + offsetY, 
-              (window.x2 || 0) * coordScaleX + offsetX, 
-              (window.y2 || 0) * coordScaleY + offsetY
-            ],
-            stroke: '#87CEEB',
-            strokeWidth: Math.max(5, 3 * scale),
-            lineCap: 'round'
-          }));
+          .filter(item => item.type === 'Window' || item.type === 'window')
+          .map((window, index) => {
+            // Support multiple point formats from backend
+            let points = [];
+            if (window.points && Array.isArray(window.points) && window.points.length >= 4) {
+              // Direct points array format
+              points = [
+                window.points[0] * coordScaleX + offsetX,
+                window.points[1] * coordScaleY + offsetY,
+                window.points[2] * coordScaleX + offsetX,
+                window.points[3] * coordScaleY + offsetY
+              ];
+            } else if (window.x1 !== undefined && window.y1 !== undefined && window.x2 !== undefined && window.y2 !== undefined) {
+              // Individual x1, y1, x2, y2 format
+              points = [
+                window.x1 * coordScaleX + offsetX,
+                window.y1 * coordScaleY + offsetY,
+                window.x2 * coordScaleX + offsetX,
+                window.y2 * coordScaleY + offsetY
+              ];
+            } else {
+              console.warn('⚠️ Invalid window data format:', window);
+              return null;
+            }
+            
+            return {
+              id: window.id || `window-${index}`,
+              points: points,
+              stroke: window.stroke || '#87CEEB',
+              strokeWidth: Math.max(8, (window.strokeWidth || 3) * scale),
+              lineCap: 'round'
+            };
+          })
+          .filter(w => w !== null);
         windowsData = [...windowsData, ...mapWindows];
+        if (mapWindows.length > 0) console.log(`🪟 Found ${mapWindows.length} windows in mapData`);
       }
       
       // Check direct windows array
       if (floorPlanData.windows && Array.isArray(floorPlanData.windows)) {
-        const directWindows = floorPlanData.windows.map((window, index) => ({
-          id: window.id || `direct-window-${index}`,
-          points: [
-            (window.x1 || 0) * coordScaleX + offsetX, 
-            (window.y1 || 0) * coordScaleY + offsetY, 
-            (window.x2 || 0) * coordScaleX + offsetX, 
-            (window.y2 || 0) * coordScaleY + offsetY
-          ],
-          stroke: '#87CEEB',
-          strokeWidth: Math.max(5, 3 * scale),
-          lineCap: 'round'
-        }));
+        const directWindows = floorPlanData.windows.map((window, index) => {
+          let points = [];
+          if (window.points && Array.isArray(window.points) && window.points.length >= 4) {
+            points = [
+              window.points[0] * coordScaleX + offsetX,
+              window.points[1] * coordScaleY + offsetY,
+              window.points[2] * coordScaleX + offsetX,
+              window.points[3] * coordScaleY + offsetY
+            ];
+          } else if (window.x1 !== undefined && window.y1 !== undefined && window.x2 !== undefined && window.y2 !== undefined) {
+            points = [
+              window.x1 * coordScaleX + offsetX,
+              window.y1 * coordScaleY + offsetY,
+              window.x2 * coordScaleX + offsetX,
+              window.y2 * coordScaleY + offsetY
+            ];
+          } else {
+            console.warn('⚠️ Invalid direct window format:', window);
+            return null;
+          }
+          
+          return {
+            id: window.id || `direct-window-${index}`,
+            points: points,
+            stroke: window.stroke || '#87CEEB',
+            strokeWidth: Math.max(8, (window.strokeWidth || 3) * scale),
+            lineCap: 'round'
+          };
+        })
+        .filter(w => w !== null);
         windowsData = [...windowsData, ...directWindows];
+        if (directWindows.length > 0) console.log(`🪟 Found ${directWindows.length} windows in direct windows array`);
       }
 
       const finalWindowsData = windowsData;
+      console.log(`🪟 Total windows to render: ${finalWindowsData.length}`);
+      if (finalWindowsData.length > 0) {
+        console.log('🪟 First window:', finalWindowsData[0]);
+      }
       
       console.log('💾 KonvaFloorPlan: Converted data summary:');
       console.log(`   Rooms: ${roomsData.length}`);
@@ -831,24 +876,40 @@ const KonvaFloorPlan = forwardRef(({
       
       // Merge with existing manually created windows (those not from floorPlanData)
       setWindows(prevWindows => {
-        // Find manually created windows (IDs starting with 'new-window-')
-        const manualWindows = prevWindows.filter(window => 
-          window.id && window.id.toString().startsWith('new-window-')
-        );
-        
-        // Remove any windows from finalWindowsData that have IDs matching manual windows (to avoid duplicates)
-        const floorPlanOnlyWindows = finalWindowsData.filter(window =>
-          !window.id || !window.id.toString().startsWith('new-window-')
-        );
-        
-        const finalWindows = [...floorPlanOnlyWindows, ...manualWindows];
-        console.log('🪟 setWindows called:', { 
-          manual: manualWindows.length, 
-          fromFloorPlan: floorPlanOnlyWindows.length,
-          total: finalWindows.length 
+        console.log('🪟 setWindows - BEFORE MERGE:', {
+          prevWindowsLength: prevWindows?.length || 0,
+          finalWindowsDataLength: finalWindowsData?.length || 0,
+          prevWindowsIds: prevWindows?.map(w => w.id) || [],
+          finalWindowsIds: finalWindowsData?.map(w => w.id) || []
         });
         
-        // Combine: windows from floorPlanData (excluding manual ones) + manual windows
+        // Use a Map to deduplicate by ID - last occurrence wins
+        const uniqueWindowsMap = new Map();
+        
+        // Add floorPlan windows first
+        finalWindowsData.forEach(window => {
+          if (window.id) {
+            uniqueWindowsMap.set(window.id, window);
+          }
+        });
+        
+        // Add manual windows (override if same ID)
+        prevWindows.forEach(window => {
+          if (window.id) {
+            uniqueWindowsMap.set(window.id, window);
+          }
+        });
+        
+        // Convert map back to array
+        const finalWindows = Array.from(uniqueWindowsMap.values());
+        
+        console.log('🪟 setWindows - AFTER MERGE:', { 
+          floorPlanCount: finalWindowsData.length,
+          manualCount: prevWindows.length,
+          uniqueCount: finalWindows.length,
+          finalWindowsIds: finalWindows?.map(w => w.id)
+        });
+        
         return finalWindows;
       });
 
@@ -3532,33 +3593,51 @@ const KonvaFloorPlan = forwardRef(({
             );
           })}
 
-          {/* Windows - render on top */}
-          {windows.map(window => {
+          {/* Windows - render on top with maximum visibility */}
+          {(() => {
+            console.log('🪟 RENDER CHECK: windows array:', {
+              length: windows?.length,
+              isArray: Array.isArray(windows),
+              windows: windows,
+              first: windows?.[0]
+            });
+            return null;
+          })()}
+          {windows && windows.length > 0 && windows.map((window, windowIndex) => {
+            console.log('🪟 Rendering window:', window.id);
+            if (!window || !window.points || window.points.length < 4) {
+              console.warn('🪟 Window skipped - invalid points:', window);
+              return null;
+            }
+            
             const x1 = window.points[0];
             const y1 = window.points[1];
             const x2 = window.points[2];
             const y2 = window.points[3];
-            
             const isSelected = selectedWindow === window.id;
             
             return (
-              <Group key={window.id}>
-                {/* Window - light blue line */}
+              <Group key={`window-${window.id}-${windowIndex}`}>
+                {/* Window - bright blue line */}
                 <Line
+                  x={0}
+                  y={0}
                   points={[x1, y1, x2, y2]}
-                  stroke={isSelected ? "#2196F3" : "#87CEEB"}
-                  strokeWidth={Math.max(6, window.strokeWidth * 1.5)}
+                  stroke={isSelected ? "#1565C0" : "#42A5F5"}
+                  strokeWidth={Math.max(8, (window.strokeWidth || 3) * 2)}
                   lineCap="round"
                   draggable={isEditable}
                   onDragStart={(e) => handleWindowDragStart(e, window.id)}
-                  onDragMove={(e) => handleWindowDragMove(e, window.id)}
                   onDragEnd={(e) => handleWindowDragEnd(e, window.id)}
-                  onClick={(e) => handleWindowClick(e, window.id)}
+                  onClick={(e) => {
+                    e.cancelBubble = true;
+                    handleWindowClick(e, window.id);
+                  }}
                   onContextMenu={(e) => handleContextMenu(e, 'window', window.id)}
                   style={{ cursor: isEditable ? 'move' : 'default' }}
                 />
                 
-                {/* Window selection indicators */}
+                {/* Window endpoint handles - draggable */}
                 {isSelected && isEditable && (
                   <>
                     {/* Start point handle */}
@@ -3566,20 +3645,54 @@ const KonvaFloorPlan = forwardRef(({
                       x={x1}
                       y={y1}
                       radius={6}
-                      fill="#87CEEB"
-                      stroke="#4682B4"
+                      fill="#42A5F5"
+                      stroke="#1565C0"
                       strokeWidth={2}
-                      draggable={false}
+                      draggable={true}
+                      onDragEnd={(e) => {
+                        const newX = e.target.x();
+                        const newY = e.target.y();
+                        // Reset position first to avoid visual glitch
+                        e.target.position({ x: 0, y: 0 });
+                        // Update window points with functional updater
+                        setWindows(prev => {
+                          const updated = prev.map(w =>
+                            w.id === window.id
+                              ? { ...w, points: [newX, newY, w.points[2], w.points[3]] }
+                              : w
+                          );
+                          if (onWindowsChange) onWindowsChange(updated);
+                          return updated;
+                        });
+                      }}
+                      style={{ cursor: 'move' }}
                     />
                     {/* End point handle */}
                     <Circle
                       x={x2}
                       y={y2}
                       radius={6}
-                      fill="#87CEEB"
-                      stroke="#4682B4"
+                      fill="#42A5F5"
+                      stroke="#1565C0"
                       strokeWidth={2}
-                      draggable={false}
+                      draggable={true}
+                      onDragEnd={(e) => {
+                        const newX = e.target.x();
+                        const newY = e.target.y();
+                        // Reset position first to avoid visual glitch
+                        e.target.position({ x: 0, y: 0 });
+                        // Update window points with functional updater
+                        setWindows(prev => {
+                          const updated = prev.map(w =>
+                            w.id === window.id
+                              ? { ...w, points: [w.points[0], w.points[1], newX, newY] }
+                              : w
+                          );
+                          if (onWindowsChange) onWindowsChange(updated);
+                          return updated;
+                        });
+                      }}
+                      style={{ cursor: 'move' }}
                     />
                   </>
                 )}

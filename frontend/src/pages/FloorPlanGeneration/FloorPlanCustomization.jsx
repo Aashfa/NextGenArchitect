@@ -1051,6 +1051,52 @@ const FloorPlanCustomization = () => {
         return;
       }
 
+      // ✅ VALIDATE: Check for duplicate floor plan names
+      if (projectName && projectName.trim()) {
+        try {
+          console.log(`🔍 Checking for duplicate floor plans for user ${user.id}`);
+          const checkResponse = await fetch(`/api/floorplan/user/${user.id}`);
+          
+          if (checkResponse.ok) {
+            const result = await checkResponse.json();
+            // ✅ FIXED: Use correct key from backend response
+            const existingPlans = result.floor_plans || result.data || [];
+            
+            console.log(`📋 Found ${existingPlans.length} existing plans:`, existingPlans.map(p => p.project_name));
+            
+            // Check for duplicates (case-insensitive) - but allow if it's the SAME plan being updated
+            const isDuplicate = existingPlans.some(plan => {
+              // Skip the current plan if it has an ID (it's an update, not new create)
+              const isCurrentPlan = floorPlanData._id && String(plan._id) === String(floorPlanData._id);
+              
+              const match = plan.project_name && 
+                           plan.project_name.toLowerCase() === finalName.toLowerCase() && 
+                           !isCurrentPlan;  // Only consider it a duplicate if it's NOT the current plan
+              
+              if (match) {
+                console.log(`⚠️ DUPLICATE FOUND: "${plan.project_name}" matches "${finalName}"`);
+              }
+              return match;
+            });
+            
+            if (isDuplicate) {
+              alert(`❌ A floor plan named "${finalName}" already exists.\n\nPlease choose a different name.`);
+              setIsSaving(false);
+              return;
+            }
+            console.log(`✅ No duplicate found for "${finalName}" - proceeding with save`);
+          } else {
+            console.log(`✅ No existing plans or check passed`);
+          }
+        } catch (error) {
+          console.warn('⚠️ Could not validate duplicate names:', error);
+          // Don't continue - let user know about the error
+          alert('⚠️ Could not validate floor plan name. Please try again.');
+          setIsSaving(false);
+          return;
+        }
+      }
+
       // Prepare comprehensive floor plan data for saving
       const saveData = {
         floorplan_id: floorPlanData._id || floorPlanData.id || floorPlanData.floorplan_id,
@@ -1168,6 +1214,14 @@ const FloorPlanCustomization = () => {
       const result = await response.json();
       console.log('Save result:', result);
 
+      // ✅ Handle 409 Conflict (duplicate name) from backend
+      if (response.status === 409) {
+        const errorMsg = result.error || 'A floor plan with this name already exists.';
+        alert(`❌ ${errorMsg}`);
+        setIsSaving(false);
+        return;
+      }
+
       if (response.ok && result.success) {
         setHasUnsavedChanges(false);
         setIsFirstSave(false);
@@ -1195,7 +1249,7 @@ const FloorPlanCustomization = () => {
       }
     } catch (error) {
       console.error('Error saving floor plan:', error);
-      alert(`Failed to save floor plan: ${error.message}`);
+      alert(`❌ Failed to save floor plan: ${error.message}`);
     } finally {
       setIsSaving(false);
     }

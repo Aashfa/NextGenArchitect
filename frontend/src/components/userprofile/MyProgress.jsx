@@ -254,8 +254,19 @@ const MyProgress = () => {
               </p>
             </div>
             
-            {/* Filter Buttons */}
-            <div className="flex items-center gap-2 bg-white rounded-lg shadow p-2">
+            {/* Generate Button + Filter Buttons */}
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => navigate('/floor-plan/generate')}
+                className="bg-[#ED7600] text-white px-6 py-2 rounded-lg hover:bg-[#d46000] transition-colors font-semibold flex items-center gap-2 shadow-md hover:shadow-lg"
+                title="Create a new floor plan"
+              >
+                <FiGrid className="text-lg" />
+                Generate Now
+              </button>
+              
+              {/* Filter Buttons */}
+              <div className="flex items-center gap-2 bg-white rounded-lg shadow p-2">
               <button
                 onClick={() => setFilterType('all')}
                 className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors flex items-center gap-2 ${
@@ -302,8 +313,7 @@ const MyProgress = () => {
                   {savedPlans.filter(p => p.status === 'active').length}
                 </span>
               </button>
-            </div>
-          </div>
+            </div>            </div>          </div>
         </div>
 
         {/* Statistics */}

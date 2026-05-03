@@ -229,7 +229,30 @@ def save_floorplan():
         
         # Get user info to determine society_id for subadmin visibility
         user_id = data['user_id']
+        project_name = data['project_name']
         db = get_db()
+        
+        # ✅ VALIDATE: Check for duplicate floor plan names for this user
+        collection = floorplan_collection(db)
+        
+        # Escape special regex characters in project name
+        import re
+        escaped_name = re.escape(project_name)
+        
+        duplicate_check = collection.find_one({
+            'user_id': user_id,
+            'project_name': {'$regex': f'^{escaped_name}$', '$options': 'i'}  # Case-insensitive match
+        })
+        
+        if duplicate_check:
+            print(f"❌ Duplicate floor plan name found: '{project_name}' for user {user_id}")
+            print(f"   Existing plan ID: {duplicate_check.get('_id')}")
+            return jsonify({
+                'success': False,
+                'error': f'A floor plan named "{project_name}" already exists. Please choose a different name.'
+            }), 409  # 409 Conflict status code
+        
+        print(f"✅ No duplicate found for '{project_name}' - proceeding with save")
         
         # Check if user is subadmin and get their society_id
         society_id = data.get('society_id')
@@ -246,7 +269,7 @@ def save_floorplan():
         floorplan_doc = {
             'user_id': user_id,
             'society_id': society_id,  # Will be set if user is subadmin or provided
-            'project_name': data['project_name'],
+            'project_name': project_name,
             'floor_plan_data': data['floor_plan_data'],
             'room_data': data.get('room_data', []),
             'constraints': data.get('constraints', {}),
@@ -262,7 +285,6 @@ def save_floorplan():
         }
         
         # Save to database
-        collection = floorplan_collection(db)
         result = collection.insert_one(floorplan_doc)
         
         return jsonify({
@@ -504,6 +526,7 @@ def update_floorplan():
         
         floorplan_id = data.get('floorplan_id')
         user_id = data.get('user_id')
+        project_name = data.get('project_name')
         
         if not floorplan_id or not user_id:
             print(f"❌ Missing required fields - floorplan_id: {floorplan_id}, user_id: {user_id}")
@@ -515,6 +538,40 @@ def update_floorplan():
         # Convert floorplan_id to string if it's an integer
         floorplan_id = str(floorplan_id)
         print(f"🔍 Searching for floor plan ID: {floorplan_id}, User ID: {user_id}")
+        
+        # ✅ VALIDATE: If renaming, check for duplicates with different plans
+        db = get_db()
+        collection = floorplan_collection(db)
+        
+        if project_name:
+            try:
+                current_plan = None
+                try:
+                    current_plan = collection.find_one({'_id': ObjectId(floorplan_id), 'user_id': user_id})
+                except:
+                    current_plan = collection.find_one({'id': int(floorplan_id), 'user_id': user_id})
+                
+                # Check if another plan has the same name (case-insensitive)
+                import re
+                escaped_name = re.escape(project_name)
+                duplicate_check = collection.find_one({
+                    'user_id': user_id,
+                    'project_name': {'$regex': f'^{escaped_name}$', '$options': 'i'},
+                    '_id': {'$ne': ObjectId(floorplan_id) if current_plan else None}
+                })
+                
+                if duplicate_check:
+                    print(f"❌ Duplicate floor plan name found: '{project_name}' for user {user_id}")
+                    return jsonify({
+                        'success': False,
+                        'error': f'A floor plan named "{project_name}" already exists. Please choose a different name.'
+                    }), 409
+                
+                print(f"✅ No duplicate found for '{project_name}' - proceeding with update")
+            except Exception as e:
+                print(f"⚠️ Duplicate check error: {str(e)}")
+                # Continue with update even if check fails
+                pass
         
         # Prepare update data
         update_data = {
@@ -545,9 +602,6 @@ def update_floorplan():
             print(f"📐 Updating dimensions: {update_data['dimensions']}")
         
         # Update in database
-        db = get_db()
-        collection = floorplan_collection(db)
-        
         # Try to query by ObjectId first, if that fails, query by integer id field
         result = None
         try:

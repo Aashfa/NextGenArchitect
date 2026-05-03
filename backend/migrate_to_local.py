@@ -10,7 +10,10 @@ import os
 from datetime import datetime
 
 # Connection strings
-ATLAS_URI = "mongodb+srv://AashfaNoor:NextGenIT22-A@cluster0.otiywgx.mongodb.net/?retryWrites=true&w=majority"
+ATLAS_URI = os.getenv(
+    "MONGO_URI",
+    "mongodb+srv://Aashfa:12345Aa%23@cluster0.vemetqx.mongodb.net/?retryWrites=true&w=majority",
+)
 LOCAL_URI = "mongodb://localhost:27017/"
 DB_NAME = "NextGenArchitect"
 BACKUP_DIR = "./db_backup"

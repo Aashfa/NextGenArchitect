@@ -791,25 +791,6 @@ function SocietyModal({ isOpen, onClose, society, onSave }) {
                     {formData.procurement_status || 'Not Specified'}
                   </div>
                 </div>
-
-                <div className="space-y-2 md:col-span-2">
-                  <label className="flex items-center text-xs font-semibold text-gray-700 mb-2">
-                    <Shield className="mr-2 text-gray-500" size={16} />
-                    NOC Status
-                  </label>
-                  <div className="flex flex-wrap items-center gap-4">
-                    <label className="flex items-center space-x-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        name="noc_issued"
-                        checked={formData.noc_issued}
-                        onChange={(e) => setFormData(prev => ({ ...prev, noc_issued: e.target.checked }))}
-                        className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
-                      />
-                      <span className="text-gray-700">NOC Issued</span>
-                    </label>
-                  </div>
-                </div>
               </div>
             </div>
 

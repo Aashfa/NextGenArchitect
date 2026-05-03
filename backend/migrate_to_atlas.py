@@ -7,30 +7,18 @@ import pymongo
 from pymongo import MongoClient
 import json
 from datetime import datetime
+import os
 import sys
 import time
 
 # Configuration
-LOCAL_MONGO_URI = "mongodb://localhost:27017/"
-ATLAS_MONGO_URI = "mongodb+srv://AashfaNoor:NextGenIT22-A@cluster0.otiywgx.mongodb.net/?retryWrites=true&w=majority"
+LOCAL_MONGO_URI = os.getenv("LOCAL_MONGO_URI", "mongodb://localhost:27017/")
+ATLAS_MONGO_URI = os.getenv(
+    "MONGO_URI",
+    "mongodb+srv://Aashfa:12345Aa%23@cluster0.vemetqx.mongodb.net/?retryWrites=true&w=majority",
+)
 LOCAL_DB_NAME = "NextGenArchitect"
 ATLAS_DB_NAME = "NextGenArchitect"
-
-# Collections to migrate
-COLLECTIONS_TO_MIGRATE = [
-    'users',
-    'plots',
-    'society_profiles',
-    'approval_requests',
-    'compliance_rules',
-    'floorplans',
-    'advertisements',
-    'advertisement_plans',
-    'reviews',
-    'subscriptions',
-    'templates',
-    'email_verifications',
-]
 
 class MongoMigrator:
     def __init__(self):
@@ -137,28 +125,28 @@ class MongoMigrator:
         
         # Show collections in local database
         collections = self.get_collections()
+
+        if not collections:
+            print("❌ No collections found in the local database.")
+            self.close_connections()
+            return False
         
-        # Migrate specific collections
-        print(f"\n🔄 Migrating {len(COLLECTIONS_TO_MIGRATE)} collections...")
+        # Migrate every collection that exists in the local database.
+        print(f"\n🔄 Migrating {len(collections)} collections...")
         print("-" * 60)
         
-        for collection_name in COLLECTIONS_TO_MIGRATE:
-            if collection_name in collections:
-                success, doc_count = self.migrate_collection(collection_name)
-                if success:
-                    self.migration_stats['collections'] += 1
-                    self.migration_stats['documents'] += doc_count
-            else:
-                print(f"   ⏭️  {collection_name}: Not found in local database (skipping)")
+        for collection_name in collections:
+            success, doc_count = self.migrate_collection(collection_name)
+            if success:
+                self.migration_stats['collections'] += 1
+                self.migration_stats['documents'] += doc_count
         
         self.migration_stats['end_time'] = datetime.now()
-        
+
         # Print summary
         self.print_summary()
-        
-        # Close connections
-        self.close_connections()
-        
+
+        # Do NOT close connections here — caller (main) will close after verification.
         return self.migration_stats['errors'] == 0
     
     def print_summary(self):
@@ -193,7 +181,7 @@ class MongoMigrator:
         print("🔍 VERIFYING MIGRATION")
         print("="*60)
         
-        for collection_name in COLLECTIONS_TO_MIGRATE:
+        for collection_name in self.local_db.list_collection_names():
             try:
                 local_count = self.local_db[collection_name].count_documents({})
                 atlas_count = self.atlas_db[collection_name].count_documents({})

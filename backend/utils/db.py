@@ -1,10 +1,15 @@
+import os
+
 from pymongo import MongoClient
 
 # MongoDB Atlas connection string
-MONGO_URI = "mongodb+srv://AashfaNoor:NextGenIT22-A@cluster0.otiywgx.mongodb.net/?retryWrites=true&w=majority"
+MONGO_URI = os.getenv(
+    "MONGO_URI",
+    "mongodb+srv://Aashfa:12345Aa%23@cluster0.vemetqx.mongodb.net/?retryWrites=true&w=majority",
+)
 
 # Local MongoDB fallback
-LOCAL_MONGO_URI = "mongodb://localhost:27017/"
+LOCAL_MONGO_URI = os.getenv("LOCAL_MONGO_URI", "mongodb://localhost:27017/")
 
 # Global client and database instances (persistent connection pooling)
 _client = None
@@ -27,7 +32,7 @@ def get_db():
     """
     Get database connection with persistent connection pooling.
     Creates connection only once, then reuses for all requests.
-    Prioritizes local MongoDB, falls back to MongoDB Atlas.
+    Prioritizes MongoDB Atlas, falls back to local MongoDB for development.
     """
     global _client, _db
     
@@ -35,49 +40,49 @@ def get_db():
     if _db is not None:
         return _db
     
-    # Try local MongoDB first (prioritized for offline/local development)
+    # Try MongoDB Atlas first so the app uses the cloud database by default.
     try:
-        print("[DB] Attempting to connect to local MongoDB...")
+        print("[DB] Attempting to connect to MongoDB Atlas...")
         _client = MongoClient(
-            LOCAL_MONGO_URI,
-            serverSelectionTimeoutMS=5000,
+            MONGO_URI,
+            serverSelectionTimeoutMS=30000,
+            connectTimeoutMS=30000,
+            socketTimeoutMS=30000,
             # Connection pooling options
             maxPoolSize=50,          # Maximum connections in pool
             minPoolSize=10,          # Minimum connections to maintain
+            retryWrites=True,
+            retryReads=True,
         )
         # Test the connection
         _client.admin.command('ping')
-        print("[DB] ✅ Connected to local MongoDB (with connection pooling)")
+        print("[DB] ✅ Connected to MongoDB Atlas (with connection pooling)")
         _db = _client['NextGenArchitect']
         setup_admin_indexes(_db)
         return _db
-    except Exception as local_error:
-        print(f"[DB] ❌ Local MongoDB connection failed: {local_error}")
+    except Exception as atlas_error:
+        print(f"[DB] ❌ Atlas connection failed: {atlas_error}")
         
-        # Fallback to MongoDB Atlas
+        # Fallback to local MongoDB for offline development
         try:
-            print("[DB] Attempting to connect to MongoDB Atlas (fallback)...")
+            print("[DB] Attempting to connect to local MongoDB (fallback)...")
             _client = MongoClient(
-                MONGO_URI,
-                serverSelectionTimeoutMS=30000,  # Increased to 30 seconds
-                connectTimeoutMS=30000,          # Added explicit connect timeout
-                socketTimeoutMS=30000,           # Socket timeout
+                LOCAL_MONGO_URI,
+                serverSelectionTimeoutMS=5000,
                 # Connection pooling options
                 maxPoolSize=50,
                 minPoolSize=10,
-                retryWrites=True,
-                retryReads=True
             )
             # Test the connection
             _client.admin.command('ping')
-            print("[DB] ✅ Connected to MongoDB Atlas (with connection pooling)")
+            print("[DB] ✅ Connected to local MongoDB (with connection pooling)")
             _db = _client['NextGenArchitect']
             setup_admin_indexes(_db)
             return _db
-        except Exception as atlas_error:
-            print(f"[DB] ❌ Atlas connection failed: {atlas_error}")
+        except Exception as local_error:
+            print(f"[DB] ❌ Local MongoDB connection failed: {local_error}")
             print("[DB] ❌ Both Atlas and local connections failed!")
-            raise Exception("Database connection failed. Please ensure MongoDB is running locally or MongoDB Atlas is accessible.")
+            raise Exception("Database connection failed. Please ensure MongoDB Atlas is accessible or MongoDB is running locally.")
 
 def test_connection():
     """

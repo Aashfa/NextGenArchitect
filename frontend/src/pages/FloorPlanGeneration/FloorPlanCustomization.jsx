@@ -33,6 +33,26 @@ const FloorPlanCustomization = () => {
   const [viewMode, setViewMode] = useState('2d'); // '2d' or '3d'
   const [isFirstSave, setIsFirstSave] = useState(true);
   const [isInitialized, setIsInitialized] = useState(false);
+  
+  // Toast notifications - replaces alert() for non-blocking UI
+  const [toast, setToast] = useState(null);
+  const toastTimeoutRef = useRef(null);
+  
+  // Show toast notification with auto-dismiss after 4 seconds
+  const showToast = useCallback((message, type = 'info') => {
+    // Clear any existing timeout
+    if (toastTimeoutRef.current) {
+      clearTimeout(toastTimeoutRef.current);
+    }
+    
+    // Show new toast
+    setToast({ message, type });
+    
+    // Auto-dismiss after 4 seconds
+    toastTimeoutRef.current = setTimeout(() => {
+      setToast(null);
+    }, 4000);
+  }, []);
 
   // Get floor plan data from navigation state
   useEffect(() => {
@@ -388,7 +408,7 @@ const FloorPlanCustomization = () => {
   // Download floorplan as PDF in black and white format
   const downloadPDF = useCallback(() => {
     if (!floorPlanData) {
-      alert('No floorplan to download');
+      showToast('No floorplan to download', 'error');
       return;
     }
 
@@ -1008,9 +1028,9 @@ const FloorPlanCustomization = () => {
       
     } catch (error) {
       console.error('Error generating PDF:', error);
-      alert('Failed to generate PDF. Please try again.');
+      showToast('❌ Failed to generate PDF. Please try again.', 'error');
     }
-  }, [floorPlanData]);
+  }, [floorPlanData, showToast]);
 
   // Save floor plan
   const handleSave = async () => {
@@ -1040,62 +1060,62 @@ const FloorPlanCustomization = () => {
     // If user enters empty name, use default
     const finalName = projectName.trim() || currentName;
 
-    try {
-      // Get user info from localStorage or auth context
-      const userStr = localStorage.getItem('user');
-      const user = userStr ? JSON.parse(userStr) : null;
-      
-      if (!user || !user.id) {
-        alert('User not authenticated. Please log in again.');
-        setIsSaving(false);
-        return;
-      }
+    // Get user info from localStorage or auth context BEFORE starting save
+    const userStr = localStorage.getItem('user');
+    const user = userStr ? JSON.parse(userStr) : null;
+    
+    if (!user || !user.id) {
+      showToast('User not authenticated. Please log in again.', 'error');
+      return;
+    }
 
-      // ✅ VALIDATE: Check for duplicate floor plan names
-      if (projectName && projectName.trim()) {
-        try {
-          console.log(`🔍 Checking for duplicate floor plans for user ${user.id}`);
-          const checkResponse = await fetch(`/api/floorplan/user/${user.id}`);
+    // ✅ VALIDATE: Check for duplicate floor plan names BEFORE setting loading state
+    // This ensures users see validation errors immediately, not after a delay
+    if (projectName && projectName.trim()) {
+      try {
+        console.log(`🔍 Checking for duplicate floor plans for user ${user.id}`);
+        const checkResponse = await fetch(`/api/floorplan/user/${user.id}`);
+        
+        if (checkResponse.ok) {
+          const result = await checkResponse.json();
+          // ✅ FIXED: Use correct key from backend response
+          const existingPlans = result.floor_plans || result.data || [];
           
-          if (checkResponse.ok) {
-            const result = await checkResponse.json();
-            // ✅ FIXED: Use correct key from backend response
-            const existingPlans = result.floor_plans || result.data || [];
+          console.log(`📋 Found ${existingPlans.length} existing plans:`, existingPlans.map(p => p.project_name));
+          
+          // Check for duplicates (case-insensitive) - but allow if it's the SAME plan being updated
+          const isDuplicate = existingPlans.some(plan => {
+            // Skip the current plan if it has an ID (it's an update, not new create)
+            const isCurrentPlan = floorPlanData._id && String(plan._id) === String(floorPlanData._id);
             
-            console.log(`📋 Found ${existingPlans.length} existing plans:`, existingPlans.map(p => p.project_name));
+            const match = plan.project_name && 
+                         plan.project_name.toLowerCase() === finalName.toLowerCase() && 
+                         !isCurrentPlan;  // Only consider it a duplicate if it's NOT the current plan
             
-            // Check for duplicates (case-insensitive) - but allow if it's the SAME plan being updated
-            const isDuplicate = existingPlans.some(plan => {
-              // Skip the current plan if it has an ID (it's an update, not new create)
-              const isCurrentPlan = floorPlanData._id && String(plan._id) === String(floorPlanData._id);
-              
-              const match = plan.project_name && 
-                           plan.project_name.toLowerCase() === finalName.toLowerCase() && 
-                           !isCurrentPlan;  // Only consider it a duplicate if it's NOT the current plan
-              
-              if (match) {
-                console.log(`⚠️ DUPLICATE FOUND: "${plan.project_name}" matches "${finalName}"`);
-              }
-              return match;
-            });
-            
-            if (isDuplicate) {
-              alert(`❌ A floor plan named "${finalName}" already exists.\n\nPlease choose a different name.`);
-              setIsSaving(false);
-              return;
+            if (match) {
+              console.log(`⚠️ DUPLICATE FOUND: "${plan.project_name}" matches "${finalName}"`);
             }
-            console.log(`✅ No duplicate found for "${finalName}" - proceeding with save`);
-          } else {
-            console.log(`✅ No existing plans or check passed`);
+            return match;
+          });
+          
+          if (isDuplicate) {
+            showToast(`❌ A floor plan named "${finalName}" already exists. Please choose a different name.`, 'error');
+            return;  // ✅ Early return - don't proceed with save
           }
-        } catch (error) {
-          console.warn('⚠️ Could not validate duplicate names:', error);
-          // Don't continue - let user know about the error
-          alert('⚠️ Could not validate floor plan name. Please try again.');
-          setIsSaving(false);
-          return;
+          console.log(`✅ No duplicate found for "${finalName}" - proceeding with save`);
+        } else {
+          console.log(`✅ No existing plans or check passed`);
         }
+      } catch (error) {
+        console.warn('⚠️ Could not validate duplicate names:', error);
+        showToast('⚠️ Could not validate floor plan name. Please try again.', 'error');
+        return;  // ✅ Early return - don't proceed with save
       }
+    }
+
+    // ✅ Only now that validation passed, set loading state and proceed with save
+    try {
+      setIsSaving(true);
 
       // Prepare comprehensive floor plan data for saving
       const saveData = {
@@ -1188,9 +1208,6 @@ const FloorPlanCustomization = () => {
       
       console.log(`📤 ${isFirstSave ? 'Creating new' : 'Updating existing'} floor plan via ${apiEndpoint}`);
       
-      // Prevent multiple concurrent saves
-      setIsSaving(true);
-      
       // Send floor plan data to backend
       const response = await fetch(apiEndpoint, {
         method: method,
@@ -1217,12 +1234,14 @@ const FloorPlanCustomization = () => {
       // ✅ Handle 409 Conflict (duplicate name) from backend
       if (response.status === 409) {
         const errorMsg = result.error || 'A floor plan with this name already exists.';
-        alert(`❌ ${errorMsg}`);
-        setIsSaving(false);
+        showToast(`❌ ${errorMsg}`, 'error');
         return;
       }
 
       if (response.ok && result.success) {
+        // ✅ Capture isFirstSave BEFORE updating state
+        const wasFirstSave = isFirstSave;
+        
         setHasUnsavedChanges(false);
         setIsFirstSave(false);
         
@@ -1233,23 +1252,24 @@ const FloorPlanCustomization = () => {
           _id: result.floorplan_id || prev._id
         }));
         
-        // Show appropriate success message
-        const message = hasUnsavedChanges && !isFirstSave 
-          ? `Changes saved to "${finalName}"!` 
-          : `Floor plan "${finalName}" saved successfully!`;
-        alert(message);
+        // Show appropriate success message based on whether this was first save
+        const message = wasFirstSave 
+          ? `✅ Floor plan "${finalName}" saved successfully!` 
+          : `✅ Changes saved to "${finalName}"!`;
+        showToast(message, 'success');
         
         console.log('✅ Floor plan saved successfully:', {
           id: result.floorplan_id,
           name: finalName,
-          isUpdate: !isFirstSave
+          wasFirstSave: wasFirstSave,
+          isUpdate: !wasFirstSave
         });
       } else {
         throw new Error(result.error || 'Failed to save floor plan');
       }
     } catch (error) {
       console.error('Error saving floor plan:', error);
-      alert(`❌ Failed to save floor plan: ${error.message}`);
+      showToast(`❌ Failed to save floor plan: ${error.message}`, 'error');
     } finally {
       setIsSaving(false);
     }
@@ -1487,6 +1507,30 @@ const FloorPlanCustomization = () => {
           </div>
         </div>
       </div>
+      
+      {/* Toast Notification - Non-blocking feedback for save operations */}
+      {toast && (
+        <div className="fixed bottom-4 right-4 z-50 animate-in fade-in slide-in-from-bottom-2 duration-300">
+          <div className={`
+            px-6 py-3 rounded-lg shadow-lg flex items-center gap-3 text-white font-medium
+            ${toast.type === 'success' ? 'bg-green-600' : ''}
+            ${toast.type === 'error' ? 'bg-red-600' : ''}
+            ${toast.type === 'info' ? 'bg-blue-600' : ''}
+          `}>
+            {toast.type === 'success' && (
+              <svg className="w-5 h-5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+            )}
+            {toast.type === 'error' && (
+              <svg className="w-5 h-5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+              </svg>
+            )}
+            <span>{toast.message}</span>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

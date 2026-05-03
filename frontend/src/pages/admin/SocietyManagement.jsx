@@ -1,9 +1,6 @@
-import useSWR from 'swr';
-import debounce from 'lodash.debounce';
 import React, { useState, useEffect } from "react";
 import { Search, Filter, Edit2, Trash2, CheckCircle, RefreshCw, X, Save, MapPin, Users, Building, DollarSign, Mail, Calendar, Eye, Phone, Globe, Hash, Shield, AlertCircle } from "lucide-react";
-import { getSocietyRegistrations, getPendingSocietyRegistrations } from "../../services/authService";
-import { societyProfileAPI } from "../../services/societyProfileAPI";
+import { getSocietyRegistrations } from "../../services/authService";
 
 const API_BASE_URL = 'http://localhost:5000/api';
 
@@ -277,7 +274,7 @@ function SocietyDetailsModal({ isOpen, onClose, society }) {
           {/* Header */}
           <div className="flex flex-wrap justify-between items-center gap-4 mb-8">
             <div className="flex flex-wrap items-center gap-4">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-xl">
+              <div className="w-16 h-16 rounded-full bg-linear-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-xl">
                 {society.name ? society.name.charAt(0).toUpperCase() : 'S'}
               </div>
               <div>
@@ -805,7 +802,7 @@ function SocietyModal({ isOpen, onClose, society, onSave }) {
               <button
                 type="submit"
                 disabled={loading}
-                className="px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2 font-semibold shadow-lg"
+                className="px-8 py-3 bg-linear-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2 font-semibold shadow-lg"
               >
                 {loading ? (
                   <>
@@ -904,7 +901,7 @@ function SocietyRow({ society, onDelete, onEdit, onView, onStatusUpdate, isSelec
       </td>
       <td className="py-4 px-3">
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold text-base">
+          <div className="w-10 h-10 rounded-full bg-linear-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold text-base">
             {society.name ? society.name.charAt(0).toUpperCase() : 'S'}
           </div>
           <div>
@@ -1327,7 +1324,7 @@ export default function SocietyVerificationDashboard() {
   };
 
   // Handle save (create/update)
-  const handleSaveSociety = (savedSociety) => {
+  const handleSaveSociety = () => {
     fetchSocieties(); // Refresh the list
     alert('Society updated successfully!');
   };
@@ -1381,7 +1378,7 @@ export default function SocietyVerificationDashboard() {
 
         {/* Statistics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-2xl border border-blue-200 shadow-lg hover:shadow-xl transition-all duration-300">
+          <div className="bg-linear-to-br from-blue-50 to-blue-100 p-6 rounded-2xl border border-blue-200 shadow-lg hover:shadow-xl transition-all duration-300">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-blue-600 text-xs font-semibold">Total Registrations</p>
@@ -1393,7 +1390,7 @@ export default function SocietyVerificationDashboard() {
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 p-6 rounded-2xl border border-yellow-200 shadow-lg hover:shadow-xl transition-all duration-300">
+          <div className="bg-linear-to-br from-yellow-50 to-yellow-100 p-6 rounded-2xl border border-yellow-200 shadow-lg hover:shadow-xl transition-all duration-300">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-yellow-600 text-xs font-semibold">Pending Approval</p>
@@ -1407,7 +1404,7 @@ export default function SocietyVerificationDashboard() {
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-2xl border border-green-200 shadow-lg hover:shadow-xl transition-all duration-300">
+          <div className="bg-linear-to-br from-green-50 to-green-100 p-6 rounded-2xl border border-green-200 shadow-lg hover:shadow-xl transition-all duration-300">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-green-600 text-xs font-semibold">Approved</p>
@@ -1421,7 +1418,7 @@ export default function SocietyVerificationDashboard() {
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-red-50 to-red-100 p-6 rounded-2xl border border-red-200 shadow-lg hover:shadow-xl transition-all duration-300">
+          <div className="bg-linear-to-br from-red-50 to-red-100 p-6 rounded-2xl border border-red-200 shadow-lg hover:shadow-xl transition-all duration-300">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-red-600 text-xs font-semibold">Rejected</p>
@@ -1441,7 +1438,7 @@ export default function SocietyVerificationDashboard() {
           <div className="flex space-x-3">
             <button
               onClick={() => fetchSocieties()}
-              className="bg-gradient-to-r from-green-600 to-green-700 text-white px-4 py-2 rounded-xl hover:from-green-700 hover:to-green-800 transition-all duration-200 flex items-center space-x-2 shadow-lg hover:shadow-xl font-semibold"
+              className="bg-linear-to-r from-green-600 to-green-700 text-white px-4 py-2 rounded-xl hover:from-green-700 hover:to-green-800 transition-all duration-200 flex items-center space-x-2 shadow-lg hover:shadow-xl font-semibold"
             >
               <RefreshCw size={16} />
               <span>Refresh</span>
@@ -1518,7 +1515,7 @@ export default function SocietyVerificationDashboard() {
           <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden flex flex-col">
             <div className="overflow-x-auto w-full max-w-full">
               <table className="w-full text-left ">
-                <thead className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
+                <thead className="bg-linear-to-r from-gray-50 to-gray-100 border-b border-gray-200">
                   <tr>
                     <th className="py-4 px-3 text-left text-[11px] font-semibold text-gray-700 uppercase">
                       <input

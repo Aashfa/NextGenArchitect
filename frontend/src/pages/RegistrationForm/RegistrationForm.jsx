@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Box, Grid, TextField, Button, MenuItem, Typography, Alert, Paper, Divider, InputAdornment, FormControlLabel, Checkbox, CircularProgress } from "@mui/material";
+import LogOutIcon from '@mui/icons-material/Logout';
 import { useLocation, useNavigate } from "react-router-dom";
 import PopupModal from '../../components/common/PopupModal';
 import { societySignup } from '../../services/authService.js';
@@ -43,14 +44,14 @@ const typeOptions = ["Private", "Public", "Other"];
 const RegistrationForm = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   
   // Get user data from location.state (signup flow) or AuthContext (login redirect)
-  const userData = location.state || {
+  const userData = useMemo(() => location.state || {
     userEmail: user?.email,
     userName: user?.username,
     userPassword: '' // Not needed for already logged-in users
-  };
+  }, [location.state, user?.email, user?.username]);
   
   const [form, setForm] = useState({
     name: "",
@@ -1199,23 +1200,29 @@ const RegistrationForm = () => {
               <Grid item xs={12}>
                 <Divider sx={{ my: 2 }} />
                 <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, mt: 2 }}>
-                  <Button type="submit" variant="contained" size="large" sx={{
-                    background: 'linear-gradient(135deg, #ED7600 0%, #c76100 100%)',
-                    color: '#fff',
-                    fontWeight: 700,
-                    fontSize: 18,
-                    borderRadius: 2,
-                    py: 1.8,
-                    px: 6,
-                    boxShadow: '0 8px 20px rgba(237, 118, 0, 0.35)',
-                    textTransform: 'none',
-                    '&:hover': { 
-                      background: 'linear-gradient(135deg, #c76100 0%, #a85100 100%)',
-                      boxShadow: '0 12px 28px rgba(237, 118, 0, 0.45)',
-                      transform: 'translateY(-2px)',
-                      transition: 'all 0.3s ease'
-                    }
-                  }} disabled={isSubmitting}>
+                  <Button 
+                    type="submit" 
+                    variant="contained" 
+                    size="large" 
+                    sx={{
+                      background: 'linear-gradient(135deg, #ED7600 0%, #c76100 100%)',
+                      color: '#fff',
+                      fontWeight: 700,
+                      fontSize: 18,
+                      borderRadius: 2,
+                      py: 1.8,
+                      px: 6,
+                      boxShadow: '0 8px 20px rgba(237, 118, 0, 0.35)',
+                      textTransform: 'none',
+                      '&:hover': { 
+                        background: 'linear-gradient(135deg, #c76100 0%, #a85100 100%)',
+                        boxShadow: '0 12px 28px rgba(237, 118, 0, 0.45)',
+                        transform: 'translateY(-2px)',
+                        transition: 'all 0.3s ease'
+                      }
+                    }} 
+                    disabled={isSubmitting}
+                  >
                     {isSubmitting ? (
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2 }}>
                         <CircularProgress size={20} sx={{ color: '#fff' }} />
@@ -1224,6 +1231,34 @@ const RegistrationForm = () => {
                     ) : (
                       'Submit Registration'
                     )}
+                  </Button>
+                  <Button 
+                    type="button" 
+                    variant="outlined" 
+                    size="large" 
+                    startIcon={<LogOutIcon />}
+                    onClick={() => {
+                      logout();
+                      navigate('/login');
+                    }}
+                    sx={{
+                      color: '#ED7600',
+                      borderColor: '#ED7600',
+                      fontWeight: 700,
+                      fontSize: 16,
+                      borderRadius: 2,
+                      py: 1.8,
+                      px: 4,
+                      textTransform: 'none',
+                      '&:hover': { 
+                        background: 'rgba(237, 118, 0, 0.1)',
+                        borderColor: '#ED7600',
+                        transform: 'translateY(-2px)',
+                        transition: 'all 0.3s ease'
+                      }
+                    }}
+                  >
+                    Logout
                   </Button>
                 </Box>
                 <Typography sx={{ 

@@ -775,39 +775,21 @@ function SocietyModal({ isOpen, onClose, society, onSave }) {
                 <div className="space-y-2">
                   <label className="flex items-center text-xs font-semibold text-gray-700 mb-2">
                     <Building className="mr-2 text-gray-500" size={16} />
-                    Land Acquisition Status
+                    Land Acquisition Status <span className="text-gray-400 text-xs ml-1">(Read-only)</span>
                   </label>
-                  <select
-                    name="land_acquisition_status"
-                    value={formData.land_acquisition_status}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                  >
-                    <option value="">Select Status</option>
-                    <option value="pending">Pending</option>
-                    <option value="in-progress">In Progress</option>
-                    <option value="completed">Completed</option>
-                    <option value="on-hold">On Hold</option>
-                  </select>
+                  <div className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-100 text-gray-700 font-medium capitalize">
+                    {formData.land_acquisition_status || 'Not Specified'}
+                  </div>
                 </div>
 
                 <div className="space-y-2">
                   <label className="flex items-center text-xs font-semibold text-gray-700 mb-2">
                     <DollarSign className="mr-2 text-gray-500" size={16} />
-                    Procurement Status
+                    Procurement Status <span className="text-gray-400 text-xs ml-1">(Read-only)</span>
                   </label>
-                  <select
-                    name="procurement_status"
-                    value={formData.procurement_status}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                  >
-                    <option value="">Select Status</option>
-                    <option value="pending">Pending</option>
-                    <option value="in-progress">In Progress</option>
-                    <option value="completed">Completed</option>
-                    <option value="on-hold">On Hold</option>
-                  </select>
+                  <div className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-100 text-gray-700 font-medium capitalize">
+                    {formData.procurement_status || 'Not Specified'}
+                  </div>
                 </div>
 
                 <div className="space-y-2 md:col-span-2">

@@ -229,12 +229,13 @@ const Door3D = memo(({ position, rotation = [0, 0, 0], width = 1.2, height = 2.4
   
   // Memoized materials to prevent unnecessary re-creation and improve performance
   const materials = useMemo(() => ({
-    frame: { color: doorColor, roughness: 0.6 },
-    panel: { color: doorColor, roughness: 0.8, metalness: 0.1 },
-    handle: { color: "#FFD700", roughness: 0.3, metalness: 0.8 },
-    threshold: { color: doorColor, roughness: 0.8 },
-    shadow: { color: "#654321", roughness: 0.95, transparent: true, opacity: 0.8 },
-    indicator: { color: "#00FF7F", transparent: true, opacity: 0.6 }
+    frame: { color: doorColor, roughness: 0.6, depthTest: true, depthWrite: true },
+    panel: { color: doorColor, roughness: 0.8, metalness: 0.1, depthTest: true, depthWrite: true },
+    handle: { color: "#FFD700", roughness: 0.3, metalness: 0.8, depthTest: true, depthWrite: true },
+    threshold: { color: doorColor, roughness: 0.8, depthTest: true, depthWrite: true },
+    shadow: { color: "#654321", roughness: 0.95, transparent: true, opacity: 0.8, depthTest: true, depthWrite: false },
+    indicator: { color: "#00FF7F", transparent: true, opacity: 0.6, depthTest: true, depthWrite: false },
+    opening: { color: "#E8E8E8", transparent: true, opacity: 0.0, depthTest: true, depthWrite: false }
   }), [doorColor]);
   
   // Smooth door animation with useFrame
@@ -289,29 +290,42 @@ const Door3D = memo(({ position, rotation = [0, 0, 0], width = 1.2, height = 2.4
   const frameWidth = 0.12;
   
   return (
-    <group position={position} rotation={rotation}>
+    <group position={position} rotation={rotation} renderOrder={100}>
+      {/* Door Opening Occluder - Semi-transparent plane that shows when door is open */}
+      {localIsOpen && (
+        <mesh position={[0, height/2, wallThickness/2 + 0.15]} renderOrder={99}>
+          <planeGeometry args={[width + 0.3, height + 0.2]} />
+          <meshStandardMaterial 
+            {...materials.opening}
+            opacity={0.35}
+            color="#F0F0F0"
+            side={THREE.DoubleSide}
+          />
+        </mesh>
+      )}
+      
       {/* Enhanced Door Frame with better wall penetration */}
-      <group ref={frameRef}>
+      <group ref={frameRef} renderOrder={101}>
         {/* Frame - Left Post */}
-        <mesh position={[-width/2 - frameWidth/2, height/2, 0]} castShadow receiveShadow>
+        <mesh position={[-width/2 - frameWidth/2, height/2, wallThickness/2 + 0.08]} castShadow receiveShadow renderOrder={102}>
           <boxGeometry args={[frameWidth, height + frameWidth, frameThickness]} />
           <meshStandardMaterial {...materials.frame} />
         </mesh>
         
         {/* Frame - Right Post */}
-        <mesh position={[width/2 + frameWidth/2, height/2, 0]} castShadow receiveShadow>
+        <mesh position={[width/2 + frameWidth/2, height/2, wallThickness/2 + 0.08]} castShadow receiveShadow renderOrder={102}>
           <boxGeometry args={[frameWidth, height + frameWidth, frameThickness]} />
           <meshStandardMaterial {...materials.frame} />
         </mesh>
         
         {/* Frame - Top */}
-        <mesh position={[0, height + frameWidth/2, 0]} castShadow receiveShadow>
+        <mesh position={[0, height + frameWidth/2, wallThickness/2 + 0.08]} castShadow receiveShadow renderOrder={102}>
           <boxGeometry args={[width + frameWidth*2, frameWidth, frameThickness]} />
           <meshStandardMaterial {...materials.frame} />
         </mesh>
         
         {/* Enhanced threshold for better visual connection */}
-        <mesh position={[0, 0.03, 0]} castShadow receiveShadow>
+        <mesh position={[0, 0.03, wallThickness/2 + 0.08]} castShadow receiveShadow renderOrder={102}>
           <boxGeometry args={[width + frameWidth*2, 0.06, frameThickness + 0.02]} />
           <meshStandardMaterial {...materials.threshold} />
         </mesh>
@@ -320,62 +334,63 @@ const Door3D = memo(({ position, rotation = [0, 0, 0], width = 1.2, height = 2.4
       {/* Enhanced Door Panel with smooth animation */}
       <group 
         ref={doorRef}
-        position={[0, 0, 0]}
+        position={[0, 0, wallThickness/2 + 0.08]}
         onClick={handleClick}
         style={{ cursor: 'pointer' }}
+        renderOrder={103}
       >
         {/* Main Door Panel with wood texture */}
-        <mesh position={[0, height/2, 0]} castShadow receiveShadow>
+        <mesh position={[0, height/2, 0]} castShadow receiveShadow renderOrder={104}>
           <boxGeometry args={[width, height, doorThickness]} />
           <meshStandardMaterial {...materials.panel} />
         </mesh>
         
         {/* Decorative door panels */}
-        <mesh position={[0, height*0.75, doorThickness/2 + 0.02]} castShadow>
+        <mesh position={[0, height*0.75, doorThickness/2 + 0.02]} castShadow renderOrder={104}>
           <boxGeometry args={[width*0.85, height*0.18, 0.03]} />
           <meshStandardMaterial {...materials.threshold} />
         </mesh>
         
-        <mesh position={[0, height*0.25, doorThickness/2 + 0.02]} castShadow>
+        <mesh position={[0, height*0.25, doorThickness/2 + 0.02]} castShadow renderOrder={104}>
           <boxGeometry args={[width*0.85, height*0.18, 0.03]} />
           <meshStandardMaterial {...materials.threshold} />
         </mesh>
         
         {/* Enhanced door handle system */}
-        <mesh position={[width*0.42, height*0.5, doorThickness/2 + 0.04]} castShadow>
+        <mesh position={[width*0.42, height*0.5, doorThickness/2 + 0.04]} castShadow renderOrder={104}>
           <boxGeometry args={[0.12, 0.04, 0.02]} />
           <meshStandardMaterial {...materials.handle} />
         </mesh>
         
         {/* Door knobs on both sides for bi-directional access */}
-        <mesh position={[width*0.42, height*0.5, doorThickness/2 + 0.07]} castShadow>
+        <mesh position={[width*0.42, height*0.5, doorThickness/2 + 0.07]} castShadow renderOrder={104}>
           <sphereGeometry args={[0.05]} />
           <meshStandardMaterial {...materials.handle} />
         </mesh>
         
-        <mesh position={[width*0.42, height*0.5, -doorThickness/2 - 0.07]} castShadow>
+        <mesh position={[width*0.42, height*0.5, -doorThickness/2 - 0.07]} castShadow renderOrder={104}>
           <sphereGeometry args={[0.05]} />
           <meshStandardMaterial {...materials.handle} />
         </mesh>
         
         {/* Realistic hinges */}
         {[0.8, 0.2].map((yPos, idx) => (
-          <mesh key={idx} position={[-width/2 + 0.02, height*yPos, 0]} castShadow>
+          <mesh key={idx} position={[-width/2 + 0.02, height*yPos, 0]} castShadow renderOrder={104}>
             <cylinderGeometry args={[0.025, 0.025, doorThickness + 0.04]} />
-            <meshStandardMaterial color="#2F2F2F" roughness={0.3} metalness={0.8} />
+            <meshStandardMaterial color="#2F2F2F" roughness={0.3} metalness={0.8} depthTest={true} depthWrite={true} />
           </mesh>
         ))}
       </group>
       
       {/* Enhanced door mat */}
-      <mesh position={[0, 0.008, doorThickness/2 + 0.4]} rotation={[-Math.PI/2, 0, 0]} receiveShadow>
+      <mesh position={[0, 0.008, wallThickness/2 + 0.4]} rotation={[-Math.PI/2, 0, 0]} receiveShadow renderOrder={100}>
         <planeGeometry args={[width + 0.5, 1.0]} />
         <meshStandardMaterial {...materials.shadow} />
       </mesh>
       
       {/* Proximity indicator with better design */}
       {proximityOpen && autoOpen && (
-        <mesh position={[0, height + 0.3, 0]}>
+        <mesh position={[0, height + 0.3, 0]} renderOrder={105}>
           <ringGeometry args={[0.1, 0.15]} />
           <meshBasicMaterial {...materials.indicator} />
         </mesh>

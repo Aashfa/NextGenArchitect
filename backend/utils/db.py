@@ -1,15 +1,24 @@
 import os
+import logging
 
 from pymongo import MongoClient
+from dotenv import load_dotenv
 
-# MongoDB Atlas connection string
-MONGO_URI = os.getenv(
-    "MONGO_URI",
-    "mongodb+srv://Aashfa:12345Aa%23@cluster0.vemetqx.mongodb.net/?retryWrites=true&w=majority",
-)
+# Ensure environment variables from backend/.env are available even if
+# this module is imported before app.py calls load_dotenv().
+load_dotenv()
 
-# Local MongoDB fallback
-LOCAL_MONGO_URI = os.getenv("LOCAL_MONGO_URI", "mongodb://localhost:27017/")
+logger = logging.getLogger('backend.utils.db')
+
+def _get_mongo_uri():
+    return os.getenv(
+        "MONGO_URI",
+        "mongodb+srv://AashfaNoor:NextGenIT22-A@cluster0.otiywgx.mongodb.net/?retryWrites=true&w=majority",
+    )
+
+
+def _get_local_mongo_uri():
+    return os.getenv("LOCAL_MONGO_URI", "mongodb://localhost:27017/")
 
 # Global client and database instances (persistent connection pooling)
 _client = None
@@ -40,11 +49,14 @@ def get_db():
     if _db is not None:
         return _db
     
+    mongo_uri = _get_mongo_uri()
+    local_mongo_uri = _get_local_mongo_uri()
+
     # Try MongoDB Atlas first so the app uses the cloud database by default.
     try:
-        print("[DB] Attempting to connect to MongoDB Atlas...")
+        logger.info("[DB] Attempting to connect to MongoDB Atlas...")
         _client = MongoClient(
-            MONGO_URI,
+            mongo_uri,
             serverSelectionTimeoutMS=30000,
             connectTimeoutMS=30000,
             socketTimeoutMS=30000,
@@ -56,18 +68,65 @@ def get_db():
         )
         # Test the connection
         _client.admin.command('ping')
-        print("[DB] ✅ Connected to MongoDB Atlas (with connection pooling)")
+        logger.info("[DB] ✅ Connected to MongoDB Atlas (with connection pooling)")
         _db = _client['NextGenArchitect']
         setup_admin_indexes(_db)
         return _db
     except Exception as atlas_error:
-        print(f"[DB] ❌ Atlas connection failed: {atlas_error}")
+        logger.warning("[DB] ❌ Atlas connection failed: %s", atlas_error)
+
+        # Some restrictive networks/proxies break strict TLS validation with Atlas.
+        # Try compatibility connections before falling back to local MongoDB.
+        try:
+            logger.info("[DB] Retrying Atlas with TLS compatibility options (attempt 1)...")
+            _client = MongoClient(
+                mongo_uri,
+                serverSelectionTimeoutMS=30000,
+                connectTimeoutMS=30000,
+                socketTimeoutMS=30000,
+                maxPoolSize=50,
+                minPoolSize=10,
+                retryWrites=True,
+                retryReads=True,
+                tls=True,
+                tlsAllowInvalidCertificates=True,
+                tlsAllowInvalidHostnames=True,
+            )
+            _client.admin.command('ping')
+            logger.info("[DB] ✅ Connected to MongoDB Atlas (TLS compatibility mode: allow invalid certs/hostnames)")
+            _db = _client['NextGenArchitect']
+            setup_admin_indexes(_db)
+            return _db
+        except Exception as atlas_compat_error:
+            logger.warning("[DB] ❌ Atlas compatibility attempt failed: %s", atlas_compat_error)
+
+            try:
+                logger.info("[DB] Retrying Atlas with TLS compatibility options (attempt 2)...")
+                _client = MongoClient(
+                    mongo_uri,
+                    serverSelectionTimeoutMS=30000,
+                    connectTimeoutMS=30000,
+                    socketTimeoutMS=30000,
+                    maxPoolSize=50,
+                    minPoolSize=10,
+                    retryWrites=True,
+                    retryReads=True,
+                    tls=True,
+                    tlsDisableOCSPEndpointCheck=True,
+                )
+                _client.admin.command('ping')
+                logger.info("[DB] ✅ Connected to MongoDB Atlas (TLS compatibility mode: OCSP disabled)")
+                _db = _client['NextGenArchitect']
+                setup_admin_indexes(_db)
+                return _db
+            except Exception as atlas_compat_error_2:
+                logger.warning("[DB] ❌ Atlas compatibility attempt failed: %s", atlas_compat_error_2)
         
         # Fallback to local MongoDB for offline development
         try:
-            print("[DB] Attempting to connect to local MongoDB (fallback)...")
+            logger.info("[DB] Attempting to connect to local MongoDB (fallback)...")
             _client = MongoClient(
-                LOCAL_MONGO_URI,
+                local_mongo_uri,
                 serverSelectionTimeoutMS=5000,
                 # Connection pooling options
                 maxPoolSize=50,
@@ -75,13 +134,13 @@ def get_db():
             )
             # Test the connection
             _client.admin.command('ping')
-            print("[DB] ✅ Connected to local MongoDB (with connection pooling)")
+            logger.info("[DB] ✅ Connected to local MongoDB (with connection pooling)")
             _db = _client['NextGenArchitect']
             setup_admin_indexes(_db)
             return _db
         except Exception as local_error:
-            print(f"[DB] ❌ Local MongoDB connection failed: {local_error}")
-            print("[DB] ❌ Both Atlas and local connections failed!")
+            logger.warning("[DB] ❌ Local MongoDB connection failed: %s", local_error)
+            logger.error("[DB] ❌ Both Atlas and local connections failed!")
             raise Exception("Database connection failed. Please ensure MongoDB Atlas is accessible or MongoDB is running locally.")
 
 def test_connection():
@@ -91,10 +150,10 @@ def test_connection():
     try:
         db = get_db()
         db.admin.command('ping')
-        print("[DB] MongoDB connection successful")
+        logger.info("[DB] MongoDB connection successful")
         return {"status": "Connected", "result": "OK"}
     except Exception as error:
-        print(f"[DB] Connection test failed: {error}")
+        logger.exception("[DB] Connection test failed: %s", error)
         return {"status": "Failed", "error": str(error)}
 
 
@@ -107,11 +166,11 @@ def close_db():
     if _client is not None:
         try:
             _client.close()
-            print("[DB] MongoDB connection closed gracefully")
+            logger.info("[DB] MongoDB connection closed gracefully")
             _client = None
             _db = None
         except Exception as e:
-            print(f"[DB] Error closing connection: {e}")
+            logger.exception("[DB] Error closing connection: %s", e)
 
     
 

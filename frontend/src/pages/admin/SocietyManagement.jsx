@@ -279,7 +279,6 @@ function SocietyDetailsModal({ isOpen, onClose, society }) {
               </div>
               <div>
                 <h2 className="text-2xl font-bold text-gray-900">{society.name || 'Unnamed Society'}</h2>
-                <p className="text-gray-600 mt-1">Registration ID: {society._id}</p>
               </div>
             </div>
             <button
@@ -380,10 +379,6 @@ function SocietyDetailsModal({ isOpen, onClose, society }) {
                   <div className="bg-green-50 p-4 rounded-lg">
                     <label className="text-xs font-medium text-green-700">Registration Date</label>
                     <p className="text-green-900 font-medium">{formatDate(society.created_at)}</p>
-                  </div>
-                  <div className="bg-purple-50 p-4 rounded-lg">
-                    <label className="text-xs font-medium text-purple-700">Available Plots</label>
-                    <p className="text-purple-900 font-medium">{formatPlots(society.plots)}</p>
                   </div>
                 </div>
               </div>
@@ -725,22 +720,6 @@ function SocietyModal({ isOpen, onClose, society, onSave }) {
                     required
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                     placeholder="Enter website URL"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="flex items-center text-xs font-semibold text-gray-700 mb-2">
-                    <MapPin className="mr-2 text-gray-500" size={16} />
-                    Available Plots *
-                  </label>
-                  <input
-                    type="text"
-                    name="plots"
-                    value={formData.plots}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                    placeholder="e.g., 5Marla,10Marla"
                   />
                 </div>
 

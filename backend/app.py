@@ -1,3 +1,6 @@
+import logging
+import logging.handlers
+import sys
 from flask import Flask, jsonify, send_file, abort, request
 from flask_compress import Compress  # <--- Added for Compression
 from flask_jwt_extended import JWTManager
@@ -17,6 +20,38 @@ from dotenv import load_dotenv
 load_dotenv()
 
 app = Flask(__name__)
+
+# ----- Logging configuration (console + rotating file) -----
+LOG_DIR = os.path.join(os.getcwd(), 'logs')
+os.makedirs(LOG_DIR, exist_ok=True)
+log_file = os.path.join(LOG_DIR, 'backend.log')
+
+root_logger = logging.getLogger()
+root_logger.setLevel(logging.INFO)
+# Ensure Flask/Werkzeug logs propagate and use our handlers
+logging.getLogger('werkzeug').setLevel(logging.INFO)
+logging.getLogger('werkzeug').propagate = True
+
+formatter = logging.Formatter('%(asctime)s %(levelname)s [%(name)s] %(message)s')
+
+stream_handler = logging.StreamHandler(sys.stdout)
+stream_handler.setFormatter(formatter)
+stream_handler.setLevel(logging.INFO)
+
+file_handler = logging.handlers.RotatingFileHandler(
+    log_file, maxBytes=5 * 1024 * 1024, backupCount=5, encoding='utf-8'
+)
+file_handler.setFormatter(formatter)
+file_handler.setLevel(logging.INFO)
+
+# Avoid adding duplicate handlers if module reloaded
+if not any(isinstance(h, logging.StreamHandler) for h in root_logger.handlers):
+    root_logger.addHandler(stream_handler)
+if not any(isinstance(h, logging.handlers.RotatingFileHandler) for h in root_logger.handlers):
+    root_logger.addHandler(file_handler)
+
+logger = logging.getLogger('backend')
+logger.info('Logging initialized. Writing to %s', log_file)
 
 # Apply GZIP Compression for Admin performance optimizations
 Compress(app)
@@ -44,9 +79,29 @@ jwt = JWTManager(app)
 # Request logging middleware
 @app.before_request
 def log_request():
-    print(f"[REQUEST] {request.method} {request.path}")
-    if request.args:
-        print(f"[ARGS] {dict(request.args)}")
+    try:
+        logger.info('%s', '=' * 80)
+        logger.info('[REQUEST] %s %s', request.method, request.path)
+        logger.info('[REMOTE] %s', request.remote_addr)
+        if request.args:
+            logger.info('[QUERY ARGS] %s', dict(request.args))
+        if request.method in ['POST', 'PUT']:
+            try:
+                logger.info('[BODY] %s', request.get_json() or request.form.to_dict())
+            except Exception:
+                logger.debug('Failed to read request body')
+        logger.info('%s', '=' * 80)
+    except Exception:
+        pass
+
+
+@app.after_request
+def log_response(response):
+    try:
+        logger.info('[RESPONSE] %s %s %s', response.status_code, request.method, request.path)
+    except Exception:
+        pass
+    return response
 
 # JWT Error Handlers
 @jwt.expired_token_loader
@@ -106,7 +161,7 @@ def serve_uploaded_file(filepath):
     "uploads/" (e.g., "uploads/user_profiles/user_<id>/floor_plans/file.json").
     This endpoint ensures we only serve files from the `uploads` directory.
     """
-    print(f"[FILE SERVE] Requested: {filepath}")
+    logger.info('[FILE SERVE] Requested: %s', filepath)
     
     # Normalize path separators for cross-platform compatibility
     # Replace forward slashes with OS-specific separator
@@ -116,20 +171,20 @@ def serve_uploaded_file(filepath):
     normalized = os.path.normpath(filepath)
     full_path = os.path.normpath(os.path.join(os.getcwd(), normalized))
     
-    print(f"[FILE SERVE] Full path: {full_path}")
+    logger.info('[FILE SERVE] Full path: %s', full_path)
 
     # Security check: file must be inside the UPLOAD_ROOT directory
     # Use case-insensitive comparison for Windows
     if not os.path.normcase(full_path).startswith(os.path.normcase(UPLOAD_ROOT)):
-        print(f"[FILE SERVE] Security error - path outside uploads")
+        logger.warning('[FILE SERVE] Security error - path outside uploads')
         abort(403)
 
     if not os.path.exists(full_path):
-        print(f"[FILE SERVE] File not found! Path in DB but file missing on disk.")
+        logger.warning('[FILE SERVE] File not found! Path in DB but file missing on disk.')
         abort(404)
         
     if not os.path.isfile(full_path):
-        print(f"[FILE SERVE] Path is not a file")
+        logger.warning('[FILE SERVE] Path is not a file')
         abort(404)
 
     # Determine MIME type based on file extension
@@ -150,10 +205,19 @@ def serve_uploaded_file(filepath):
 
 @app.route('/api/db-test')
 def db_test():
+    logger.info('[ROUTE] /api/db-test called from %s', request.remote_addr)
     result = test_connection()
     if isinstance(result, dict):
+        logger.info('[ROUTE] /api/db-test result: connected')
         return "MongoDB is connected"
+    logger.warning('[ROUTE] /api/db-test result: failed - %s', result)
     return f"MongoDB connection failed: {result}", 500
+
+
+@app.route('/health')
+def health():
+    logger.info('[ROUTE] /health called from %s', request.remote_addr)
+    return jsonify({'status':'ok'}), 200
 
 @app.route('/api/jwt-test')
 def jwt_test():
@@ -167,8 +231,8 @@ def jwt_test():
         test_identity = {'email': 'test@example.com', 'role': 'test'}
         current_time = datetime.now(timezone.utc)
         
-        print(f"[JWT TEST] Creating token at: {current_time}")
-        print(f"[JWT TEST] JWT_ACCESS_TOKEN_EXPIRES config: {app.config.get('JWT_ACCESS_TOKEN_EXPIRES')}")
+        logger.info('[JWT TEST] Creating token at: %s', current_time)
+        logger.info('[JWT TEST] JWT_ACCESS_TOKEN_EXPIRES config: %s', app.config.get('JWT_ACCESS_TOKEN_EXPIRES'))
         
         access_token = create_access_token(identity=test_identity)
         
@@ -190,7 +254,7 @@ def jwt_test():
         }), 200
         
     except Exception as e:
-        print(f"[JWT TEST ERROR] {e}")
+        logger.exception('[JWT TEST ERROR] %s', e)
         return jsonify({"error": str(e)}), 500
 
 # Graceful shutdown: close MongoDB connection only on app termination

@@ -1,0 +1,785 @@
+2026-05-05 00:29:37,947 INFO [backend] Logging initialized. Writing to G:\fyp 6\NextGenArchitect\backend\logs\backend.log
+2026-05-05 00:29:43,181 INFO [backend.utils.db] [DB] Attempting to connect to MongoDB Atlas...
+2026-05-05 00:29:45,691 INFO [backend.utils.db] [DB] ✅ Connected to MongoDB Atlas (with connection pooling)
+2026-05-05 00:29:46,779 INFO [werkzeug] [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2026-05-05 00:29:46,780 INFO [werkzeug] [33mPress CTRL+C to quit[0m
+2026-05-05 00:31:04,232 INFO [backend] Logging initialized. Writing to G:\fyp 6\NextGenArchitect\backend\logs\backend.log
+2026-05-05 00:31:10,130 INFO [backend.utils.db] [DB] Attempting to connect to MongoDB Atlas...
+2026-05-05 00:31:12,286 INFO [backend.utils.db] [DB] ✅ Connected to MongoDB Atlas (with connection pooling)
+2026-05-05 00:31:13,182 INFO [werkzeug] [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2026-05-05 00:31:13,182 INFO [werkzeug] [33mPress CTRL+C to quit[0m
+2026-05-05 00:43:33,130 INFO [backend] Logging initialized. Writing to G:\fyp 6\NextGenArchitect\backend\logs\backend.log
+2026-05-05 00:43:36,692 INFO [backend.utils.db] [DB] Attempting to connect to MongoDB Atlas...
+2026-05-05 00:43:39,110 INFO [backend] Logging initialized. Writing to G:\fyp 6\NextGenArchitect\backend\logs\backend.log
+2026-05-05 00:43:40,973 INFO [backend.utils.db] [DB] ✅ Connected to MongoDB Atlas (with connection pooling)
+2026-05-05 00:43:41,831 INFO [werkzeug] [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2026-05-05 00:43:41,833 INFO [werkzeug] [33mPress CTRL+C to quit[0m
+2026-05-05 00:43:42,352 INFO [backend.utils.db] [DB] Attempting to connect to MongoDB Atlas...
+2026-05-05 00:43:44,244 INFO [backend.utils.db] [DB] ✅ Connected to MongoDB Atlas (with connection pooling)
+2026-05-05 00:43:45,012 INFO [werkzeug] [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2026-05-05 00:43:45,012 INFO [werkzeug] [33mPress CTRL+C to quit[0m
+2026-05-05 00:55:50,485 INFO [backend] Logging initialized. Writing to G:\fyp 6\NextGenArchitect\backend\logs\backend.log
+2026-05-05 00:55:56,008 INFO [backend.utils.db] [DB] Attempting to connect to MongoDB Atlas...
+2026-05-05 00:55:58,221 INFO [backend.utils.db] [DB] ✅ Connected to MongoDB Atlas (with connection pooling)
+2026-05-05 00:55:59,164 INFO [werkzeug] [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2026-05-05 00:55:59,165 INFO [werkzeug] [33mPress CTRL+C to quit[0m
+2026-05-05 01:46:07,305 INFO [backend] Logging initialized. Writing to G:\fyp 6\NextGenArchitect\backend\logs\backend.log
+2026-05-05 01:46:11,865 INFO [backend.utils.db] [DB] Attempting to connect to MongoDB Atlas...
+2026-05-05 01:46:13,964 INFO [backend.utils.db] [DB] ✅ Connected to MongoDB Atlas (with connection pooling)
+2026-05-05 01:46:14,955 INFO [werkzeug] [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2026-05-05 01:46:14,955 INFO [werkzeug] [33mPress CTRL+C to quit[0m
+2026-05-05 01:46:42,925 INFO [backend] ================================================================================
+2026-05-05 01:46:43,017 INFO [backend] [REQUEST] GET /api/users
+2026-05-05 01:46:43,018 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 01:46:43,018 INFO [backend] ================================================================================
+2026-05-05 01:46:43,095 INFO [backend] [RESPONSE] 401 GET /api/users
+2026-05-05 01:46:43,125 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 01:46:43] "[31m[1mGET /api/users HTTP/1.1[0m" 401 -
+2026-05-05 01:50:04,125 INFO [backend] ================================================================================
+2026-05-05 01:50:04,125 INFO [backend] [REQUEST] GET /api/society-profiles
+2026-05-05 01:50:04,125 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 01:50:04,125 INFO [backend] ================================================================================
+2026-05-05 01:50:10,302 INFO [backend] [RESPONSE] 200 GET /api/society-profiles
+2026-05-05 01:50:10,589 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 01:50:10] "GET /api/society-profiles HTTP/1.1" 200 -
+2026-05-05 01:50:10,607 INFO [backend] ================================================================================
+2026-05-05 01:50:10,610 INFO [backend] [REQUEST] GET /api/society-profiles
+2026-05-05 01:50:10,610 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 01:50:10,612 INFO [backend] ================================================================================
+2026-05-05 01:50:21,306 INFO [backend] [RESPONSE] 200 GET /api/society-profiles
+2026-05-05 01:50:21,571 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 01:50:21] "GET /api/society-profiles HTTP/1.1" 200 -
+2026-05-05 01:50:21,609 INFO [backend] ================================================================================
+2026-05-05 01:50:21,609 INFO [backend] [REQUEST] GET /api/plots/society/69f900aaaff327007678d7fd
+2026-05-05 01:50:21,610 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 01:50:21,610 INFO [backend] ================================================================================
+2026-05-05 01:50:22,457 INFO [backend] [RESPONSE] 200 GET /api/plots/society/69f900aaaff327007678d7fd
+2026-05-05 01:50:22,457 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 01:50:22] "GET /api/plots/society/69f900aaaff327007678d7fd HTTP/1.1" 200 -
+2026-05-05 01:50:22,473 INFO [backend] ================================================================================
+2026-05-05 01:50:22,473 INFO [backend] [REQUEST] GET /api/plots/society/692ae4febe9ed326e2928e7c
+2026-05-05 01:50:22,475 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 01:50:22,477 INFO [backend] ================================================================================
+2026-05-05 01:50:47,221 INFO [backend] [RESPONSE] 200 GET /api/plots/society/692ae4febe9ed326e2928e7c
+2026-05-05 01:50:47,309 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 01:50:47] "GET /api/plots/society/692ae4febe9ed326e2928e7c HTTP/1.1" 200 -
+2026-05-05 01:50:47,336 INFO [backend] ================================================================================
+2026-05-05 01:50:47,338 INFO [backend] [REQUEST] GET /api/plots/society/697c9937d07aa2407734e126
+2026-05-05 01:50:47,340 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 01:50:47,342 INFO [backend] ================================================================================
+2026-05-05 01:50:47,556 INFO [backend] [RESPONSE] 200 GET /api/plots/society/697c9937d07aa2407734e126
+2026-05-05 01:50:47,562 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 01:50:47] "GET /api/plots/society/697c9937d07aa2407734e126 HTTP/1.1" 200 -
+2026-05-05 01:50:47,592 INFO [backend] ================================================================================
+2026-05-05 01:50:47,594 INFO [backend] [REQUEST] GET /api/plots/society/69ba5d3e10c7a9ceed0e6243
+2026-05-05 01:50:47,596 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 01:50:47,599 INFO [backend] ================================================================================
+2026-05-05 01:50:55,109 INFO [backend] [RESPONSE] 200 GET /api/plots/society/69ba5d3e10c7a9ceed0e6243
+2026-05-05 01:50:55,567 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 01:50:55] "GET /api/plots/society/69ba5d3e10c7a9ceed0e6243 HTTP/1.1" 200 -
+2026-05-05 01:50:55,605 INFO [backend] ================================================================================
+2026-05-05 01:50:55,612 INFO [backend] [REQUEST] GET /api/plots/society/69bb7cfc638956b80566549e
+2026-05-05 01:50:55,648 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 01:50:55,662 INFO [backend] ================================================================================
+2026-05-05 01:50:56,736 INFO [backend] [RESPONSE] 200 GET /api/plots/society/69bb7cfc638956b80566549e
+2026-05-05 01:50:56,804 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 01:50:56] "GET /api/plots/society/69bb7cfc638956b80566549e HTTP/1.1" 200 -
+2026-05-05 01:50:56,873 INFO [backend] ================================================================================
+2026-05-05 01:50:56,883 INFO [backend] [REQUEST] GET /api/plots/society/69ecb32da1e3a65b3545fd12
+2026-05-05 01:50:56,890 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 01:50:56,926 INFO [backend] ================================================================================
+2026-05-05 01:50:57,422 INFO [backend] [RESPONSE] 200 GET /api/plots/society/69ecb32da1e3a65b3545fd12
+2026-05-05 01:50:57,425 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 01:50:57] "GET /api/plots/society/69ecb32da1e3a65b3545fd12 HTTP/1.1" 200 -
+2026-05-05 01:50:57,447 INFO [backend] ================================================================================
+2026-05-05 01:50:57,450 INFO [backend] [REQUEST] OPTIONS /api/societies/692ae4febe9ed326e2928e7c/reviews
+2026-05-05 01:50:57,452 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 01:50:57,454 INFO [backend] ================================================================================
+2026-05-05 01:50:57,484 INFO [backend] [RESPONSE] 200 OPTIONS /api/societies/692ae4febe9ed326e2928e7c/reviews
+2026-05-05 01:50:57,499 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 01:50:57] "OPTIONS /api/societies/692ae4febe9ed326e2928e7c/reviews HTTP/1.1" 200 -
+2026-05-05 01:50:57,540 INFO [backend] ================================================================================
+2026-05-05 01:50:57,545 INFO [backend] [REQUEST] OPTIONS /api/societies/692ae4febe9ed326e2928e7c/reviews
+2026-05-05 01:50:57,549 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 01:50:57,559 INFO [backend] ================================================================================
+2026-05-05 01:50:57,575 INFO [backend] [RESPONSE] 200 OPTIONS /api/societies/692ae4febe9ed326e2928e7c/reviews
+2026-05-05 01:50:57,582 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 01:50:57] "OPTIONS /api/societies/692ae4febe9ed326e2928e7c/reviews HTTP/1.1" 200 -
+2026-05-05 01:50:57,600 INFO [backend] ================================================================================
+2026-05-05 01:50:57,606 INFO [backend] [REQUEST] GET /api/society-profiles
+2026-05-05 01:50:57,624 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 01:50:57,660 INFO [backend] ================================================================================
+2026-05-05 01:51:01,753 INFO [backend] [RESPONSE] 200 GET /api/society-profiles
+2026-05-05 01:51:02,108 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 01:51:02] "GET /api/society-profiles HTTP/1.1" 200 -
+2026-05-05 01:51:02,133 INFO [backend] ================================================================================
+2026-05-05 01:51:02,135 INFO [backend] [REQUEST] GET /api/plots/society/69f900aaaff327007678d7fd
+2026-05-05 01:51:02,135 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 01:51:02,135 INFO [backend] ================================================================================
+2026-05-05 01:51:02,382 INFO [backend] [RESPONSE] 200 GET /api/plots/society/69f900aaaff327007678d7fd
+2026-05-05 01:51:02,384 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 01:51:02] "GET /api/plots/society/69f900aaaff327007678d7fd HTTP/1.1" 200 -
+2026-05-05 01:51:02,394 INFO [backend] ================================================================================
+2026-05-05 01:51:02,396 INFO [backend] [REQUEST] GET /api/society-profiles
+2026-05-05 01:51:02,402 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 01:51:02,402 INFO [backend] ================================================================================
+2026-05-05 01:51:05,797 INFO [backend] [RESPONSE] 200 GET /api/society-profiles
+2026-05-05 01:51:05,938 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 01:51:05] "GET /api/society-profiles HTTP/1.1" 200 -
+2026-05-05 01:51:05,960 INFO [backend] ================================================================================
+2026-05-05 01:51:05,960 INFO [backend] [REQUEST] GET /api/plots/society/692ae4febe9ed326e2928e7c
+2026-05-05 01:51:05,962 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 01:51:05,962 INFO [backend] ================================================================================
+2026-05-05 01:51:17,706 INFO [backend] [RESPONSE] 200 GET /api/plots/society/692ae4febe9ed326e2928e7c
+2026-05-05 01:51:17,739 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 01:51:17] "GET /api/plots/society/692ae4febe9ed326e2928e7c HTTP/1.1" 200 -
+2026-05-05 01:51:17,766 INFO [backend] ================================================================================
+2026-05-05 01:51:17,766 INFO [backend] [REQUEST] GET /api/plots/society/692ae4febe9ed326e2928e7c
+2026-05-05 01:51:17,766 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 01:51:17,766 INFO [backend] ================================================================================
+2026-05-05 01:51:30,972 INFO [backend] [RESPONSE] 200 GET /api/plots/society/692ae4febe9ed326e2928e7c
+2026-05-05 01:51:31,040 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 01:51:31] "GET /api/plots/society/692ae4febe9ed326e2928e7c HTTP/1.1" 200 -
+2026-05-05 01:51:31,067 INFO [backend] ================================================================================
+2026-05-05 01:51:31,067 INFO [backend] [REQUEST] GET /api/plots/society/692ae4febe9ed326e2928e7c
+2026-05-05 01:51:31,067 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 01:51:31,072 INFO [backend] ================================================================================
+2026-05-05 01:51:44,687 INFO [backend] [RESPONSE] 200 GET /api/plots/society/692ae4febe9ed326e2928e7c
+2026-05-05 01:51:44,720 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 01:51:44] "GET /api/plots/society/692ae4febe9ed326e2928e7c HTTP/1.1" 200 -
+2026-05-05 01:51:44,734 INFO [backend] ================================================================================
+2026-05-05 01:51:44,734 INFO [backend] [REQUEST] GET /api/plots/society/697c9937d07aa2407734e126
+2026-05-05 01:51:44,734 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 01:51:44,736 INFO [backend] ================================================================================
+2026-05-05 01:51:44,988 INFO [backend] [RESPONSE] 200 GET /api/plots/society/697c9937d07aa2407734e126
+2026-05-05 01:51:44,990 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 01:51:44] "GET /api/plots/society/697c9937d07aa2407734e126 HTTP/1.1" 200 -
+2026-05-05 01:51:44,995 INFO [backend] ================================================================================
+2026-05-05 01:51:44,995 INFO [backend] [REQUEST] GET /api/plots/society/69ba5d3e10c7a9ceed0e6243
+2026-05-05 01:51:44,995 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 01:51:44,995 INFO [backend] ================================================================================
+2026-05-05 01:51:54,666 INFO [backend] [RESPONSE] 200 GET /api/plots/society/69ba5d3e10c7a9ceed0e6243
+2026-05-05 01:51:54,747 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 01:51:54] "GET /api/plots/society/69ba5d3e10c7a9ceed0e6243 HTTP/1.1" 200 -
+2026-05-05 01:51:54,776 INFO [backend] ================================================================================
+2026-05-05 01:51:54,776 INFO [backend] [REQUEST] GET /api/plots/society/69bb7cfc638956b80566549e
+2026-05-05 01:51:54,777 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 01:51:54,778 INFO [backend] ================================================================================
+2026-05-05 01:51:55,802 INFO [backend] [RESPONSE] 200 GET /api/plots/society/69bb7cfc638956b80566549e
+2026-05-05 01:51:55,830 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 01:51:55] "GET /api/plots/society/69bb7cfc638956b80566549e HTTP/1.1" 200 -
+2026-05-05 01:51:55,845 INFO [backend] ================================================================================
+2026-05-05 01:51:55,845 INFO [backend] [REQUEST] GET /api/plots/society/69ecb32da1e3a65b3545fd12
+2026-05-05 01:51:55,848 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 01:51:55,848 INFO [backend] ================================================================================
+2026-05-05 01:51:56,206 INFO [backend] [RESPONSE] 200 GET /api/plots/society/69ecb32da1e3a65b3545fd12
+2026-05-05 01:51:56,206 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 01:51:56] "GET /api/plots/society/69ecb32da1e3a65b3545fd12 HTTP/1.1" 200 -
+2026-05-05 01:51:56,215 INFO [backend] ================================================================================
+2026-05-05 01:51:56,216 INFO [backend] [REQUEST] GET /api/societies/692ae4febe9ed326e2928e7c/reviews
+2026-05-05 01:51:56,216 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 01:51:56,216 INFO [backend] ================================================================================
+2026-05-05 01:51:56,538 INFO [backend] [RESPONSE] 200 GET /api/societies/692ae4febe9ed326e2928e7c/reviews
+2026-05-05 01:51:56,540 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 01:51:56] "GET /api/societies/692ae4febe9ed326e2928e7c/reviews HTTP/1.1" 200 -
+2026-05-05 01:54:56,234 INFO [backend] ================================================================================
+2026-05-05 01:54:56,244 INFO [backend] [REQUEST] OPTIONS /api/registration-forms/69f8ffddaff327007678d7fc
+2026-05-05 01:54:56,278 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 01:54:56,290 INFO [backend] ================================================================================
+2026-05-05 01:54:56,311 INFO [backend] [RESPONSE] 200 OPTIONS /api/registration-forms/69f8ffddaff327007678d7fc
+2026-05-05 01:54:56,357 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 01:54:56] "OPTIONS /api/registration-forms/69f8ffddaff327007678d7fc HTTP/1.1" 200 -
+2026-05-05 01:54:56,502 INFO [backend] ================================================================================
+2026-05-05 01:54:56,509 INFO [backend] [REQUEST] DELETE /api/registration-forms/69f8ffddaff327007678d7fc
+2026-05-05 01:54:56,511 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 01:54:56,512 INFO [backend] ================================================================================
+2026-05-05 01:55:00,542 INFO [backend] [RESPONSE] 200 DELETE /api/registration-forms/69f8ffddaff327007678d7fc
+2026-05-05 01:55:00,548 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 01:55:00] "DELETE /api/registration-forms/69f8ffddaff327007678d7fc HTTP/1.1" 200 -
+2026-05-05 01:55:05,739 INFO [backend] ================================================================================
+2026-05-05 01:55:05,780 INFO [backend] [REQUEST] OPTIONS /api/society-registrations
+2026-05-05 01:55:05,855 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 01:55:05,874 INFO [backend] ================================================================================
+2026-05-05 01:55:05,887 INFO [backend] [RESPONSE] 200 OPTIONS /api/society-registrations
+2026-05-05 01:55:05,905 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 01:55:05] "OPTIONS /api/society-registrations HTTP/1.1" 200 -
+2026-05-05 01:55:06,054 INFO [backend] ================================================================================
+2026-05-05 01:55:06,082 INFO [backend] [REQUEST] GET /api/society-registrations
+2026-05-05 01:55:06,102 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 01:55:06,138 INFO [backend] ================================================================================
+2026-05-05 01:55:10,591 INFO [backend] [RESPONSE] 200 GET /api/society-registrations
+2026-05-05 01:55:11,159 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 01:55:11] "GET /api/society-registrations HTTP/1.1" 200 -
+2026-05-05 01:57:51,826 INFO [backend] ================================================================================
+2026-05-05 01:57:51,828 INFO [backend] [REQUEST] GET /api/compliance/society/6944df67411f0dd31a4a9577
+2026-05-05 01:57:51,828 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 01:57:51,829 INFO [backend] ================================================================================
+2026-05-05 01:57:52,044 INFO [backend] [RESPONSE] 200 GET /api/compliance/society/6944df67411f0dd31a4a9577
+2026-05-05 01:57:52,050 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 01:57:52] "GET /api/compliance/society/6944df67411f0dd31a4a9577 HTTP/1.1" 200 -
+2026-05-05 01:57:52,081 INFO [backend] ================================================================================
+2026-05-05 01:57:52,084 INFO [backend] [REQUEST] GET /api/compliance/society/6944df67411f0dd31a4a9577
+2026-05-05 01:57:52,084 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 01:57:52,084 INFO [backend] ================================================================================
+2026-05-05 01:57:52,204 INFO [backend] [RESPONSE] 200 GET /api/compliance/society/6944df67411f0dd31a4a9577
+2026-05-05 01:57:52,204 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 01:57:52] "GET /api/compliance/society/6944df67411f0dd31a4a9577 HTTP/1.1" 200 -
+2026-05-05 01:58:00,866 INFO [backend] ================================================================================
+2026-05-05 01:58:00,866 INFO [backend] [REQUEST] OPTIONS /api/floorplan/generate
+2026-05-05 01:58:00,866 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 01:58:00,869 INFO [backend] ================================================================================
+2026-05-05 01:58:00,871 INFO [backend] [RESPONSE] 200 OPTIONS /api/floorplan/generate
+2026-05-05 01:58:00,871 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 01:58:00] "OPTIONS /api/floorplan/generate HTTP/1.1" 200 -
+2026-05-05 01:58:01,087 INFO [backend] ================================================================================
+2026-05-05 01:58:01,087 INFO [backend] [REQUEST] POST /api/floorplan/generate
+2026-05-05 01:58:01,090 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 01:58:01,156 INFO [backend] [BODY] {'width': 1000, 'height': 1000, 'connects': [{'from_tag': 'livingroom-1', 'to_tag': 'bedroom-1'}, {'from_tag': 'bedroom-1', 'to_tag': 'carporch-1'}], 'kitchen_p': 0.7, 'living_p': 0.8, 'drawing_p': 0.8, 'car_p': 0.6, 'bath_p': 0.8, 'bed_p': 0.7, 'gar_p': 0.5, 'kitchen_per': 15, 'living_per': 72, 'drawing_per': 20, 'car_per': 10, 'bath_per': 8, 'bed_per': 18, 'gar_per': 2, 'room_areas': {'livingroom-1': 72, 'bedroom-1': 18, 'carporch-1': 10}, 'use_genai': False, 'num_plans': 5, 'population_size': 20, 'mutation_rate': 0.1, 'crossover_rate': 0.7}
+2026-05-05 01:58:01,156 INFO [backend] ================================================================================
+2026-05-05 01:58:03,789 INFO [backend] [RESPONSE] 200 POST /api/floorplan/generate
+2026-05-05 01:58:03,789 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 01:58:03] "POST /api/floorplan/generate HTTP/1.1" 200 -
+2026-05-05 02:01:43,120 INFO [backend] ================================================================================
+2026-05-05 02:01:43,120 INFO [backend] [REQUEST] GET /api/compliance/society/6944df67411f0dd31a4a9577
+2026-05-05 02:01:43,122 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:01:43,124 INFO [backend] ================================================================================
+2026-05-05 02:01:43,260 INFO [backend] [RESPONSE] 200 GET /api/compliance/society/6944df67411f0dd31a4a9577
+2026-05-05 02:01:43,263 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:01:43] "GET /api/compliance/society/6944df67411f0dd31a4a9577 HTTP/1.1" 200 -
+2026-05-05 02:01:43,398 INFO [backend] ================================================================================
+2026-05-05 02:01:43,402 INFO [backend] [REQUEST] GET /api/compliance/society/6944df67411f0dd31a4a9577
+2026-05-05 02:01:43,410 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:01:43,414 INFO [backend] ================================================================================
+2026-05-05 02:01:43,569 INFO [backend] [RESPONSE] 200 GET /api/compliance/society/6944df67411f0dd31a4a9577
+2026-05-05 02:01:43,571 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:01:43] "GET /api/compliance/society/6944df67411f0dd31a4a9577 HTTP/1.1" 200 -
+2026-05-05 02:01:50,997 INFO [backend] ================================================================================
+2026-05-05 02:01:50,997 INFO [backend] [REQUEST] GET /api/society-profiles
+2026-05-05 02:01:50,997 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:01:50,999 INFO [backend] ================================================================================
+2026-05-05 02:01:53,683 INFO [backend] [RESPONSE] 200 GET /api/society-profiles
+2026-05-05 02:01:53,717 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:01:53] "GET /api/society-profiles HTTP/1.1" 200 -
+2026-05-05 02:01:54,042 INFO [backend] ================================================================================
+2026-05-05 02:01:54,043 INFO [backend] [REQUEST] GET /api/society-profiles
+2026-05-05 02:01:54,044 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:01:54,044 INFO [backend] ================================================================================
+2026-05-05 02:01:56,114 INFO [backend] [RESPONSE] 200 GET /api/society-profiles
+2026-05-05 02:01:56,131 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:01:56] "GET /api/society-profiles HTTP/1.1" 200 -
+2026-05-05 02:01:56,156 INFO [backend] ================================================================================
+2026-05-05 02:01:56,156 INFO [backend] [REQUEST] GET /api/plots/society/697c9937d07aa2407734e126
+2026-05-05 02:01:56,156 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:01:56,160 INFO [backend] ================================================================================
+2026-05-05 02:01:56,380 INFO [backend] [RESPONSE] 200 GET /api/plots/society/697c9937d07aa2407734e126
+2026-05-05 02:01:56,384 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:01:56] "GET /api/plots/society/697c9937d07aa2407734e126 HTTP/1.1" 200 -
+2026-05-05 02:01:56,407 INFO [backend] ================================================================================
+2026-05-05 02:01:56,407 INFO [backend] [REQUEST] GET /api/plots/society/69bb7cfc638956b80566549e
+2026-05-05 02:01:56,407 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:01:56,407 INFO [backend] ================================================================================
+2026-05-05 02:01:56,957 INFO [backend] [RESPONSE] 200 GET /api/plots/society/69bb7cfc638956b80566549e
+2026-05-05 02:01:56,980 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:01:56] "GET /api/plots/society/69bb7cfc638956b80566549e HTTP/1.1" 200 -
+2026-05-05 02:01:57,005 INFO [backend] ================================================================================
+2026-05-05 02:01:57,007 INFO [backend] [REQUEST] GET /api/plots/society/69ba5d3e10c7a9ceed0e6243
+2026-05-05 02:01:57,007 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:01:57,007 INFO [backend] ================================================================================
+2026-05-05 02:01:59,952 INFO [backend] [RESPONSE] 200 GET /api/plots/society/69ba5d3e10c7a9ceed0e6243
+2026-05-05 02:02:00,099 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:02:00] "GET /api/plots/society/69ba5d3e10c7a9ceed0e6243 HTTP/1.1" 200 -
+2026-05-05 02:02:00,128 INFO [backend] ================================================================================
+2026-05-05 02:02:00,128 INFO [backend] [REQUEST] GET /api/plots/society/692ae4febe9ed326e2928e7c
+2026-05-05 02:02:00,128 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:02:00,130 INFO [backend] ================================================================================
+2026-05-05 02:02:10,291 INFO [backend] [RESPONSE] 200 GET /api/plots/society/692ae4febe9ed326e2928e7c
+2026-05-05 02:02:10,365 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:02:10] "GET /api/plots/society/692ae4febe9ed326e2928e7c HTTP/1.1" 200 -
+2026-05-05 02:02:10,409 INFO [backend] ================================================================================
+2026-05-05 02:02:10,409 INFO [backend] [REQUEST] GET /api/plots/society/69ecb32da1e3a65b3545fd12
+2026-05-05 02:02:10,409 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:02:10,411 INFO [backend] ================================================================================
+2026-05-05 02:02:10,642 INFO [backend] [RESPONSE] 200 GET /api/plots/society/69ecb32da1e3a65b3545fd12
+2026-05-05 02:02:10,644 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:02:10] "GET /api/plots/society/69ecb32da1e3a65b3545fd12 HTTP/1.1" 200 -
+2026-05-05 02:02:10,647 INFO [backend] ================================================================================
+2026-05-05 02:02:10,647 INFO [backend] [REQUEST] GET /api/plots/society/697c9937d07aa2407734e126
+2026-05-05 02:02:10,649 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:02:10,650 INFO [backend] ================================================================================
+2026-05-05 02:02:10,884 INFO [backend] [RESPONSE] 200 GET /api/plots/society/697c9937d07aa2407734e126
+2026-05-05 02:02:10,898 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:02:10] "GET /api/plots/society/697c9937d07aa2407734e126 HTTP/1.1" 200 -
+2026-05-05 02:02:10,922 INFO [backend] ================================================================================
+2026-05-05 02:02:10,927 INFO [backend] [REQUEST] GET /api/plots/society/69bb7cfc638956b80566549e
+2026-05-05 02:02:10,934 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:02:10,935 INFO [backend] ================================================================================
+2026-05-05 02:02:11,805 INFO [backend] [RESPONSE] 200 GET /api/plots/society/69bb7cfc638956b80566549e
+2026-05-05 02:02:11,824 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:02:11] "GET /api/plots/society/69bb7cfc638956b80566549e HTTP/1.1" 200 -
+2026-05-05 02:02:11,827 INFO [backend] ================================================================================
+2026-05-05 02:02:11,827 INFO [backend] [REQUEST] GET /api/plots/society/69ba5d3e10c7a9ceed0e6243
+2026-05-05 02:02:11,827 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:02:11,827 INFO [backend] ================================================================================
+2026-05-05 02:02:16,394 INFO [backend] [RESPONSE] 200 GET /api/plots/society/69ba5d3e10c7a9ceed0e6243
+2026-05-05 02:02:16,527 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:02:16] "GET /api/plots/society/69ba5d3e10c7a9ceed0e6243 HTTP/1.1" 200 -
+2026-05-05 02:02:16,533 INFO [backend] ================================================================================
+2026-05-05 02:02:16,533 INFO [backend] [REQUEST] GET /api/society-profiles
+2026-05-05 02:02:16,533 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:02:16,533 INFO [backend] ================================================================================
+2026-05-05 02:02:18,547 INFO [backend] [RESPONSE] 200 GET /api/society-profiles
+2026-05-05 02:02:18,567 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:02:18] "GET /api/society-profiles HTTP/1.1" 200 -
+2026-05-05 02:02:18,587 INFO [backend] ================================================================================
+2026-05-05 02:02:18,587 INFO [backend] [REQUEST] GET /api/society-profiles
+2026-05-05 02:02:18,588 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:02:18,588 INFO [backend] ================================================================================
+2026-05-05 02:02:20,257 INFO [backend] [RESPONSE] 200 GET /api/society-profiles
+2026-05-05 02:02:20,277 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:02:20] "GET /api/society-profiles HTTP/1.1" 200 -
+2026-05-05 02:02:20,323 INFO [backend] ================================================================================
+2026-05-05 02:02:20,325 INFO [backend] [REQUEST] OPTIONS /api/reviews
+2026-05-05 02:02:20,325 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:02:20,325 INFO [backend] ================================================================================
+2026-05-05 02:02:20,340 INFO [backend] [RESPONSE] 200 OPTIONS /api/reviews
+2026-05-05 02:02:20,341 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:02:20] "OPTIONS /api/reviews HTTP/1.1" 200 -
+2026-05-05 02:02:20,346 INFO [backend] ================================================================================
+2026-05-05 02:02:20,346 INFO [backend] [REQUEST] GET /api/plots/society/692ae4febe9ed326e2928e7c
+2026-05-05 02:02:20,364 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:02:20,364 INFO [backend] ================================================================================
+2026-05-05 02:02:27,036 INFO [backend] [RESPONSE] 200 GET /api/plots/society/692ae4febe9ed326e2928e7c
+2026-05-05 02:02:27,097 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:02:27] "GET /api/plots/society/692ae4febe9ed326e2928e7c HTTP/1.1" 200 -
+2026-05-05 02:02:27,117 INFO [backend] ================================================================================
+2026-05-05 02:02:27,117 INFO [backend] [REQUEST] GET /api/plots/society/697c9937d07aa2407734e126
+2026-05-05 02:02:27,119 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:02:27,119 INFO [backend] ================================================================================
+2026-05-05 02:02:27,243 INFO [backend] [RESPONSE] 200 GET /api/plots/society/697c9937d07aa2407734e126
+2026-05-05 02:02:27,243 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:02:27] "GET /api/plots/society/697c9937d07aa2407734e126 HTTP/1.1" 200 -
+2026-05-05 02:02:27,260 INFO [backend] ================================================================================
+2026-05-05 02:02:27,261 INFO [backend] [REQUEST] GET /api/plots/society/69ba5d3e10c7a9ceed0e6243
+2026-05-05 02:02:27,261 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:02:27,263 INFO [backend] ================================================================================
+2026-05-05 02:02:31,511 INFO [backend] [RESPONSE] 200 GET /api/plots/society/69ba5d3e10c7a9ceed0e6243
+2026-05-05 02:02:31,683 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:02:31] "GET /api/plots/society/69ba5d3e10c7a9ceed0e6243 HTTP/1.1" 200 -
+2026-05-05 02:02:31,706 INFO [backend] ================================================================================
+2026-05-05 02:02:31,709 INFO [backend] [REQUEST] GET /api/plots/society/69bb7cfc638956b80566549e
+2026-05-05 02:02:31,710 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:02:31,710 INFO [backend] ================================================================================
+2026-05-05 02:02:32,357 INFO [backend] [RESPONSE] 200 GET /api/plots/society/69bb7cfc638956b80566549e
+2026-05-05 02:02:32,382 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:02:32] "GET /api/plots/society/69bb7cfc638956b80566549e HTTP/1.1" 200 -
+2026-05-05 02:02:32,406 INFO [backend] ================================================================================
+2026-05-05 02:02:32,408 INFO [backend] [REQUEST] GET /api/plots/society/69ecb32da1e3a65b3545fd12
+2026-05-05 02:02:32,410 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:02:32,410 INFO [backend] ================================================================================
+2026-05-05 02:02:32,728 INFO [backend] [RESPONSE] 200 GET /api/plots/society/69ecb32da1e3a65b3545fd12
+2026-05-05 02:02:32,732 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:02:32] "GET /api/plots/society/69ecb32da1e3a65b3545fd12 HTTP/1.1" 200 -
+2026-05-05 02:02:32,748 INFO [backend] ================================================================================
+2026-05-05 02:02:32,750 INFO [backend] [REQUEST] GET /api/society-profiles
+2026-05-05 02:02:32,750 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:02:32,752 INFO [backend] ================================================================================
+2026-05-05 02:02:34,767 INFO [backend] [RESPONSE] 200 GET /api/society-profiles
+2026-05-05 02:02:34,812 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:02:34] "GET /api/society-profiles HTTP/1.1" 200 -
+2026-05-05 02:02:34,842 INFO [backend] ================================================================================
+2026-05-05 02:02:34,842 INFO [backend] [REQUEST] GET /api/reviews
+2026-05-05 02:02:34,844 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:02:34,846 INFO [backend] ================================================================================
+2026-05-05 02:02:35,088 INFO [backend] [RESPONSE] 200 GET /api/reviews
+2026-05-05 02:02:35,088 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:02:35] "GET /api/reviews HTTP/1.1" 200 -
+2026-05-05 02:02:35,100 INFO [backend] ================================================================================
+2026-05-05 02:02:35,101 INFO [backend] [REQUEST] GET /api/plots/society/692ae4febe9ed326e2928e7c
+2026-05-05 02:02:35,101 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:02:35,101 INFO [backend] ================================================================================
+2026-05-05 02:02:42,079 INFO [backend] [RESPONSE] 200 GET /api/plots/society/692ae4febe9ed326e2928e7c
+2026-05-05 02:02:42,173 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:02:42] "GET /api/plots/society/692ae4febe9ed326e2928e7c HTTP/1.1" 200 -
+2026-05-05 02:02:42,210 INFO [backend] ================================================================================
+2026-05-05 02:02:42,210 INFO [backend] [REQUEST] GET /api/plots/society/697c9937d07aa2407734e126
+2026-05-05 02:02:42,210 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:02:42,212 INFO [backend] ================================================================================
+2026-05-05 02:02:42,341 INFO [backend] [RESPONSE] 200 GET /api/plots/society/697c9937d07aa2407734e126
+2026-05-05 02:02:42,347 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:02:42] "GET /api/plots/society/697c9937d07aa2407734e126 HTTP/1.1" 200 -
+2026-05-05 02:02:42,372 INFO [backend] ================================================================================
+2026-05-05 02:02:42,374 INFO [backend] [REQUEST] OPTIONS /api/advertisements/featured
+2026-05-05 02:02:42,375 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:02:42,378 INFO [backend] [QUERY ARGS] {'limit': '6'}
+2026-05-05 02:02:42,378 INFO [backend] ================================================================================
+2026-05-05 02:02:42,382 INFO [backend] [RESPONSE] 200 OPTIONS /api/advertisements/featured
+2026-05-05 02:02:42,386 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:02:42] "OPTIONS /api/advertisements/featured?limit=6 HTTP/1.1" 200 -
+2026-05-05 02:02:42,408 INFO [backend] ================================================================================
+2026-05-05 02:02:42,418 INFO [backend] [REQUEST] OPTIONS /api/advertisements/popup
+2026-05-05 02:02:42,419 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:02:42,419 INFO [backend] [QUERY ARGS] {'limit': '20'}
+2026-05-05 02:02:42,419 INFO [backend] ================================================================================
+2026-05-05 02:02:42,427 INFO [backend] [RESPONSE] 200 OPTIONS /api/advertisements/popup
+2026-05-05 02:02:42,429 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:02:42] "OPTIONS /api/advertisements/popup?limit=20 HTTP/1.1" 200 -
+2026-05-05 02:02:42,444 INFO [backend] ================================================================================
+2026-05-05 02:02:42,447 INFO [backend] [REQUEST] OPTIONS /api/advertisements/popup
+2026-05-05 02:02:42,451 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:02:42,457 INFO [backend] [QUERY ARGS] {'limit': '20'}
+2026-05-05 02:02:42,458 INFO [backend] ================================================================================
+2026-05-05 02:02:42,463 INFO [backend] [RESPONSE] 200 OPTIONS /api/advertisements/popup
+2026-05-05 02:02:42,467 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:02:42] "OPTIONS /api/advertisements/popup?limit=20 HTTP/1.1" 200 -
+2026-05-05 02:02:42,480 INFO [backend] ================================================================================
+2026-05-05 02:02:42,481 INFO [backend] [REQUEST] GET /api/plots/society/69ba5d3e10c7a9ceed0e6243
+2026-05-05 02:02:42,482 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:02:42,485 INFO [backend] ================================================================================
+2026-05-05 02:02:45,641 INFO [backend] [RESPONSE] 200 GET /api/plots/society/69ba5d3e10c7a9ceed0e6243
+2026-05-05 02:02:45,744 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:02:45] "GET /api/plots/society/69ba5d3e10c7a9ceed0e6243 HTTP/1.1" 200 -
+2026-05-05 02:02:45,767 INFO [backend] ================================================================================
+2026-05-05 02:02:45,770 INFO [backend] [REQUEST] GET /api/plots/society/69bb7cfc638956b80566549e
+2026-05-05 02:02:45,770 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:02:45,771 INFO [backend] ================================================================================
+2026-05-05 02:02:46,091 INFO [backend] [RESPONSE] 200 GET /api/plots/society/69bb7cfc638956b80566549e
+2026-05-05 02:02:46,114 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:02:46] "GET /api/plots/society/69bb7cfc638956b80566549e HTTP/1.1" 200 -
+2026-05-05 02:02:46,138 INFO [backend] ================================================================================
+2026-05-05 02:02:46,139 INFO [backend] [REQUEST] GET /api/plots/society/69ecb32da1e3a65b3545fd12
+2026-05-05 02:02:46,139 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:02:46,139 INFO [backend] ================================================================================
+2026-05-05 02:02:46,377 INFO [backend] [RESPONSE] 200 GET /api/plots/society/69ecb32da1e3a65b3545fd12
+2026-05-05 02:02:46,381 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:02:46] "GET /api/plots/society/69ecb32da1e3a65b3545fd12 HTTP/1.1" 200 -
+2026-05-05 02:02:46,400 INFO [backend] ================================================================================
+2026-05-05 02:02:46,406 INFO [backend] [REQUEST] GET /api/plots/society/692ae4febe9ed326e2928e7c
+2026-05-05 02:02:46,408 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:02:46,409 INFO [backend] ================================================================================
+2026-05-05 02:02:53,090 INFO [backend] [RESPONSE] 200 GET /api/plots/society/692ae4febe9ed326e2928e7c
+2026-05-05 02:02:53,132 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:02:53] "GET /api/plots/society/692ae4febe9ed326e2928e7c HTTP/1.1" 200 -
+2026-05-05 02:02:53,157 INFO [backend] ================================================================================
+2026-05-05 02:02:53,157 INFO [backend] [REQUEST] GET /api/plots/society/697c9937d07aa2407734e126
+2026-05-05 02:02:53,157 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:02:53,159 INFO [backend] ================================================================================
+2026-05-05 02:02:53,278 INFO [backend] [RESPONSE] 200 GET /api/plots/society/697c9937d07aa2407734e126
+2026-05-05 02:02:53,283 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:02:53] "GET /api/plots/society/697c9937d07aa2407734e126 HTTP/1.1" 200 -
+2026-05-05 02:02:53,306 INFO [backend] ================================================================================
+2026-05-05 02:02:53,308 INFO [backend] [REQUEST] GET /api/advertisements/featured
+2026-05-05 02:02:53,309 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:02:53,310 INFO [backend] [QUERY ARGS] {'limit': '6'}
+2026-05-05 02:02:53,312 INFO [backend] ================================================================================
+2026-05-05 02:02:54,250 INFO [backend] [RESPONSE] 200 GET /api/advertisements/featured
+2026-05-05 02:02:54,265 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:02:54] "GET /api/advertisements/featured?limit=6 HTTP/1.1" 200 -
+2026-05-05 02:02:54,288 INFO [backend] ================================================================================
+2026-05-05 02:02:54,288 INFO [backend] [REQUEST] GET /api/advertisements/popup
+2026-05-05 02:02:54,289 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:02:54,290 INFO [backend] [QUERY ARGS] {'limit': '20'}
+2026-05-05 02:02:54,290 INFO [backend] ================================================================================
+2026-05-05 02:02:55,985 INFO [backend] [RESPONSE] 200 GET /api/advertisements/popup
+2026-05-05 02:02:56,027 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:02:56] "GET /api/advertisements/popup?limit=20 HTTP/1.1" 200 -
+2026-05-05 02:02:56,047 INFO [backend] ================================================================================
+2026-05-05 02:02:56,047 INFO [backend] [REQUEST] GET /api/plots/society/69ba5d3e10c7a9ceed0e6243
+2026-05-05 02:02:56,047 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:02:56,047 INFO [backend] ================================================================================
+2026-05-05 02:02:59,989 INFO [backend] [RESPONSE] 200 GET /api/plots/society/69ba5d3e10c7a9ceed0e6243
+2026-05-05 02:03:00,062 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:03:00] "GET /api/plots/society/69ba5d3e10c7a9ceed0e6243 HTTP/1.1" 200 -
+2026-05-05 02:03:00,081 INFO [backend] ================================================================================
+2026-05-05 02:03:00,081 INFO [backend] [REQUEST] GET /api/plots/society/69bb7cfc638956b80566549e
+2026-05-05 02:03:00,081 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:03:00,083 INFO [backend] ================================================================================
+2026-05-05 02:03:00,810 INFO [backend] [RESPONSE] 200 GET /api/plots/society/69bb7cfc638956b80566549e
+2026-05-05 02:03:00,822 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:03:00] "GET /api/plots/society/69bb7cfc638956b80566549e HTTP/1.1" 200 -
+2026-05-05 02:03:00,854 INFO [backend] ================================================================================
+2026-05-05 02:03:00,854 INFO [backend] [REQUEST] GET /api/plots/society/69ecb32da1e3a65b3545fd12
+2026-05-05 02:03:00,857 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:03:00,857 INFO [backend] ================================================================================
+2026-05-05 02:03:01,113 INFO [backend] [RESPONSE] 200 GET /api/plots/society/69ecb32da1e3a65b3545fd12
+2026-05-05 02:03:01,113 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:03:01] "GET /api/plots/society/69ecb32da1e3a65b3545fd12 HTTP/1.1" 200 -
+2026-05-05 02:03:01,121 INFO [backend] ================================================================================
+2026-05-05 02:03:01,122 INFO [backend] [REQUEST] GET /api/advertisements/popup
+2026-05-05 02:03:01,122 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:03:01,124 INFO [backend] [QUERY ARGS] {'limit': '20'}
+2026-05-05 02:03:01,124 INFO [backend] ================================================================================
+2026-05-05 02:03:02,678 INFO [backend] [RESPONSE] 200 GET /api/advertisements/popup
+2026-05-05 02:03:02,796 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:03:02] "GET /api/advertisements/popup?limit=20 HTTP/1.1" 200 -
+2026-05-05 02:03:02,823 INFO [backend] ================================================================================
+2026-05-05 02:03:02,823 INFO [backend] [REQUEST] OPTIONS /api/advertisements/69ec9fe4a1e3a65b3545fd0f/impression
+2026-05-05 02:03:02,823 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:03:02,823 INFO [backend] ================================================================================
+2026-05-05 02:03:02,823 INFO [backend] [RESPONSE] 200 OPTIONS /api/advertisements/69ec9fe4a1e3a65b3545fd0f/impression
+2026-05-05 02:03:02,823 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:03:02] "OPTIONS /api/advertisements/69ec9fe4a1e3a65b3545fd0f/impression HTTP/1.1" 200 -
+2026-05-05 02:03:03,164 INFO [backend] ================================================================================
+2026-05-05 02:03:03,164 INFO [backend] [REQUEST] POST /api/advertisements/69ec9fe4a1e3a65b3545fd0f/impression
+2026-05-05 02:03:03,166 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:03:03,191 INFO [backend] ================================================================================
+2026-05-05 02:03:03,335 INFO [backend] [RESPONSE] 200 POST /api/advertisements/69ec9fe4a1e3a65b3545fd0f/impression
+2026-05-05 02:03:03,347 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:03:03] "POST /api/advertisements/69ec9fe4a1e3a65b3545fd0f/impression HTTP/1.1" 200 -
+2026-05-05 02:03:07,050 INFO [backend] ================================================================================
+2026-05-05 02:03:07,050 INFO [backend] [REQUEST] OPTIONS /api/advertisements/69bb8055638956b8056654a6/impression
+2026-05-05 02:03:07,050 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:03:07,050 INFO [backend] ================================================================================
+2026-05-05 02:03:07,050 INFO [backend] [RESPONSE] 200 OPTIONS /api/advertisements/69bb8055638956b8056654a6/impression
+2026-05-05 02:03:07,050 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:03:07] "OPTIONS /api/advertisements/69bb8055638956b8056654a6/impression HTTP/1.1" 200 -
+2026-05-05 02:03:07,308 INFO [backend] ================================================================================
+2026-05-05 02:03:07,308 INFO [backend] [REQUEST] POST /api/advertisements/69bb8055638956b8056654a6/impression
+2026-05-05 02:03:07,308 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:03:07,308 INFO [backend] ================================================================================
+2026-05-05 02:03:07,438 INFO [backend] [RESPONSE] 200 POST /api/advertisements/69bb8055638956b8056654a6/impression
+2026-05-05 02:03:07,444 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:03:07] "POST /api/advertisements/69bb8055638956b8056654a6/impression HTTP/1.1" 200 -
+2026-05-05 02:03:13,751 INFO [backend] ================================================================================
+2026-05-05 02:03:13,751 INFO [backend] [REQUEST] OPTIONS /api/advertisements/69bb5e0b71bd6070b56a2e00/impression
+2026-05-05 02:03:13,753 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:03:13,754 INFO [backend] ================================================================================
+2026-05-05 02:03:13,755 INFO [backend] [RESPONSE] 200 OPTIONS /api/advertisements/69bb5e0b71bd6070b56a2e00/impression
+2026-05-05 02:03:13,759 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:03:13] "OPTIONS /api/advertisements/69bb5e0b71bd6070b56a2e00/impression HTTP/1.1" 200 -
+2026-05-05 02:03:14,088 INFO [backend] ================================================================================
+2026-05-05 02:03:14,090 INFO [backend] [REQUEST] POST /api/advertisements/69bb5e0b71bd6070b56a2e00/impression
+2026-05-05 02:03:14,090 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:03:14,092 INFO [backend] ================================================================================
+2026-05-05 02:03:14,207 INFO [backend] [RESPONSE] 200 POST /api/advertisements/69bb5e0b71bd6070b56a2e00/impression
+2026-05-05 02:03:14,217 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:03:14] "POST /api/advertisements/69bb5e0b71bd6070b56a2e00/impression HTTP/1.1" 200 -
+2026-05-05 02:03:16,737 INFO [backend] ================================================================================
+2026-05-05 02:03:16,737 INFO [backend] [REQUEST] OPTIONS /api/advertisements/69247575d854a815fef27caa/impression
+2026-05-05 02:03:16,737 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:03:16,737 INFO [backend] ================================================================================
+2026-05-05 02:03:16,737 INFO [backend] [RESPONSE] 200 OPTIONS /api/advertisements/69247575d854a815fef27caa/impression
+2026-05-05 02:03:16,737 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:03:16] "OPTIONS /api/advertisements/69247575d854a815fef27caa/impression HTTP/1.1" 200 -
+2026-05-05 02:03:17,049 INFO [backend] ================================================================================
+2026-05-05 02:03:17,052 INFO [backend] [REQUEST] POST /api/advertisements/69247575d854a815fef27caa/impression
+2026-05-05 02:03:17,052 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:03:17,053 INFO [backend] ================================================================================
+2026-05-05 02:03:17,162 INFO [backend] [RESPONSE] 200 POST /api/advertisements/69247575d854a815fef27caa/impression
+2026-05-05 02:03:17,162 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:03:17] "POST /api/advertisements/69247575d854a815fef27caa/impression HTTP/1.1" 200 -
+2026-05-05 02:03:23,742 INFO [backend] ================================================================================
+2026-05-05 02:03:23,742 INFO [backend] [REQUEST] OPTIONS /api/advertisements/69246723ffe4396d8687e024/impression
+2026-05-05 02:03:23,742 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:03:23,742 INFO [backend] ================================================================================
+2026-05-05 02:03:23,750 INFO [backend] [RESPONSE] 200 OPTIONS /api/advertisements/69246723ffe4396d8687e024/impression
+2026-05-05 02:03:23,753 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:03:23] "OPTIONS /api/advertisements/69246723ffe4396d8687e024/impression HTTP/1.1" 200 -
+2026-05-05 02:03:24,065 INFO [backend] ================================================================================
+2026-05-05 02:03:24,065 INFO [backend] [REQUEST] POST /api/advertisements/69246723ffe4396d8687e024/impression
+2026-05-05 02:03:24,065 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:03:24,065 INFO [backend] ================================================================================
+2026-05-05 02:03:24,179 INFO [backend] [RESPONSE] 200 POST /api/advertisements/69246723ffe4396d8687e024/impression
+2026-05-05 02:03:24,179 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:03:24] "POST /api/advertisements/69246723ffe4396d8687e024/impression HTTP/1.1" 200 -
+2026-05-05 02:03:26,741 INFO [backend] ================================================================================
+2026-05-05 02:03:26,741 INFO [backend] [REQUEST] OPTIONS /api/advertisements/68c26f597c1025ec86da076b/impression
+2026-05-05 02:03:26,742 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:03:26,742 INFO [backend] ================================================================================
+2026-05-05 02:03:26,742 INFO [backend] [RESPONSE] 200 OPTIONS /api/advertisements/68c26f597c1025ec86da076b/impression
+2026-05-05 02:03:26,742 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:03:26] "OPTIONS /api/advertisements/68c26f597c1025ec86da076b/impression HTTP/1.1" 200 -
+2026-05-05 02:03:27,060 INFO [backend] ================================================================================
+2026-05-05 02:03:27,060 INFO [backend] [REQUEST] POST /api/advertisements/68c26f597c1025ec86da076b/impression
+2026-05-05 02:03:27,060 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:03:27,060 INFO [backend] ================================================================================
+2026-05-05 02:03:27,177 INFO [backend] [RESPONSE] 200 POST /api/advertisements/68c26f597c1025ec86da076b/impression
+2026-05-05 02:03:27,180 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:03:27] "POST /api/advertisements/68c26f597c1025ec86da076b/impression HTTP/1.1" 200 -
+2026-05-05 02:03:33,745 INFO [backend] ================================================================================
+2026-05-05 02:03:33,747 INFO [backend] [REQUEST] OPTIONS /api/advertisements/68c0ece0409a859b588b12ec/impression
+2026-05-05 02:03:33,748 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:03:33,749 INFO [backend] ================================================================================
+2026-05-05 02:03:33,751 INFO [backend] [RESPONSE] 200 OPTIONS /api/advertisements/68c0ece0409a859b588b12ec/impression
+2026-05-05 02:03:33,754 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:03:33] "OPTIONS /api/advertisements/68c0ece0409a859b588b12ec/impression HTTP/1.1" 200 -
+2026-05-05 02:03:34,071 INFO [backend] ================================================================================
+2026-05-05 02:03:34,073 INFO [backend] [REQUEST] POST /api/advertisements/68c0ece0409a859b588b12ec/impression
+2026-05-05 02:03:34,073 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:03:34,073 INFO [backend] ================================================================================
+2026-05-05 02:03:34,194 INFO [backend] [RESPONSE] 200 POST /api/advertisements/68c0ece0409a859b588b12ec/impression
+2026-05-05 02:03:34,194 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:03:34] "POST /api/advertisements/68c0ece0409a859b588b12ec/impression HTTP/1.1" 200 -
+2026-05-05 02:11:20,566 INFO [backend] ================================================================================
+2026-05-05 02:11:20,579 INFO [backend] [REQUEST] GET /api/society-profiles
+2026-05-05 02:11:20,582 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:11:20,582 INFO [backend] ================================================================================
+2026-05-05 02:11:22,981 INFO [backend] [RESPONSE] 200 GET /api/society-profiles
+2026-05-05 02:11:23,019 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:11:23] "GET /api/society-profiles HTTP/1.1" 200 -
+2026-05-05 02:11:23,038 INFO [backend] ================================================================================
+2026-05-05 02:11:23,038 INFO [backend] [REQUEST] OPTIONS /api/advertisements/featured
+2026-05-05 02:11:23,038 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:11:23,040 INFO [backend] [QUERY ARGS] {'limit': '6'}
+2026-05-05 02:11:23,040 INFO [backend] ================================================================================
+2026-05-05 02:11:23,044 INFO [backend] [RESPONSE] 200 OPTIONS /api/advertisements/featured
+2026-05-05 02:11:23,046 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:11:23] "OPTIONS /api/advertisements/featured?limit=6 HTTP/1.1" 200 -
+2026-05-05 02:11:23,064 INFO [backend] ================================================================================
+2026-05-05 02:11:23,064 INFO [backend] [REQUEST] OPTIONS /api/reviews
+2026-05-05 02:11:23,065 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:11:23,066 INFO [backend] ================================================================================
+2026-05-05 02:11:23,066 INFO [backend] [RESPONSE] 200 OPTIONS /api/reviews
+2026-05-05 02:11:23,068 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:11:23] "OPTIONS /api/reviews HTTP/1.1" 200 -
+2026-05-05 02:11:23,080 INFO [backend] ================================================================================
+2026-05-05 02:11:23,080 INFO [backend] [REQUEST] OPTIONS /api/advertisements/popup
+2026-05-05 02:11:23,080 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:11:23,082 INFO [backend] [QUERY ARGS] {'limit': '20'}
+2026-05-05 02:11:23,082 INFO [backend] ================================================================================
+2026-05-05 02:11:23,082 INFO [backend] [RESPONSE] 200 OPTIONS /api/advertisements/popup
+2026-05-05 02:11:23,085 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:11:23] "OPTIONS /api/advertisements/popup?limit=20 HTTP/1.1" 200 -
+2026-05-05 02:11:23,099 INFO [backend] ================================================================================
+2026-05-05 02:11:23,099 INFO [backend] [REQUEST] OPTIONS /api/advertisements/popup
+2026-05-05 02:11:23,099 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:11:23,101 INFO [backend] [QUERY ARGS] {'limit': '20'}
+2026-05-05 02:11:23,101 INFO [backend] ================================================================================
+2026-05-05 02:11:23,101 INFO [backend] [RESPONSE] 200 OPTIONS /api/advertisements/popup
+2026-05-05 02:11:23,103 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:11:23] "OPTIONS /api/advertisements/popup?limit=20 HTTP/1.1" 200 -
+2026-05-05 02:11:23,117 INFO [backend] ================================================================================
+2026-05-05 02:11:23,117 INFO [backend] [REQUEST] GET /api/advertisements/featured
+2026-05-05 02:11:23,117 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:11:23,117 INFO [backend] [QUERY ARGS] {'limit': '6'}
+2026-05-05 02:11:23,117 INFO [backend] ================================================================================
+2026-05-05 02:11:24,514 INFO [backend] [RESPONSE] 200 GET /api/advertisements/featured
+2026-05-05 02:11:24,534 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:11:24] "GET /api/advertisements/featured?limit=6 HTTP/1.1" 200 -
+2026-05-05 02:11:24,554 INFO [backend] ================================================================================
+2026-05-05 02:11:24,554 INFO [backend] [REQUEST] GET /api/reviews
+2026-05-05 02:11:24,556 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:11:24,559 INFO [backend] ================================================================================
+2026-05-05 02:11:24,795 INFO [backend] [RESPONSE] 200 GET /api/reviews
+2026-05-05 02:11:24,798 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:11:24] "GET /api/reviews HTTP/1.1" 200 -
+2026-05-05 02:11:24,812 INFO [backend] ================================================================================
+2026-05-05 02:11:24,812 INFO [backend] [REQUEST] GET /api/advertisements/popup
+2026-05-05 02:11:24,812 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:11:24,812 INFO [backend] [QUERY ARGS] {'limit': '20'}
+2026-05-05 02:11:24,812 INFO [backend] ================================================================================
+2026-05-05 02:11:26,575 INFO [backend] [RESPONSE] 200 GET /api/advertisements/popup
+2026-05-05 02:11:26,785 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:11:26] "GET /api/advertisements/popup?limit=20 HTTP/1.1" 200 -
+2026-05-05 02:11:26,805 INFO [backend] ================================================================================
+2026-05-05 02:11:26,806 INFO [backend] [REQUEST] GET /api/plots/society/692ae4febe9ed326e2928e7c
+2026-05-05 02:11:26,820 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:11:26,835 INFO [backend] ================================================================================
+2026-05-05 02:11:34,457 INFO [backend] [RESPONSE] 200 GET /api/plots/society/692ae4febe9ed326e2928e7c
+2026-05-05 02:11:34,645 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:11:34] "GET /api/plots/society/692ae4febe9ed326e2928e7c HTTP/1.1" 200 -
+2026-05-05 02:11:34,700 INFO [backend] ================================================================================
+2026-05-05 02:11:34,715 INFO [backend] [REQUEST] GET /api/plots/society/697c9937d07aa2407734e126
+2026-05-05 02:11:34,746 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:11:34,769 INFO [backend] ================================================================================
+2026-05-05 02:11:35,108 INFO [backend] [RESPONSE] 200 GET /api/plots/society/697c9937d07aa2407734e126
+2026-05-05 02:11:35,192 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:11:35] "GET /api/plots/society/697c9937d07aa2407734e126 HTTP/1.1" 200 -
+2026-05-05 02:11:35,290 INFO [backend] ================================================================================
+2026-05-05 02:11:35,336 INFO [backend] [REQUEST] GET /api/plots/society/69ba5d3e10c7a9ceed0e6243
+2026-05-05 02:11:35,383 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:11:35,397 INFO [backend] ================================================================================
+2026-05-05 02:11:40,916 INFO [backend] [RESPONSE] 200 GET /api/plots/society/69ba5d3e10c7a9ceed0e6243
+2026-05-05 02:11:41,191 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:11:41] "GET /api/plots/society/69ba5d3e10c7a9ceed0e6243 HTTP/1.1" 200 -
+2026-05-05 02:11:41,344 INFO [backend] ================================================================================
+2026-05-05 02:11:41,361 INFO [backend] [REQUEST] GET /api/plots/society/69bb7cfc638956b80566549e
+2026-05-05 02:11:41,363 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:11:41,398 INFO [backend] ================================================================================
+2026-05-05 02:11:42,631 INFO [backend] [RESPONSE] 200 GET /api/plots/society/69bb7cfc638956b80566549e
+2026-05-05 02:11:42,754 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:11:42] "GET /api/plots/society/69bb7cfc638956b80566549e HTTP/1.1" 200 -
+2026-05-05 02:11:42,783 INFO [backend] ================================================================================
+2026-05-05 02:11:42,785 INFO [backend] [REQUEST] GET /api/plots/society/69ecb32da1e3a65b3545fd12
+2026-05-05 02:11:42,788 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:11:42,790 INFO [backend] ================================================================================
+2026-05-05 02:11:43,067 INFO [backend] [RESPONSE] 200 GET /api/plots/society/69ecb32da1e3a65b3545fd12
+2026-05-05 02:11:43,077 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:11:43] "GET /api/plots/society/69ecb32da1e3a65b3545fd12 HTTP/1.1" 200 -
+2026-05-05 02:11:43,117 INFO [backend] ================================================================================
+2026-05-05 02:11:43,120 INFO [backend] [REQUEST] GET /api/advertisements/popup
+2026-05-05 02:11:43,144 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:11:43,150 INFO [backend] [QUERY ARGS] {'limit': '20'}
+2026-05-05 02:11:43,161 INFO [backend] ================================================================================
+2026-05-05 02:11:46,417 INFO [backend] [RESPONSE] 200 GET /api/advertisements/popup
+2026-05-05 02:11:46,661 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:11:46] "GET /api/advertisements/popup?limit=20 HTTP/1.1" 200 -
+2026-05-05 02:11:46,747 INFO [backend] ================================================================================
+2026-05-05 02:11:46,762 INFO [backend] [REQUEST] OPTIONS /api/advertisements/69bb8055638956b8056654a6/impression
+2026-05-05 02:11:46,835 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:11:46,984 INFO [backend] ================================================================================
+2026-05-05 02:11:47,032 INFO [backend] [RESPONSE] 200 OPTIONS /api/advertisements/69bb8055638956b8056654a6/impression
+2026-05-05 02:11:47,098 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:11:47] "OPTIONS /api/advertisements/69bb8055638956b8056654a6/impression HTTP/1.1" 200 -
+2026-05-05 02:11:47,340 INFO [backend] ================================================================================
+2026-05-05 02:11:47,344 INFO [backend] [REQUEST] OPTIONS /api/advertisements/69bb5e0b71bd6070b56a2e00/impression
+2026-05-05 02:11:47,347 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:11:47,352 INFO [backend] ================================================================================
+2026-05-05 02:11:47,389 INFO [backend] [RESPONSE] 200 OPTIONS /api/advertisements/69bb5e0b71bd6070b56a2e00/impression
+2026-05-05 02:11:47,415 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:11:47] "OPTIONS /api/advertisements/69bb5e0b71bd6070b56a2e00/impression HTTP/1.1" 200 -
+2026-05-05 02:11:47,447 INFO [backend] ================================================================================
+2026-05-05 02:11:47,496 INFO [backend] [REQUEST] POST /api/advertisements/69bb8055638956b8056654a6/impression
+2026-05-05 02:11:47,518 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:11:47,573 INFO [backend] ================================================================================
+2026-05-05 02:11:47,713 INFO [backend] [RESPONSE] 200 POST /api/advertisements/69bb8055638956b8056654a6/impression
+2026-05-05 02:11:47,729 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:11:47] "POST /api/advertisements/69bb8055638956b8056654a6/impression HTTP/1.1" 200 -
+2026-05-05 02:11:47,752 INFO [backend] ================================================================================
+2026-05-05 02:11:47,754 INFO [backend] [REQUEST] POST /api/advertisements/69bb5e0b71bd6070b56a2e00/impression
+2026-05-05 02:11:47,754 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:11:47,756 INFO [backend] ================================================================================
+2026-05-05 02:11:47,884 INFO [backend] [RESPONSE] 200 POST /api/advertisements/69bb5e0b71bd6070b56a2e00/impression
+2026-05-05 02:11:47,890 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:11:47] "POST /api/advertisements/69bb5e0b71bd6070b56a2e00/impression HTTP/1.1" 200 -
+2026-05-05 02:11:58,065 INFO [backend] ================================================================================
+2026-05-05 02:11:58,065 INFO [backend] [REQUEST] OPTIONS /api/advertisements/69247575d854a815fef27caa/impression
+2026-05-05 02:11:58,065 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:11:58,065 INFO [backend] ================================================================================
+2026-05-05 02:11:58,067 INFO [backend] [RESPONSE] 200 OPTIONS /api/advertisements/69247575d854a815fef27caa/impression
+2026-05-05 02:11:58,068 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:11:58] "OPTIONS /api/advertisements/69247575d854a815fef27caa/impression HTTP/1.1" 200 -
+2026-05-05 02:11:58,074 INFO [backend] ================================================================================
+2026-05-05 02:11:58,074 INFO [backend] [REQUEST] OPTIONS /api/advertisements/69246723ffe4396d8687e024/impression
+2026-05-05 02:11:58,074 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:11:58,074 INFO [backend] ================================================================================
+2026-05-05 02:11:58,077 INFO [backend] [RESPONSE] 200 OPTIONS /api/advertisements/69246723ffe4396d8687e024/impression
+2026-05-05 02:11:58,077 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:11:58] "OPTIONS /api/advertisements/69246723ffe4396d8687e024/impression HTTP/1.1" 200 -
+2026-05-05 02:11:58,310 INFO [backend] ================================================================================
+2026-05-05 02:11:58,310 INFO [backend] [REQUEST] POST /api/advertisements/69247575d854a815fef27caa/impression
+2026-05-05 02:11:58,310 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:11:58,310 INFO [backend] ================================================================================
+2026-05-05 02:11:58,507 INFO [backend] [RESPONSE] 200 POST /api/advertisements/69247575d854a815fef27caa/impression
+2026-05-05 02:11:58,510 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:11:58] "POST /api/advertisements/69247575d854a815fef27caa/impression HTTP/1.1" 200 -
+2026-05-05 02:11:58,524 INFO [backend] ================================================================================
+2026-05-05 02:11:58,526 INFO [backend] [REQUEST] POST /api/advertisements/69246723ffe4396d8687e024/impression
+2026-05-05 02:11:58,528 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:11:58,532 INFO [backend] ================================================================================
+2026-05-05 02:11:58,819 INFO [backend] [RESPONSE] 200 POST /api/advertisements/69246723ffe4396d8687e024/impression
+2026-05-05 02:11:58,821 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:11:58] "POST /api/advertisements/69246723ffe4396d8687e024/impression HTTP/1.1" 200 -
+2026-05-05 02:12:07,736 INFO [backend] ================================================================================
+2026-05-05 02:12:07,740 INFO [backend] [REQUEST] OPTIONS /api/advertisements/68c26f597c1025ec86da076b/impression
+2026-05-05 02:12:07,740 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:12:07,740 INFO [backend] ================================================================================
+2026-05-05 02:12:07,744 INFO [backend] [RESPONSE] 200 OPTIONS /api/advertisements/68c26f597c1025ec86da076b/impression
+2026-05-05 02:12:07,746 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:12:07] "OPTIONS /api/advertisements/68c26f597c1025ec86da076b/impression HTTP/1.1" 200 -
+2026-05-05 02:12:08,049 INFO [backend] ================================================================================
+2026-05-05 02:12:08,049 INFO [backend] [REQUEST] OPTIONS /api/advertisements/68c0ece0409a859b588b12ec/impression
+2026-05-05 02:12:08,049 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:12:08,049 INFO [backend] ================================================================================
+2026-05-05 02:12:08,049 INFO [backend] [RESPONSE] 200 OPTIONS /api/advertisements/68c0ece0409a859b588b12ec/impression
+2026-05-05 02:12:08,057 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:12:08] "OPTIONS /api/advertisements/68c0ece0409a859b588b12ec/impression HTTP/1.1" 200 -
+2026-05-05 02:12:08,070 INFO [backend] ================================================================================
+2026-05-05 02:12:08,071 INFO [backend] [REQUEST] POST /api/advertisements/68c26f597c1025ec86da076b/impression
+2026-05-05 02:12:08,071 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:12:08,073 INFO [backend] ================================================================================
+2026-05-05 02:12:08,228 INFO [backend] [RESPONSE] 200 POST /api/advertisements/68c26f597c1025ec86da076b/impression
+2026-05-05 02:12:08,228 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:12:08] "POST /api/advertisements/68c26f597c1025ec86da076b/impression HTTP/1.1" 200 -
+2026-05-05 02:12:08,373 INFO [backend] ================================================================================
+2026-05-05 02:12:08,375 INFO [backend] [REQUEST] POST /api/advertisements/68c0ece0409a859b588b12ec/impression
+2026-05-05 02:12:08,377 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:12:08,377 INFO [backend] ================================================================================
+2026-05-05 02:12:08,534 INFO [backend] [RESPONSE] 200 POST /api/advertisements/68c0ece0409a859b588b12ec/impression
+2026-05-05 02:12:08,542 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:12:08] "POST /api/advertisements/68c0ece0409a859b588b12ec/impression HTTP/1.1" 200 -
+2026-05-05 02:24:47,420 INFO [backend] ================================================================================
+2026-05-05 02:24:47,450 INFO [backend] [REQUEST] GET /api/society-profiles
+2026-05-05 02:24:47,450 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:24:47,450 INFO [backend] ================================================================================
+2026-05-05 02:24:53,584 INFO [backend] [RESPONSE] 200 GET /api/society-profiles
+2026-05-05 02:24:53,632 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:24:53] "GET /api/society-profiles HTTP/1.1" 200 -
+2026-05-05 02:24:53,677 INFO [backend] ================================================================================
+2026-05-05 02:24:53,677 INFO [backend] [REQUEST] OPTIONS /api/societies/692ae4febe9ed326e2928e7c/reviews
+2026-05-05 02:24:53,681 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:24:53,681 INFO [backend] ================================================================================
+2026-05-05 02:24:53,683 INFO [backend] [RESPONSE] 200 OPTIONS /api/societies/692ae4febe9ed326e2928e7c/reviews
+2026-05-05 02:24:53,683 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:24:53] "OPTIONS /api/societies/692ae4febe9ed326e2928e7c/reviews HTTP/1.1" 200 -
+2026-05-05 02:24:53,702 INFO [backend] ================================================================================
+2026-05-05 02:24:53,704 INFO [backend] [REQUEST] OPTIONS /api/societies/692ae4febe9ed326e2928e7c/reviews
+2026-05-05 02:24:53,704 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:24:53,704 INFO [backend] ================================================================================
+2026-05-05 02:24:53,704 INFO [backend] [RESPONSE] 200 OPTIONS /api/societies/692ae4febe9ed326e2928e7c/reviews
+2026-05-05 02:24:53,704 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:24:53] "OPTIONS /api/societies/692ae4febe9ed326e2928e7c/reviews HTTP/1.1" 200 -
+2026-05-05 02:24:53,959 INFO [backend] ================================================================================
+2026-05-05 02:24:53,962 INFO [backend] [REQUEST] GET /api/society-profiles
+2026-05-05 02:24:53,962 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:24:53,964 INFO [backend] ================================================================================
+2026-05-05 02:24:57,396 INFO [backend] [RESPONSE] 200 GET /api/society-profiles
+2026-05-05 02:24:57,417 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:24:57] "GET /api/society-profiles HTTP/1.1" 200 -
+2026-05-05 02:24:57,437 INFO [backend] ================================================================================
+2026-05-05 02:24:57,437 INFO [backend] [REQUEST] GET /api/societies/692ae4febe9ed326e2928e7c/reviews
+2026-05-05 02:24:57,437 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:24:57,437 INFO [backend] ================================================================================
+2026-05-05 02:24:57,734 INFO [backend] [RESPONSE] 200 GET /api/societies/692ae4febe9ed326e2928e7c/reviews
+2026-05-05 02:24:57,741 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:24:57] "GET /api/societies/692ae4febe9ed326e2928e7c/reviews HTTP/1.1" 200 -
+2026-05-05 02:24:57,803 INFO [backend] ================================================================================
+2026-05-05 02:24:57,810 INFO [backend] [REQUEST] GET /api/plots/society/692ae4febe9ed326e2928e7c
+2026-05-05 02:24:57,816 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:24:57,818 INFO [backend] ================================================================================
+2026-05-05 02:25:05,511 INFO [backend] [RESPONSE] 200 GET /api/plots/society/692ae4febe9ed326e2928e7c
+2026-05-05 02:25:05,581 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:25:05] "GET /api/plots/society/692ae4febe9ed326e2928e7c HTTP/1.1" 200 -
+2026-05-05 02:25:05,610 INFO [backend] ================================================================================
+2026-05-05 02:25:05,610 INFO [backend] [REQUEST] GET /api/plots/society/697c9937d07aa2407734e126
+2026-05-05 02:25:05,610 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:25:05,610 INFO [backend] ================================================================================
+2026-05-05 02:25:05,764 INFO [backend] [RESPONSE] 200 GET /api/plots/society/697c9937d07aa2407734e126
+2026-05-05 02:25:05,770 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:25:05] "GET /api/plots/society/697c9937d07aa2407734e126 HTTP/1.1" 200 -
+2026-05-05 02:25:05,792 INFO [backend] ================================================================================
+2026-05-05 02:25:05,792 INFO [backend] [REQUEST] GET /api/plots/society/69ba5d3e10c7a9ceed0e6243
+2026-05-05 02:25:05,792 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:25:05,794 INFO [backend] ================================================================================
+2026-05-05 02:25:09,707 INFO [backend] [RESPONSE] 200 GET /api/plots/society/69ba5d3e10c7a9ceed0e6243
+2026-05-05 02:25:09,821 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:25:09] "GET /api/plots/society/69ba5d3e10c7a9ceed0e6243 HTTP/1.1" 200 -
+2026-05-05 02:25:09,849 INFO [backend] ================================================================================
+2026-05-05 02:25:09,849 INFO [backend] [REQUEST] GET /api/plots/society/69bb7cfc638956b80566549e
+2026-05-05 02:25:09,849 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:25:09,851 INFO [backend] ================================================================================
+2026-05-05 02:25:10,350 INFO [backend] [RESPONSE] 200 GET /api/plots/society/69bb7cfc638956b80566549e
+2026-05-05 02:25:10,368 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:25:10] "GET /api/plots/society/69bb7cfc638956b80566549e HTTP/1.1" 200 -
+2026-05-05 02:25:10,393 INFO [backend] ================================================================================
+2026-05-05 02:25:10,393 INFO [backend] [REQUEST] GET /api/plots/society/69ecb32da1e3a65b3545fd12
+2026-05-05 02:25:10,393 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:25:10,395 INFO [backend] ================================================================================
+2026-05-05 02:25:10,770 INFO [backend] [RESPONSE] 200 GET /api/plots/society/69ecb32da1e3a65b3545fd12
+2026-05-05 02:25:10,770 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:25:10] "GET /api/plots/society/69ecb32da1e3a65b3545fd12 HTTP/1.1" 200 -
+2026-05-05 02:25:10,780 INFO [backend] ================================================================================
+2026-05-05 02:25:10,780 INFO [backend] [REQUEST] GET /api/society-profiles
+2026-05-05 02:25:10,780 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:25:10,785 INFO [backend] ================================================================================
+2026-05-05 02:25:13,109 INFO [backend] [RESPONSE] 200 GET /api/society-profiles
+2026-05-05 02:25:13,133 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:25:13] "GET /api/society-profiles HTTP/1.1" 200 -
+2026-05-05 02:25:13,150 INFO [backend] ================================================================================
+2026-05-05 02:25:13,154 INFO [backend] [REQUEST] GET /api/societies/692ae4febe9ed326e2928e7c/reviews
+2026-05-05 02:25:13,154 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:25:13,158 INFO [backend] ================================================================================
+2026-05-05 02:25:13,386 INFO [backend] [RESPONSE] 200 GET /api/societies/692ae4febe9ed326e2928e7c/reviews
+2026-05-05 02:25:13,388 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:25:13] "GET /api/societies/692ae4febe9ed326e2928e7c/reviews HTTP/1.1" 200 -
+2026-05-05 02:25:13,394 INFO [backend] ================================================================================
+2026-05-05 02:25:13,394 INFO [backend] [REQUEST] GET /api/plots/society/692ae4febe9ed326e2928e7c
+2026-05-05 02:25:13,396 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:25:13,396 INFO [backend] ================================================================================
+2026-05-05 02:25:20,054 INFO [backend] [RESPONSE] 200 GET /api/plots/society/692ae4febe9ed326e2928e7c
+2026-05-05 02:25:20,096 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:25:20] "GET /api/plots/society/692ae4febe9ed326e2928e7c HTTP/1.1" 200 -
+2026-05-05 02:25:20,103 INFO [backend] ================================================================================
+2026-05-05 02:25:20,104 INFO [backend] [REQUEST] GET /api/plots/society/697c9937d07aa2407734e126
+2026-05-05 02:25:20,104 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:25:20,105 INFO [backend] ================================================================================
+2026-05-05 02:25:20,247 INFO [backend] [RESPONSE] 200 GET /api/plots/society/697c9937d07aa2407734e126
+2026-05-05 02:25:20,249 INFO [werkzeug] 127.0.0.1 - - [05/May/2026 02:25:20] "GET /api/plots/society/697c9937d07aa2407734e126 HTTP/1.1" 200 -
+2026-05-05 02:25:20,251 INFO [backend] ================================================================================
+2026-05-05 02:25:20,251 INFO [backend] [REQUEST] GET /api/plots/society/69ba5d3e10c7a9ceed0e6243
+2026-05-05 02:25:20,253 INFO [backend] [REMOTE] 127.0.0.1
+2026-05-05 02:25:20,253 INFO [backend] ================================================================================

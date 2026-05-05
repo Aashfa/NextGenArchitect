@@ -1185,28 +1185,13 @@ const HomePage = () => {
 
                         {/* Action Buttons */}
                         <div className="space-y-2">
-                          {/* Primary CTA Button */}
+                          {/* View Button */}
                           <motion.button
-                            onClick={() => handleAdClick(ad)}
+                            onClick={() => handleViewClick(ad._id)}
                             className="group/btn relative overflow-hidden w-full bg-gradient-to-r from-[#ED7600] to-[#FF9933] text-white font-semibold py-2 px-3 rounded-lg transition-all duration-500 flex items-center justify-center gap-1.5 text-sm shadow-lg hover:shadow-xl hover:shadow-orange-500/40"
                             whileHover={{ 
                               scale: 1.02,
                               boxShadow: "0 12px 25px rgba(237, 118, 0, 0.4)"
-                            }}
-                            whileTap={{ scale: 0.96 }}
-                          >
-                            <FaArrowRight className="text-xs group-hover/btn:translate-x-0.5 transition-transform" />
-                            <span className="relative z-10">Learn More</span>
-                          </motion.button>
-
-                          {/* Secondary Button */}
-                          <motion.button
-                            onClick={() => handleViewClick(ad._id)}
-                            className="group/btn relative overflow-hidden w-full bg-white/5 border border-white/20 hover:border-[#ED7600]/50 text-white font-semibold py-1.5 px-3 rounded-lg transition-all duration-500 flex items-center justify-center gap-1.5 text-xs"
-                            whileHover={{ 
-                              scale: 1.02,
-                              boxShadow: "0 6px 15px rgba(237, 118, 0, 0.2)",
-                              backgroundColor: "rgba(237, 118, 0, 0.08)"
                             }}
                             whileTap={{ scale: 0.96 }}
                           >

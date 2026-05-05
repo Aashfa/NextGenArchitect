@@ -37,6 +37,35 @@ const FloorPlanCustomization = () => {
   // Toast notifications - replaces alert() for non-blocking UI
   const [toast, setToast] = useState(null);
   const toastTimeoutRef = useRef(null);
+  const [windowSize, setWindowSize] = useState({
+    width: typeof window !== 'undefined' ? window.innerWidth : 1024,
+    height: typeof window !== 'undefined' ? window.innerHeight : 768
+  });
+  
+  // Track window resize for responsive canvas
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowSize({
+        width: window.innerWidth,
+        height: window.innerHeight
+      });
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+  
+  // Calculate responsive dimensions
+  const isMobile = windowSize.width < 768;
+  const isTablet = windowSize.width < 1024;
+  const headerHeight = isMobile ? 160 : 120;
+  const canvasWidth = isMobile 
+    ? windowSize.width - 16  // 8px padding on each side
+    : isTablet 
+      ? windowSize.width - 32 
+      : windowSize.width - 280;
+  const canvasHeight = windowSize.height - headerHeight - 32;
+  
   
   // Show toast notification with auto-dismiss after 4 seconds
   const showToast = useCallback((message, type = 'info') => {
@@ -1334,123 +1363,138 @@ const FloorPlanCustomization = () => {
 
   return (
     <div className="min-h-screen bg-[#2F3D57] text-white">
-      {/* Header */}
-      <div className="bg-[#1e2a3a] shadow-lg border-b border-[#ED7600]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-14">
-            <div className="flex items-center space-x-4">
+      {/* Header - Mobile Responsive */}
+      <div className="bg-[#1e2a3a] shadow-lg border-b border-[#ED7600] sticky top-0 z-40">
+        <div className={`${isMobile ? 'px-2' : isTablet ? 'px-4' : 'px-8'} py-3`}>
+          {/* Top Row - Title and Mode Toggle */}
+          <div className="flex items-center justify-between gap-2 mb-2 md:mb-0">
+            <div className="flex items-center gap-2 md:gap-4">
               <button
                 onClick={handleBack}
-                className="inline-flex items-center px-3 py-2 border border-[#ED7600] shadow-sm text-sm leading-4 font-medium rounded-md text-white bg-transparent hover:bg-[#ED7600] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#ED7600] transition-colors"
+                className="inline-flex items-center justify-center px-2 md:px-3 py-2 border border-[#ED7600] shadow-sm text-xs md:text-sm font-medium rounded-md text-white bg-transparent hover:bg-[#ED7600] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#ED7600] transition-colors flex-shrink-0"
+                title="Go back"
               >
-                <svg className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
-                Back to Generator
+                <span className="ml-1 hidden sm:inline">Back</span>
               </button>
-              <div className="h-6 w-px bg-[#ED7600]"></div>
-              <h1 className="text-xl font-semibold text-white">Floor Plan Customization</h1>
+              <div className="hidden md:block h-6 w-px bg-[#ED7600]"></div>
+              <h1 className="text-lg md:text-xl font-semibold text-white truncate">Floor Plan</h1>
               {hasUnsavedChanges && (
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#ED7600] text-white">
-                  Unsaved Changes
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-[#ED7600] text-white flex-shrink-0">
+                  Unsaved
                 </span>
               )}
             </div>
             
-            <div className="flex items-center space-x-3">
-              {/* View Mode Toggle */}
-              <div className="flex items-center bg-[#2F3D57] rounded-lg p-1 border border-[#ED7600]">
-                <button
-                  onClick={() => setViewMode('2d')}
-                  className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-                    viewMode === '2d'
-                      ? 'bg-[#ED7600] text-white shadow-sm'
-                      : 'text-gray-300 hover:text-white'
-                  }`}
-                >
-                  📐 2D Edit
-                </button>
-                <button
-                  onClick={() => setViewMode('3d')}
-                  className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-                    viewMode === '3d'
-                      ? 'bg-[#ED7600] text-white shadow-sm'
-                      : 'text-gray-300 hover:text-white'
-                  }`}
-                >
-                  🏗️ 3D View
-                </button>
-              </div>
-              
+            {/* View Mode Toggle - Always Visible */}
+            <div className="flex items-center bg-[#2F3D57] rounded-lg p-1 border border-[#ED7600] flex-shrink-0">
               <button
-                onClick={downloadPDF}
-                className="inline-flex items-center px-4 py-2 border border-blue-600 shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-600 transition-colors"
-              >
-                <svg className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                Download PDF
-              </button>
-              
-              <button
-                onClick={handleExport}
-                className="inline-flex items-center px-4 py-2 border border-[#ED7600] shadow-sm text-sm font-medium rounded-md text-white bg-transparent hover:bg-[#ED7600] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#ED7600] transition-colors"
-              >
-                <svg className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                Export
-              </button>
-              
-              <button
-                onClick={handleSave}
-                disabled={isSaving}
-                className={`inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#ED7600] transition-colors ${
-                  !isSaving
-                    ? hasUnsavedChanges 
-                      ? 'bg-[#ED7600] hover:bg-[#D56900]' 
-                      : 'bg-blue-600 hover:bg-blue-700'
-                    : 'bg-gray-600 cursor-not-allowed'
+                onClick={() => setViewMode('2d')}
+                className={`px-2 md:px-3 py-1.5 text-xs md:text-sm font-medium rounded-md transition-colors whitespace-nowrap ${
+                  viewMode === '2d'
+                    ? 'bg-[#ED7600] text-white shadow-sm'
+                    : 'text-gray-300 hover:text-white'
                 }`}
+                title="2D Editor"
               >
-                {isSaving ? (
-                  <>
-                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Saving...
-                  </>
-                ) : (
-                  <>
-                    <svg className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3-3m0 0l-3 3m3-3v12" />
-                    </svg>
-                    {hasUnsavedChanges ? 'Save Changes' : 'Save Floorplan'}
-                  </>
-                )}
+                📐 <span className="hidden sm:inline">2D</span>
+              </button>
+              <button
+                onClick={() => setViewMode('3d')}
+                className={`px-2 md:px-3 py-1.5 text-xs md:text-sm font-medium rounded-md transition-colors whitespace-nowrap ${
+                  viewMode === '3d'
+                    ? 'bg-[#ED7600] text-white shadow-sm'
+                    : 'text-gray-300 hover:text-white'
+                }`}
+                title="3D View"
+              >
+                🏗️ <span className="hidden sm:inline">3D</span>
               </button>
             </div>
+          </div>
+          
+          {/* Bottom Row - Action Buttons (Responsive Layout) */}
+          <div className={`flex ${isMobile ? 'flex-wrap' : 'items-center'} gap-2`}>
+            {/* Download PDF - Show on tablet+ or as icon on mobile */}
+            <button
+              onClick={downloadPDF}
+              className={`inline-flex items-center justify-center px-2 md:px-4 py-2 border border-blue-600 shadow-sm text-xs md:text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-600 transition-colors ${
+                isMobile ? 'flex-shrink-0' : ''
+              }`}
+              title="Download as PDF"
+            >
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <span className="ml-1 hidden md:inline">PDF</span>
+            </button>
+            
+            {/* Export */}
+            <button
+              onClick={handleExport}
+              className={`inline-flex items-center justify-center px-2 md:px-4 py-2 border border-[#ED7600] shadow-sm text-xs md:text-sm font-medium rounded-md text-white bg-transparent hover:bg-[#ED7600] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#ED7600] transition-colors ${
+                isMobile ? 'flex-shrink-0' : ''
+              }`}
+              title="Export floor plan"
+            >
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <span className="ml-1 hidden md:inline">Export</span>
+            </button>
+            
+            {/* Save Button - Primary Action */}
+            <button
+              onClick={handleSave}
+              disabled={isSaving}
+              className={`inline-flex items-center justify-center px-2 md:px-4 py-2 border border-transparent text-xs md:text-sm font-medium rounded-md shadow-sm text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#ED7600] transition-colors flex-grow md:flex-grow-0 ${
+                !isSaving
+                  ? hasUnsavedChanges 
+                    ? 'bg-[#ED7600] hover:bg-[#D56900]' 
+                    : 'bg-blue-600 hover:bg-blue-700'
+                  : 'bg-gray-600 cursor-not-allowed'
+              }`}
+            >
+              {isSaving ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <span className="hidden sm:inline">Saving...</span>
+                </>
+              ) : (
+                <>
+                  <svg className="h-4 w-4 mr-1 md:mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3-3m0 0l-3 3m3-3v12" />
+                  </svg>
+                  <span className="hidden sm:inline">{hasUnsavedChanges ? 'Save' : 'Save'}</span>
+                  <span className="sm:hidden">Save</span>
+                </>
+              )}
+            </button>
           </div>
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="mx-auto px-2 py-1 max-w-full">
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-          <div className="p-1">
+      {/* Main Content - Responsive */}
+      <div className={`${isMobile ? 'p-1' : 'p-4'} max-w-full`}>
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+          <div className={isMobile ? 'p-1' : 'p-2'}>
             {viewMode === '2d' && (
-              <div className="flex items-center justify-between mb-1">
+              <div className={`flex ${isMobile ? 'flex-col' : 'items-center justify-between'} gap-2 mb-2`}>
                 <div>
-                  <h2 className="text-xs font-semibold text-slate-900">
+                  <h2 className="text-xs md:text-sm font-semibold text-slate-900">
                     Interactive Floor Plan Editor
                   </h2>
                 </div>
               
-                <div className="flex items-center space-x-3 text-xs text-slate-600">
+                <div className={`flex ${isMobile ? 'flex-wrap' : 'items-center'} gap-2 md:gap-3 text-xs text-slate-600`}>
                   <div className="flex items-center">
                     <div className="w-2 h-2 bg-gray-500 rounded mr-1"></div>
-                    <span>25px Grid</span>
+                    <span>Grid</span>
                   </div>
                   <div className="flex items-center">
                     <div className="w-2 h-2 bg-blue-600 rounded mr-1"></div>
@@ -1460,15 +1504,15 @@ const FloorPlanCustomization = () => {
               </div>
             )}
 
-            {/* Floor Plan Canvas */}
+            {/* Floor Plan Canvas - Responsive */}
             <div className="w-full">
               {/* 2D View */}
-              <div style={{ display: viewMode === '2d' ? 'block' : 'none', height: 'calc(100vh - 150px)' }}>
+              <div style={{ display: viewMode === '2d' ? 'block' : 'none', height: `${canvasHeight}px` }}>
                 <KonvaFloorPlan
                   ref={stageRef}
                   floorPlanData={floorPlanData}
-                  width={window.innerWidth - 280}
-                  height={window.innerHeight - 180}
+                  width={canvasWidth}
+                  height={canvasHeight}
                   isEditable={true}
                   showWalls={false}
                   setbacks={location.state?.setbacks || null}
@@ -1480,17 +1524,17 @@ const FloorPlanCustomization = () => {
                   onStairsChange={handleStairsChange}
                 />
               </div>
-              {/* 3D View - kept mounted to avoid WebGL shader recompilation errors */}
+              {/* 3D View - Responsive */}
               <div 
                 className="w-full rounded-lg overflow-hidden border border-gray-200 bg-white"
-                style={{ display: viewMode === '3d' ? 'flex' : 'none', height: 'calc(100vh - 120px)' }}
+                style={{ display: viewMode === '3d' ? 'flex' : 'none', height: `${canvasHeight}px` }}
               >
                 <React.Suspense 
                   fallback={
-                    <div className="flex items-center justify-center h-full bg-slate-50">
+                    <div className="flex items-center justify-center w-full h-full bg-slate-50">
                       <div className="text-center">
                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                        <p className="text-slate-600">Loading 3D Viewer...</p>
+                        <p className="text-slate-600 text-sm">Loading 3D Viewer...</p>
                       </div>
                     </div>
                   }
@@ -1508,11 +1552,13 @@ const FloorPlanCustomization = () => {
         </div>
       </div>
       
-      {/* Toast Notification - Non-blocking feedback for save operations */}
+      {/* Toast Notification - Mobile Optimized */}
       {toast && (
-        <div className="fixed bottom-4 right-4 z-50 animate-in fade-in slide-in-from-bottom-2 duration-300">
+        <div className={`fixed z-50 animate-in fade-in slide-in-from-bottom-2 duration-300 ${
+          isMobile ? 'left-2 right-2 bottom-4' : 'bottom-4 right-4'
+        }`}>
           <div className={`
-            px-6 py-3 rounded-lg shadow-lg flex items-center gap-3 text-white font-medium
+            px-4 md:px-6 py-3 rounded-lg shadow-lg flex items-center gap-3 text-white font-medium text-sm
             ${toast.type === 'success' ? 'bg-green-600' : ''}
             ${toast.type === 'error' ? 'bg-red-600' : ''}
             ${toast.type === 'info' ? 'bg-blue-600' : ''}
@@ -1527,7 +1573,7 @@ const FloorPlanCustomization = () => {
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
               </svg>
             )}
-            <span>{toast.message}</span>
+            <span className="flex-grow">{toast.message}</span>
           </div>
         </div>
       )}

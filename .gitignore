@@ -9,4 +9,15 @@ env/
 Thumbs.db
 node_modules/
 .env
+.env.local
+.env.*.local
 uploads/
+*.key
+*.pem
+credentials/
+secrets/
+logs/
+*.log
+ProfilesCredentials.txt
+api.txt
+database_structure_analysis.json

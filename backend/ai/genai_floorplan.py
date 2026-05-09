@@ -1,32 +1,3 @@
-"""
-GenAI Floor Plan Generator
-===========================
-This module uses Google's Gemini AI to generate floor plan layouts.
-
-Main Function:
---------------
-genai_generate_floorplans(inputG, n=4) -> dict
-    Generates n floor plan variations using Gemini AI.
-    Returns: {"maps": [...], "room": [...]} matching json format
-
-Internal Functions:
--------------------
-_build_prompt(inputG, n) -> str
-    Constructs the detailed prompt for Gemini with all constraints
-    
-_extract_json(text) -> str
-    Extracts JSON content from Gemini's response (handles markdown)
-    
-_clean_json_string(text) -> str
-    Cleans and fixes common JSON formatting issues
-    
-_calculate_fitness(inputG, maps_data, rooms_data) -> float
-    Calculates fitness score (0-100) based on GA's criteria:
-    - Adjacency: 50 points per connection
-    - Area accuracy: 30 points per room
-    - Proportions: 20 points per room
-"""
-
 import json
 import re
 import time

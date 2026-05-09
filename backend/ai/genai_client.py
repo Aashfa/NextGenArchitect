@@ -1,19 +1,3 @@
-#!/usr/bin/env python3
-"""
-Simple wrapper to call Google GenAI (Gemini) model.
-
-- Reads GEMINI_API_KEY from the environment (or from a .env file if python-dotenv is installed).
-- Exposes generate_content(prompt, model) that returns the model text.
-- Runnable as a script for a quick test.
-
-Usage (PowerShell):
-  $env:GEMINI_API_KEY = "YOUR_KEY_HERE"
-  python .\\backend\\ai\\genai_client.py
-
-Or add GEMINI_API_KEY=your_key to backend/.env and install python-dotenv to load it automatically.
-
-"""
-
 import os
 from typing import Optional
 

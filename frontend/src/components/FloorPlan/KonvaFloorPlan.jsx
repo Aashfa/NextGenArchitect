@@ -3188,83 +3188,189 @@ const KonvaFloorPlan = forwardRef(({
           )}
 
           {/* Walls - render on top of rooms */}
-          {showWalls && walls.map(wall => (
-            <Group key={wall.id}>
-              <Line
-                x={0}
-                y={0}
-                points={wall.points}
-                stroke={selectedWall === wall.id ? '#2196F3' : wall.stroke}
-                strokeWidth={selectedWall === wall.id ? wall.strokeWidth + 2 : wall.strokeWidth}
-                lineCap={wall.lineCap}
-                draggable={isEditable}
-                onDragStart={(e) => handleWallDragStart(e, wall.id)}
-                onDragEnd={(e) => handleWallDragEnd(e, wall.id)}
-                onClick={(e) => handleWallClick(e, wall.id)}
-                onContextMenu={(e) => handleContextMenu(e, 'wall', wall.id)}
-                style={{ cursor: isEditable ? 'move' : 'default' }}
-              />
-              {/* Wall selection indicator */}
-              {selectedWall === wall.id && isEditable && (
-                <>
-                  {/* Start point handle */}
-                  <Circle
-                    x={wall.points[0]}
-                    y={wall.points[1]}
-                    radius={6}
-                    fill="#2196F3"
-                    stroke="#1976D2"
-                    strokeWidth={2}
-                    draggable={true}
-                    onDragEnd={(e) => {
-                      const newX = e.target.x();
-                      const newY = e.target.y();
-                      // Reset position first to avoid visual glitch
-                      e.target.position({ x: 0, y: 0 });
-                      // Update wall points with new position
-                      const updatedWalls = walls.map(w => 
-                        w.id === wall.id 
-                          ? { ...w, points: [newX, newY, w.points[2], w.points[3]] }
-                          : w
-                      );
-                      setWalls(updatedWalls);
-                      if (onWallsChange) {
-                        onWallsChange(updatedWalls);
-                      }
-                    }}
-                    style={{ cursor: 'pointer' }}
+          {showWalls && walls.map(wall => {
+            // Calculate wall segments excluding door areas
+            const [x1, y1, x2, y2] = wall.points;
+            const xDiff = Math.abs(x2 - x1);
+            const yDiff = Math.abs(y2 - y1);
+            
+            // Determine if wall is horizontal or vertical
+            const isHorizontal = yDiff < xDiff * 0.2; // Mostly horizontal
+            const isVertical = xDiff < yDiff * 0.2; // Mostly vertical
+            
+            // Find doors on this wall
+            const doorsOnWall = isHorizontal || isVertical ? doors.filter(door => {
+              if (!door.points || door.points.length < 4) return false;
+              const [dx1, dy1, dx2, dy2] = door.points;
+              const doorThreshold = 50; // Increased threshold for better detection
+              
+              if (isHorizontal) {
+                const doorCenterY = (dy1 + dy2) / 2;
+                const wallY = y1;
+                const doorMinX = Math.min(dx1, dx2);
+                const doorMaxX = Math.max(dx1, dx2);
+                const wallMinX = Math.min(x1, x2);
+                const wallMaxX = Math.max(x1, x2);
+                return Math.abs(doorCenterY - wallY) < doorThreshold && 
+                       !(doorMaxX < wallMinX || doorMinX > wallMaxX);
+              } else if (isVertical) {
+                const doorCenterX = (dx1 + dx2) / 2;
+                const wallX = x1;
+                const doorMinY = Math.min(dy1, dy2);
+                const doorMaxY = Math.max(dy1, dy2);
+                const wallMinY = Math.min(y1, y2);
+                const wallMaxY = Math.max(y1, y2);
+                return Math.abs(doorCenterX - wallX) < doorThreshold && 
+                       !(doorMaxY < wallMinY || doorMinY > wallMaxY);
+              }
+              return false;
+            }) : [];
+            
+            // Create wall segments (parts that are not covered by doors)
+            const wallSegments = [];
+            
+            if (doorsOnWall.length === 0 || (!isHorizontal && !isVertical)) {
+              // No doors or diagonal wall - render full wall
+              wallSegments.push({ x1, y1, x2, y2, isFirst: true });
+            } else {
+              // Sort doors and create segments
+              const gapSize = 20; // Gap around door in pixels
+              const sortedDoors = doorsOnWall.map(door => {
+                const [dx1, dy1, dx2, dy2] = door.points;
+                return {
+                  start: isHorizontal ? Math.min(dx1, dx2) : Math.min(dy1, dy2),
+                  end: isHorizontal ? Math.max(dx1, dx2) : Math.max(dy1, dy2)
+                };
+              }).sort((a, b) => a.start - b.start);
+              
+              const wallStart = isHorizontal ? Math.min(x1, x2) : Math.min(y1, y2);
+              const wallEnd = isHorizontal ? Math.max(x1, x2) : Math.max(y1, y2);
+              let currentPos = wallStart;
+              
+              sortedDoors.forEach((door, idx) => {
+                // Add segment before door
+                if (door.start - gapSize > currentPos) {
+                  const segmentEnd = door.start - gapSize;
+                  if (isHorizontal) {
+                    wallSegments.push({
+                      x1: currentPos,
+                      y1,
+                      x2: segmentEnd,
+                      y2,
+                      isFirst: idx === 0 && currentPos === wallStart
+                    });
+                  } else {
+                    wallSegments.push({
+                      x1,
+                      y1: currentPos,
+                      x2,
+                      y2: segmentEnd,
+                      isFirst: idx === 0 && currentPos === wallStart
+                    });
+                  }
+                }
+                currentPos = Math.max(currentPos, door.end + gapSize);
+              });
+
+              // Add final segment after last door
+              if (currentPos < wallEnd) {
+                if (isHorizontal) {
+                  wallSegments.push({ x1: currentPos, y1, x2: wallEnd, y2, isFirst: false });
+                } else {
+                  wallSegments.push({ x1, y1: currentPos, x2, y2: wallEnd, isFirst: false });
+                }
+              }
+            }
+            
+            return (
+              <Group key={wall.id}>
+                {/* Render visible wall segments */}
+                {wallSegments.map((segment, idx) => (
+                  <Line
+                    key={`segment-${idx}`}
+                    x={0}
+                    y={0}
+                    points={[segment.x1, segment.y1, segment.x2, segment.y2]}
+                    stroke={selectedWall === wall.id ? '#2196F3' : (wall.stroke || '#000000')}
+                    strokeWidth={selectedWall === wall.id ? (wall.strokeWidth || 4) + 2 : (wall.strokeWidth || 4)}
+                    lineCap={wall.lineCap || 'round'}
+                    listening={false}
                   />
-                  {/* End point handle */}
-                  <Circle
-                    x={wall.points[2]}
-                    y={wall.points[3]}
-                    radius={6}
-                    fill="#2196F3"
-                    stroke="#1976D2"
-                    strokeWidth={2}
-                    draggable={true}
-                    onDragEnd={(e) => {
-                      const newX = e.target.x();
-                      const newY = e.target.y();
-                      // Reset position first to avoid visual glitch
-                      e.target.position({ x: 0, y: 0 });
-                      // Update wall points with new position
-                      const updatedWalls = walls.map(w => 
-                        w.id === wall.id 
-                          ? { ...w, points: [w.points[0], w.points[1], newX, newY] }
-                          : w
-                      );
-                      setWalls(updatedWalls);
-                      if (onWallsChange) {
-                        onWallsChange(updatedWalls);
-                      }
-                    }}
-                    style={{ cursor: 'pointer' }}
-                  />
-                </>
-              )}
-            </Group>
-          ))}
+                ))}
+                
+                {/* Full interactive line for dragging (invisible overlay on full wall length) */}
+                <Line
+                  x={0}
+                  y={0}
+                  points={wall.points}
+                  stroke="transparent"
+                  strokeWidth={20}
+                  draggable={isEditable}
+                  onDragStart={(e) => handleWallDragStart(e, wall.id)}
+                  onDragEnd={(e) => handleWallDragEnd(e, wall.id)}
+                  onClick={(e) => handleWallClick(e, wall.id)}
+                  onContextMenu={(e) => handleContextMenu(e, 'wall', wall.id)}
+                  style={{ cursor: isEditable ? 'move' : 'default' }}
+                />
+                
+                {/* Wall selection indicator */}
+                {selectedWall === wall.id && isEditable && (
+                  <>
+                    {/* Start point handle */}
+                    <Circle
+                      x={wall.points[0]}
+                      y={wall.points[1]}
+                      radius={6}
+                      fill="#2196F3"
+                      stroke="#1976D2"
+                      strokeWidth={2}
+                      draggable={true}
+                      onDragEnd={(e) => {
+                        const newX = e.target.x();
+                        const newY = e.target.y();
+                        e.target.position({ x: 0, y: 0 });
+                        const updatedWalls = walls.map(w => 
+                          w.id === wall.id 
+                            ? { ...w, points: [newX, newY, w.points[2], w.points[3]] }
+                            : w
+                        );
+                        setWalls(updatedWalls);
+                        if (onWallsChange) {
+                          onWallsChange(updatedWalls);
+                        }
+                      }}
+                      style={{ cursor: 'pointer' }}
+                    />
+                    {/* End point handle */}
+                    <Circle
+                      x={wall.points[2]}
+                      y={wall.points[3]}
+                      radius={6}
+                      fill="#2196F3"
+                      stroke="#1976D2"
+                      strokeWidth={2}
+                      draggable={true}
+                      onDragEnd={(e) => {
+                        const newX = e.target.x();
+                        const newY = e.target.y();
+                        e.target.position({ x: 0, y: 0 });
+                        const updatedWalls = walls.map(w => 
+                          w.id === wall.id 
+                            ? { ...w, points: [w.points[0], w.points[1], newX, newY] }
+                            : w
+                        );
+                        setWalls(updatedWalls);
+                        if (onWallsChange) {
+                          onWallsChange(updatedWalls);
+                        }
+                      }}
+                      style={{ cursor: 'pointer' }}
+                    />
+                  </>
+                )}
+              </Group>
+            );
+          })}
 
           {/* Stairs - render on top of walls */}
           {stairs.map(stair => (

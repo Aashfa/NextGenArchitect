@@ -1450,6 +1450,17 @@ const FloorPlanGenerator = () => {
           const y1 = sy(door.y1 || 0);
           const x2 = sx(door.x2 || 0);
           const y2 = sy(door.y2 || 0);
+
+          // Remove wall stroke under the door span so the doorway is open in PDF.
+          ctx.save();
+          ctx.globalCompositeOperation = 'destination-out';
+          ctx.lineWidth = Math.max(innerWallThickness + 3, 8);
+          ctx.lineCap = 'round';
+          ctx.beginPath();
+          ctx.moveTo(x1, y1);
+          ctx.lineTo(x2, y2);
+          ctx.stroke();
+          ctx.restore();
           
           // Calculate door swing arc
           const dx = x2 - x1;

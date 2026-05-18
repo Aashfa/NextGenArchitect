@@ -279,23 +279,27 @@ const FloorPlanCustomization = () => {
       
       const { offsetX, offsetY, coordScaleX, coordScaleY } = getLayoutProps(prevData);
       
-      // Convert ALL Konva doors to backend format using correct per-axis scales
+      // Convert ALL Konva doors and gates to backend format using correct per-axis scales
       const backendDoors = updatedDoors.map(door => {
+        const isGate = Boolean(door.isGate || door.type === 'Gate' || door.type === 'gate' || door.boundaryWall);
+        const boundaryWall = door.boundaryWall || null;
         return {
-          type: 'Door',
+          type: isGate ? 'Gate' : 'Door',
           id: door.id, // Keep the ID so we can track it
           x1: (door.points[0] - offsetX) / coordScaleX,
           y1: (door.points[1] - offsetY) / coordScaleY,
           x2: (door.points[2] - offsetX) / coordScaleX,
           y2: (door.points[3] - offsetY) / coordScaleY,
-          openingDirection: door.openingDirection || 'right',
-          showDirection: Boolean(door.showDirection)
+          openingDirection: door.openingDirection || (isGate ? 'double' : 'right'),
+          showDirection: Boolean(door.showDirection),
+          isGate,
+          boundaryWall
         };
       });
       
-      // Keep only non-door items from mapData (walls, etc.)
+      // Keep only non-door/gate items from mapData (walls, etc.)
       const nonDoorMapData = (prevData.mapData || []).filter(item => 
-        item.type !== 'Door' && item.type !== 'door'
+        item.type !== 'Door' && item.type !== 'door' && item.type !== 'Gate' && item.type !== 'gate'
       );
       
       return {
@@ -677,6 +681,7 @@ const FloorPlanCustomization = () => {
       if (floorPlanData.mapData && Array.isArray(floorPlanData.mapData)) {
         const mapDoors = floorPlanData.mapData.filter(item => {
           if (item.type !== 'Door') return false;
+          if (item.isGate || item.type === 'Gate') return false; // Exclude gates
           // VALIDATION: Skip doors with corrupted coordinates
           const x1 = item.x1 || 0;
           const y1 = item.y1 || 0;
@@ -695,6 +700,7 @@ const FloorPlanCustomization = () => {
       // Method 2: Check direct doors array (floorPlanData.doors)
       if (floorPlanData.doors && Array.isArray(floorPlanData.doors)) {
         const directDoors = floorPlanData.doors.filter(door => {
+          if (door.isGate || door.type === 'Gate') return false; // Exclude gates
           const x1 = door.x1 || 0;
           const y1 = door.y1 || 0;
           const x2 = door.x2 || 0;
@@ -794,6 +800,108 @@ const FloorPlanCustomization = () => {
         ctx.beginPath();
         ctx.arc(x1, y1, 2, 0, Math.PI * 2);
         ctx.fill();
+      });
+      
+      // Draw gates (on plot boundaries) - check multiple data sources like KonvaFloorPlan
+      let gatesData = [];
+      
+      // Method 1: Check mapData for gates
+      if (floorPlanData.mapData && Array.isArray(floorPlanData.mapData)) {
+        const mapGates = floorPlanData.mapData.filter(item => {
+          if (item.type !== 'Gate' && !item.isGate) return false;
+          // VALIDATION: Skip gates with corrupted coordinates
+          const x1 = item.x1 || 0;
+          const y1 = item.y1 || 0;
+          const x2 = item.x2 || 0;
+          const y2 = item.y2 || 0;
+          if (Math.abs(x1) > maxReasonableCoord || Math.abs(y1) > maxReasonableCoord ||
+              Math.abs(x2) > maxReasonableCoord || Math.abs(y2) > maxReasonableCoord) {
+            console.warn('⚠️ PDF download: Skipping gate with corrupted coordinates from mapData');
+            return false;
+          }
+          return true;
+        });
+        gatesData = [...gatesData, ...mapGates];
+      }
+      
+      // Method 2: Check direct doors array and filter for gates (floorPlanData.doors)
+      if (floorPlanData.doors && Array.isArray(floorPlanData.doors)) {
+        const directGates = floorPlanData.doors.filter(door => {
+          if (door.type !== 'Gate' && !door.isGate) return false;
+          const x1 = door.x1 || 0;
+          const y1 = door.y1 || 0;
+          const x2 = door.x2 || 0;
+          const y2 = door.y2 || 0;
+          if (Math.abs(x1) > maxReasonableCoord || Math.abs(y1) > maxReasonableCoord ||
+              Math.abs(x2) > maxReasonableCoord || Math.abs(y2) > maxReasonableCoord) {
+            console.warn('⚠️ PDF download: Skipping gate with corrupted coordinates from doors array');
+            return false;
+          }
+          return true;
+        });
+        gatesData = [...gatesData, ...directGates];
+      }
+      
+      // Draw gates as thick double-line rectangles (distinctive gate representation)
+      ctx.strokeStyle = '#111111'; // Black color for gates
+      ctx.lineWidth = 3.5;
+      ctx.lineCap = 'round';
+      
+      gatesData.forEach(gate => {
+        const x1 = sx(gate.x1 || 0);
+        const y1 = sy(gate.y1 || 0);
+        const x2 = sx(gate.x2 || 0);
+        const y2 = sy(gate.y2 || 0);
+
+        // Remove wall stroke under the gate span so the gateway is open in PDF
+        ctx.save();
+        ctx.globalCompositeOperation = 'destination-out';
+        ctx.lineWidth = Math.max(outerWallThickness + 3, 12);
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+        ctx.restore();
+        
+        // Draw gate as double parallel lines (characteristic gate representation)
+        const dx = x2 - x1;
+        const dy = y2 - y1;
+        const angle = Math.atan2(dy, dx);
+        
+        const perpX = Math.cos(angle + Math.PI / 2);
+        const perpY = Math.sin(angle + Math.PI / 2);
+        const offset = 2.5; // Distance between the two parallel lines
+        
+        // First gate line
+        ctx.strokeStyle = '#111111';
+        ctx.lineWidth = 3.5;
+        ctx.beginPath();
+        ctx.moveTo(x1 + perpX * offset, y1 + perpY * offset);
+        ctx.lineTo(x2 + perpX * offset, y2 + perpY * offset);
+        ctx.stroke();
+        
+        // Second gate line
+        ctx.beginPath();
+        ctx.moveTo(x1 - perpX * offset, y1 - perpY * offset);
+        ctx.lineTo(x2 - perpX * offset, y2 - perpY * offset);
+        ctx.stroke();
+        
+        // Draw small cross marks in the middle to indicate gate hinges
+        ctx.lineWidth = 1.5;
+        const midX = (x1 + x2) / 2;
+        const midY = (y1 + y2) / 2;
+        const markSize = 4;
+        
+        // Center mark
+        ctx.beginPath();
+        ctx.moveTo(midX - markSize, midY - markSize);
+        ctx.lineTo(midX + markSize, midY + markSize);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(midX + markSize, midY - markSize);
+        ctx.lineTo(midX - markSize, midY + markSize);
+        ctx.stroke();
       });
       
       // Draw windows (as rectangles with white fill) - check multiple data sources like KonvaFloorPlan

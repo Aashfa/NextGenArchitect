@@ -213,7 +213,7 @@ const SunSystem3D = memo(({ target = [0, 0, 0], settings }) => {
 });
 
 // Enhanced Door Component with bi-directional visibility and proper wall penetration
-const Door3D = memo(({ position, rotation = [0, 0, 0], width = 1.2, height = 2.4, isOpen = false, onToggle, playerPosition, autoOpen = true, wallThickness = 0.2, customColor }) => {
+const Door3D = memo(({ position, rotation = [0, 0, 0], width = 1.2, height = 2.4, isOpen = false, onToggle, playerPosition, autoOpen = true, wallThickness = 0.2, customColor, isGate = false }) => {
   const [localIsOpen, setLocalIsOpen] = useState(isOpen);
   const doorRef = useRef();
   const frameRef = useRef();
@@ -288,6 +288,82 @@ const Door3D = memo(({ position, rotation = [0, 0, 0], width = 1.2, height = 2.4
   const doorThickness = Math.max(wallThickness * 1.2, 0.15); // Scale with wall thickness
   const frameThickness = doorThickness + 0.03; // Slightly thicker than door
   const frameWidth = 0.12;
+
+  if (isGate) {
+    const gateWidth = Math.max(width, 2.8);
+    const leafWidth = Math.max(gateWidth / 2 - 0.08, 1.2);
+    const gateHeight = height + 0.15;
+    const gateDepthOffset = wallThickness / 2 + 0.01;
+    const gateColor = '#111111';
+    const gateAccent = '#2b2b2b';
+    const targetAngle = localIsOpen ? Math.PI * 0.48 : 0;
+
+    const GateLeaf = ({ side }) => {
+      const hingeRotation = side === 'left' ? -targetAngle : targetAngle;
+      const hingeX = side === 'left' ? -gateWidth / 4 : gateWidth / 4;
+      const panelOffset = side === 'left' ? leafWidth / 2 : -leafWidth / 2;
+
+      return (
+        <group position={[hingeX, 0, 0]} rotation={[0, hingeRotation, 0]}>
+          <mesh position={[panelOffset, gateHeight / 2, 0]} castShadow receiveShadow renderOrder={104}>
+            <boxGeometry args={[leafWidth, gateHeight, Math.max(doorThickness, 0.12)]} />
+            <meshStandardMaterial color={gateColor} roughness={0.25} metalness={0.95} side={THREE.DoubleSide} />
+          </mesh>
+
+          {Array.from({ length: 6 }).map((_, index) => {
+            const slatOffset = -leafWidth / 2 + 0.12 + index * ((leafWidth - 0.24) / 5);
+            return (
+              <mesh key={`${side}-slat-${index}`} position={[slatOffset, gateHeight / 2, Math.max(doorThickness, 0.12) / 2 + 0.02]} castShadow receiveShadow renderOrder={105}>
+                <boxGeometry args={[0.03, gateHeight - 0.1, 0.02]} />
+                <meshStandardMaterial color={gateAccent} roughness={0.3} metalness={0.9} side={THREE.DoubleSide} />
+              </mesh>
+            );
+          })}
+
+          <mesh position={[panelOffset, 0.08, 0]} castShadow receiveShadow renderOrder={105}>
+            <boxGeometry args={[leafWidth, 0.06, Math.max(doorThickness, 0.12) + 0.04]} />
+            <meshStandardMaterial color={gateAccent} roughness={0.3} metalness={0.9} side={THREE.DoubleSide} />
+          </mesh>
+
+          <mesh position={[panelOffset, gateHeight - 0.08, 0]} castShadow receiveShadow renderOrder={105}>
+            <boxGeometry args={[leafWidth, 0.06, Math.max(doorThickness, 0.12) + 0.04]} />
+            <meshStandardMaterial color={gateAccent} roughness={0.3} metalness={0.9} side={THREE.DoubleSide} />
+          </mesh>
+        </group>
+      );
+    };
+
+    return (
+      <group position={position} rotation={rotation} renderOrder={100}>
+        <group renderOrder={101}>
+          <mesh position={[-gateWidth / 2 - frameWidth / 2, gateHeight / 2, gateDepthOffset]} castShadow receiveShadow renderOrder={102}>
+            <boxGeometry args={[frameWidth, gateHeight + frameWidth, frameThickness]} />
+            <meshStandardMaterial color="#0b0b0b" roughness={0.3} metalness={0.95} side={THREE.DoubleSide} />
+          </mesh>
+
+          <mesh position={[gateWidth / 2 + frameWidth / 2, gateHeight / 2, gateDepthOffset]} castShadow receiveShadow renderOrder={102}>
+            <boxGeometry args={[frameWidth, gateHeight + frameWidth, frameThickness]} />
+            <meshStandardMaterial color="#0b0b0b" roughness={0.3} metalness={0.95} side={THREE.DoubleSide} />
+          </mesh>
+
+          <mesh position={[0, gateHeight + frameWidth / 2, gateDepthOffset]} castShadow receiveShadow renderOrder={102}>
+            <boxGeometry args={[gateWidth + frameWidth * 2, frameWidth, frameThickness]} />
+            <meshStandardMaterial color="#0b0b0b" roughness={0.3} metalness={0.95} side={THREE.DoubleSide} />
+          </mesh>
+
+          <mesh position={[0, 0.03, gateDepthOffset]} castShadow receiveShadow renderOrder={102}>
+            <boxGeometry args={[gateWidth + frameWidth * 2, 0.06, frameThickness + 0.02]} />
+            <meshStandardMaterial color="#0b0b0b" roughness={0.3} metalness={0.95} side={THREE.DoubleSide} />
+          </mesh>
+        </group>
+
+        <group position={[0, 0, gateDepthOffset]}>
+          <GateLeaf side="left" />
+          <GateLeaf side="right" />
+        </group>
+      </group>
+    );
+  }
   
   return (
     <group position={position} rotation={rotation} renderOrder={100}>
@@ -726,13 +802,26 @@ const Window3D = memo(({ position, rotation = [0, 0, 0], width = 1.2, height = 1
 });
 
 // Enhanced door placement system with precise wall boundary positioning for bi-directional visibility
-const generateSmartDoors = (rooms, bounds, detectedDoors = []) => {
+const generateSmartDoors = (rooms, bounds, detectedDoors = [], setbacks = null) => {
   const doors = [];
   const windows = [];
   const doorWidth = 1.2;
   const doorHeight = 2.4;
   const windowWidth = 0.8;
   const windowHeight = 1.2;
+  const worldScale = 25 / Math.max(bounds.maxX - bounds.minX, bounds.maxY - bounds.minY, 1);
+  const cx = ((bounds.minX + bounds.maxX) / 2) * worldScale;
+  const cz = ((bounds.minY + bounds.maxY) / 2) * worldScale;
+  const bw = (bounds.maxX - bounds.minX) * worldScale;
+  const bh = (bounds.maxY - bounds.minY) * worldScale;
+  const frontPx = setbacks ? (setbacks.front || 0) * worldScale * 12 : 0;
+  const rearPx = setbacks ? (setbacks.rear || 0) * worldScale * 12 : 0;
+  const leftPx = setbacks ? (setbacks.left || 0) * worldScale * 12 : 0;
+  const rightPx = setbacks ? (setbacks.right || 0) * worldScale * 12 : 0;
+  const plotCx = cx + (rightPx - leftPx) / 2;
+  const plotCz = cz + (frontPx - rearPx) / 2;
+  const plotW = bw + leftPx + rightPx;
+  const plotH = bh + frontPx + rearPx;
   
   // Early return if no rooms to prevent unnecessary processing
   if (!rooms || rooms.length === 0) {
@@ -770,8 +859,64 @@ const generateSmartDoors = (rooms, bounds, detectedDoors = []) => {
     
     // Use door's isHorizontal property if available for better orientation detection
     const doorIsHorizontal = detectedDoor.isHorizontal !== undefined ? detectedDoor.isHorizontal : true;
+    const isGate = Boolean(detectedDoor.isGate || detectedDoor.type === 'Gate' || detectedDoor.type === 'gate');
     
     console.log('Door', index, 'at center:', doorCenterX.toFixed(2), doorCenterZ.toFixed(2), 'isHorizontal:', doorIsHorizontal);
+
+    if (isGate) {
+      const gateWorldWidth = Math.max(2.8, Math.min(world.width, 4.5));
+      const northZ = plotCz - plotH / 2;
+      const southZ = plotCz + plotH / 2;
+      const westX = plotCx - plotW / 2;
+      const eastX = plotCx + plotW / 2;
+
+      // Detect nearest plot boundary side from the gate center position.
+      const distances = [
+        { side: 'north', distance: Math.abs(doorCenterZ - northZ) },
+        { side: 'south', distance: Math.abs(doorCenterZ - southZ) },
+        { side: 'west', distance: Math.abs(doorCenterX - westX) },
+        { side: 'east', distance: Math.abs(doorCenterX - eastX) }
+      ];
+      distances.sort((a, b) => a.distance - b.distance);
+      const boundaryWall = detectedDoor.boundaryWall || distances[0]?.side || 'south';
+
+      const clampedX = Math.max(plotCx - plotW / 2 + gateWorldWidth / 2, Math.min(plotCx + plotW / 2 - gateWorldWidth / 2, doorCenterX));
+      const clampedZ = Math.max(plotCz - plotH / 2 + gateWorldWidth / 2, Math.min(plotCz + plotH / 2 - gateWorldWidth / 2, doorCenterZ));
+
+      let gatePosition = [plotCx, 0, southZ - 0.01];
+      let gateRotation = [0, Math.PI, 0];
+
+      if (boundaryWall === 'north') {
+        gatePosition = [clampedX, 0, northZ + 0.01];
+        gateRotation = [0, 0, 0];
+      } else if (boundaryWall === 'south') {
+        gatePosition = [clampedX, 0, southZ - 0.01];
+        gateRotation = [0, Math.PI, 0];
+      } else if (boundaryWall === 'west') {
+        gatePosition = [westX + 0.01, 0, clampedZ];
+        gateRotation = [0, Math.PI / 2, 0];
+      } else if (boundaryWall === 'east') {
+        gatePosition = [eastX - 0.01, 0, clampedZ];
+        gateRotation = [0, -Math.PI / 2, 0];
+      }
+
+      doors.push({
+        id: `detected-door-${index}`,
+        globalPosition: gatePosition,
+        connectedRooms: [],
+        connectedRoomData: [],
+        width: gateWorldWidth,
+        height: doorHeight,
+        type: 'exterior',
+        isOpen: false,
+        isGate: true,
+        boundaryWall,
+        rotation: gateRotation,
+        onToggle: null,
+        roomPositions: []
+      });
+      return;
+    }
     
     // Find ALL rooms this door connects with enhanced detection
     const connectedRooms = [];
@@ -891,8 +1036,10 @@ const generateSmartDoors = (rooms, bounds, detectedDoors = []) => {
       const connectedRoomIds = connectedRooms.map(cr => cr.room.id);
       
       // Calculate door width from 2D door length - scale appropriately
-      // detectedDoor.width is now the line length in 2D pixels
-      const doorWorldWidth = Math.max(1.0, Math.min(world.width, 1.6));
+      // Gates should stay visually wider than normal doors.
+      const doorWorldWidth = detectedDoor.isGate
+        ? Math.max(2.8, Math.min(world.width, 4.5))
+        : Math.max(1.0, Math.min(world.width, 1.6));
       
       // Use detected door orientation if wall detection doesn't override
       const finalRotation = doorRotation[1] !== 0 ? doorRotation : 
@@ -907,6 +1054,8 @@ const generateSmartDoors = (rooms, bounds, detectedDoors = []) => {
         height: doorHeight,
         type: connectedRooms.length > 1 ? 'interior' : 'exterior',
         isOpen: false,
+        isGate: detectedDoor.isGate,
+        boundaryWall: detectedDoor.boundaryWall || null,
         rotation: finalRotation, // Store rotation for proper wall alignment
         onToggle: null,
         // Enhanced room positioning for better wall cutouts
@@ -943,6 +1092,8 @@ const generateSmartDoors = (rooms, bounds, detectedDoors = []) => {
           height: doorHeight,
           type: 'exterior',
           isOpen: false,
+          isGate: detectedDoor.isGate,
+          boundaryWall: detectedDoor.boundaryWall || null,
           rotation: fallbackRotation,
           onToggle: null
         });
@@ -1638,6 +1789,7 @@ const analyzeFloorPlanData = (data) => {
     const maxReasonableCoord = 3000; // Coordinates beyond this are corrupted
     
     doors = data.doors.map((door, index) => {
+      const isGate = Boolean(door.isGate || door.type === 'Gate' || door.type === 'gate');
       // Handle both line format (x1,y1,x2,y2) and rect format (x,y,width,height)
       if (door.x1 !== undefined && door.y1 !== undefined) {
         // Line format - convert to rect format
@@ -1670,6 +1822,10 @@ const analyzeFloorPlanData = (data) => {
           points: [x1, y1, x2, y2], // Preserve original points
           isHorizontal: isHorizontal,
           rotation: isHorizontal ? 0 : Math.PI / 2,
+          isGate,
+          boundaryWall: door.boundaryWall || null,
+          openingDirection: door.openingDirection,
+          showDirection: Boolean(door.showDirection),
           type: 'door'
         };
       } else if (door.points && Array.isArray(door.points) && door.points.length >= 4) {
@@ -1703,6 +1859,10 @@ const analyzeFloorPlanData = (data) => {
           points: [x1, y1, x2, y2], // Preserve original points
           isHorizontal: isHorizontal,
           rotation: isHorizontal ? 0 : Math.PI / 2,
+          isGate,
+          boundaryWall: door.boundaryWall || null,
+          openingDirection: door.openingDirection,
+          showDirection: Boolean(door.showDirection),
           type: 'door'
         };
       } else {
@@ -1723,10 +1883,73 @@ const analyzeFloorPlanData = (data) => {
           width: parseFloat(door.width || 30),
           height: parseFloat(door.height || 80),
           rotation: parseFloat(door.rotation || 0),
+          isGate,
+          boundaryWall: door.boundaryWall || null,
+          openingDirection: door.openingDirection,
+          showDirection: Boolean(door.showDirection),
           type: 'door'
         };
       }
     }).filter(Boolean); // Remove null entries from corrupted doors
+  }
+
+  if (doors.length > 0 && rooms.length > 0) {
+    const inferredBounds = {
+      minX: Math.min(...rooms.map(r => r.x)),
+      maxX: Math.max(...rooms.map(r => r.x + r.width)),
+      minY: Math.min(...rooms.map(r => r.y)),
+      maxY: Math.max(...rooms.map(r => r.y + r.height))
+    };
+    const tolerance = 2.0;
+
+    doors = doors.map((door) => {
+      if (door.roomPositions && door.roomPositions.length > 0) return door;
+      if (!door.points || door.points.length < 4) return door;
+
+      const doorWorld = convertToWorld3D(door.x, door.y, door.width, door.height, inferredBounds);
+      const doorCenterX = doorWorld.x;
+      const doorCenterZ = doorWorld.z;
+      const doorIsHorizontal = door.isHorizontal !== undefined ? door.isHorizontal : true;
+      const inferredRooms = [];
+
+      rooms.forEach(room => {
+        const roomWorld = convertToWorld3D(room.x, room.y, room.width, room.height, inferredBounds);
+        const roomCenterX = roomWorld.x + roomWorld.width / 2;
+        const roomCenterZ = roomWorld.z + roomWorld.height / 2;
+
+        const onNorthWall = Math.abs(doorCenterZ - roomWorld.z) < tolerance;
+        const onSouthWall = Math.abs(doorCenterZ - (roomWorld.z + roomWorld.height)) < tolerance;
+        const onEastWall = Math.abs(doorCenterX - (roomWorld.x + roomWorld.width)) < tolerance;
+        const onWestWall = Math.abs(doorCenterX - roomWorld.x) < tolerance;
+
+        const withinXBounds = doorCenterX >= (roomWorld.x - tolerance) && doorCenterX <= (roomWorld.x + roomWorld.width + tolerance);
+        const withinZBounds = doorCenterZ >= (roomWorld.z - tolerance) && doorCenterZ <= (roomWorld.z + roomWorld.height + tolerance);
+
+        if (doorIsHorizontal && (onNorthWall || onSouthWall) && withinXBounds) {
+          inferredRooms.push({
+            roomId: room.id,
+            wall: onNorthWall ? 'north' : 'south',
+            wallPosition: doorCenterX - roomCenterX,
+            rotation: onNorthWall ? [0, 0, 0] : [0, Math.PI, 0]
+          });
+        } else if (!doorIsHorizontal && (onEastWall || onWestWall) && withinZBounds) {
+          inferredRooms.push({
+            roomId: room.id,
+            wall: onEastWall ? 'east' : 'west',
+            wallPosition: doorCenterZ - roomCenterZ,
+            rotation: onEastWall ? [0, -Math.PI / 2, 0] : [0, Math.PI / 2, 0]
+          });
+        }
+      });
+
+      if (inferredRooms.length === 0) return door;
+
+      return {
+        ...door,
+        connectedRooms: inferredRooms.map(r => r.roomId),
+        roomPositions: inferredRooms
+      };
+    });
   }
   
   // Check for walls array (from 2D editor)
@@ -2116,13 +2339,45 @@ const Room3D = ({ room, bounds, showLabels = true, doors = [], windows = [], wal
           // Function to generate wall segments avoiding door and window cutouts
           const generateWallSegments = (wallType, totalLength) => {
             // Find doors on this wall for this specific room
-            const wallDoors = roomDoors.filter(door => {
+            let wallDoors = roomDoors.filter(door => {
               if (door.roomPositions) {
                 return door.roomPositions.some(rp => 
                   rp.roomId === room.id && rp.wall === wallType
                 );
               }
               return false;
+            });
+
+            // Also include boundary gates that sit on this wall (remove room wall where they overlap)
+            const boundaryGates = (doors || []).filter(d => (
+              d.isGate || d.type === 'Gate' || d.type === 'gate' || d.boundaryWall
+            ) && d.boundaryWall === wallType);
+            boundaryGates.forEach(gate => {
+              try {
+                const gateX = gate.globalPosition?.[0] ?? gate.position?.[0] ?? null;
+                const gateZ = gate.globalPosition?.[2] ?? gate.position?.[2] ?? null;
+                if (gateX === null || gateZ === null) return;
+
+                // Compute gate position relative to room center (same coordinate as room.wallPosition)
+                const roomCenterX = world.x + world.width / 2;
+                const roomCenterZ = world.z + world.height / 2;
+
+                let wallPosition = 0;
+                if (wallType === 'north' || wallType === 'south') {
+                  wallPosition = gateX - roomCenterX;
+                } else {
+                  wallPosition = gateZ - roomCenterZ;
+                }
+
+                // Add a pseudo-door entry so the cutout logic removes the segment
+                wallDoors = wallDoors.concat([{
+                  id: gate.id || `gate-${Math.random().toString(36).slice(2,8)}`,
+                  width: gate.width || 2.8,
+                  roomPositions: [{ roomId: room.id, wall: wallType, wallPosition }]
+                }]);
+              } catch (e) {
+                // ignore and continue
+              }
             });
             
             // Find windows on this wall for this specific room (check both wall property and roomPositions)
@@ -2141,7 +2396,7 @@ const Room3D = ({ room, bounds, showLabels = true, doors = [], windows = [], wal
             // Combine doors and windows for cutout processing
             const openings = [
               ...wallDoors.map(door => {
-                const roomPosData = door.roomPositions?.find(rp => rp.roomId === room.id);
+                const roomPosData = door.roomPositions?.find(rp => rp.roomId === room.id) || door.roomPositions?.[0];
                 return {
                   type: 'door',
                   width: door.width || 0.8,
@@ -2915,6 +3170,53 @@ const FloorPlan3DScene = ({ floorPlanData, mode, customColors, roomColors = {}, 
     foundation: '#D3D3D3',
     doors: '#8B4513'
   };
+
+  const resolveGateMeta = (door, boundaryInfo = null) => {
+    const baseIsGate = Boolean(
+      door?.isGate || door?.type === 'Gate' || door?.type === 'gate' || door?.boundaryWall
+    );
+
+    let boundaryWall = door?.boundaryWall || null;
+    const position = door?.globalPosition || door?.position || null;
+
+    if (!boundaryWall && boundaryInfo && position) {
+      const { bounds: boundaryBounds, setbacks: boundarySetbacks } = boundaryInfo;
+      const worldScale = 25 / Math.max(boundaryBounds.maxX - boundaryBounds.minX, boundaryBounds.maxY - boundaryBounds.minY, 1);
+      const cx = ((boundaryBounds.minX + boundaryBounds.maxX) / 2) * worldScale;
+      const cz = ((boundaryBounds.minY + boundaryBounds.maxY) / 2) * worldScale;
+      const bw = (boundaryBounds.maxX - boundaryBounds.minX) * worldScale;
+      const bh = (boundaryBounds.maxY - boundaryBounds.minY) * worldScale;
+      const frontPx = boundarySetbacks ? (boundarySetbacks.front || 0) * worldScale * 12 : 0;
+      const rearPx  = boundarySetbacks ? (boundarySetbacks.rear  || 0) * worldScale * 12 : 0;
+      const leftPx  = boundarySetbacks ? (boundarySetbacks.left  || 0) * worldScale * 12 : 0;
+      const rightPx = boundarySetbacks ? (boundarySetbacks.right || 0) * worldScale * 12 : 0;
+      const plotW = bw + leftPx + rightPx;
+      const plotH = bh + frontPx + rearPx;
+      const plotCx = cx + (rightPx - leftPx) / 2;
+      const plotCz = cz + (frontPx - rearPx) / 2;
+      const northZ = plotCz - plotH / 2;
+      const southZ = plotCz + plotH / 2;
+      const westX = plotCx - plotW / 2;
+      const eastX = plotCx + plotW / 2;
+
+      const nearest = [
+        { side: 'north', distance: Math.abs(position[2] - northZ) },
+        { side: 'south', distance: Math.abs(position[2] - southZ) },
+        { side: 'west', distance: Math.abs(position[0] - westX) },
+        { side: 'east', distance: Math.abs(position[0] - eastX) }
+      ].sort((a, b) => a.distance - b.distance)[0];
+
+      const gateWidth = door?.width || 0;
+      if (nearest && nearest.distance <= 0.9 && gateWidth >= 2.2) {
+        boundaryWall = nearest.side;
+      }
+    }
+
+    return {
+      isGate: baseIsGate || Boolean(boundaryWall),
+      boundaryWall
+    };
+  };
   
   // Analyze and extract data - memoized to prevent infinite loops
   const analysisData = useMemo(() => {
@@ -2982,8 +3284,8 @@ const FloorPlan3DScene = ({ floorPlanData, mode, customColors, roomColors = {}, 
   // Always generate smart doors for room connectivity
   const smartDoors = useMemo(() => {
     console.log('🚪 Generating smart doors for', rooms.length, 'rooms, detected 2D doors:', doors.length);
-    return generateSmartDoors(rooms, bounds, doors);
-  }, [rooms, bounds, doors]);
+    return generateSmartDoors(rooms, bounds, doors, setbacks);
+  }, [rooms, bounds, doors, setbacks]);
   
   // Notify parent about analyzed doors (must be after smartDoors is declared)
   useEffect(() => {
@@ -3127,30 +3429,174 @@ const FloorPlan3DScene = ({ floorPlanData, mode, customColors, roomColors = {}, 
         const owH = 3.2;    // outer-wall height
         const owY = foundationHeight + owH / 2;
         const wallMat = <meshStandardMaterial color="#808080" roughness={0.85} metalness={0.05} />;
+        const northZ = plotCz - plotH / 2 - owT / 2;
+        const southZ = plotCz + plotH / 2 + owT / 2;
+        const westX = plotCx - plotW / 2 - owT / 2;
+        const eastX = plotCx + plotW / 2 + owT / 2;
+
+        const resolveGateMeta = (door) => {
+          const position = door.globalPosition || door.position || [0, 0, 0];
+          const width = door.width || 0;
+          const baseIsGate = Boolean(
+            door?.isGate || door?.type === 'Gate' || door?.type === 'gate' || door?.boundaryWall
+          );
+
+          let boundaryWall = door?.boundaryWall || null;
+          if (!boundaryWall && position) {
+            const nearest = [
+              { side: 'north', distance: Math.abs(position[2] - northZ) },
+              { side: 'south', distance: Math.abs(position[2] - southZ) },
+              { side: 'west', distance: Math.abs(position[0] - westX) },
+              { side: 'east', distance: Math.abs(position[0] - eastX) }
+            ].sort((a, b) => a.distance - b.distance)[0];
+
+            // Fallback for older saved gates: if it sits on the plot perimeter and is gate-sized, treat as a gate.
+            if (nearest && nearest.distance <= 0.9 && width >= 2.2) {
+              boundaryWall = nearest.side;
+            }
+          }
+
+          return {
+            isGate: baseIsGate || Boolean(boundaryWall),
+            boundaryWall
+          };
+        };
+
+        const boundaryGates = smartDoors.filter(door => resolveGateMeta(door).isGate);
+
+        const sideDefaults = {
+          north: { rotation: [0, 0, 0], depthOffset: 0.03 },
+          south: { rotation: [0, Math.PI, 0], depthOffset: -0.03 },
+          west: { rotation: [0, Math.PI / 2, 0], depthOffset: 0.03 },
+          east: { rotation: [0, -Math.PI / 2, 0], depthOffset: -0.03 }
+        };
+
+        const getWallSegments = (totalLength, openings) => {
+          if (!openings || openings.length === 0) {
+            return [{ center: 0, length: totalLength }];
+          }
+
+          const sortedOpenings = openings
+            .map(op => ({
+              center: op.center,
+              width: Math.max(0.1, Math.min(op.width + 0.08, totalLength - 0.1))
+            }))
+            .sort((a, b) => a.center - b.center);
+
+          const segments = [];
+          let cursor = -totalLength / 2;
+
+          sortedOpenings.forEach(op => {
+            const start = Math.max(-totalLength / 2, op.center - op.width / 2);
+            const end = Math.min(totalLength / 2, op.center + op.width / 2);
+
+            if (start > cursor) {
+              const len = start - cursor;
+              if (len > 0.05) {
+                segments.push({ center: cursor + len / 2, length: len });
+              }
+            }
+            cursor = Math.max(cursor, end);
+          });
+
+          if (cursor < totalLength / 2) {
+            const len = totalLength / 2 - cursor;
+            if (len > 0.05) {
+              segments.push({ center: cursor + len / 2, length: len });
+            }
+          }
+
+          return segments;
+        };
+
+        const northSouthLength = plotW + owT * 2;
+        const eastWestLength = plotH;
+
+        const northOpenings = boundaryGates
+          .filter(g => g.boundaryWall === 'north')
+          .map(g => ({ center: (g.globalPosition?.[0] ?? plotCx) - plotCx, width: g.width || 2.8 }));
+
+        const southOpenings = boundaryGates
+          .filter(g => g.boundaryWall === 'south')
+          .map(g => ({ center: (g.globalPosition?.[0] ?? plotCx) - plotCx, width: g.width || 2.8 }));
+
+        const westOpenings = boundaryGates
+          .filter(g => g.boundaryWall === 'west')
+          .map(g => ({ center: (g.globalPosition?.[2] ?? plotCz) - plotCz, width: g.width || 2.8 }));
+
+        const eastOpenings = boundaryGates
+          .filter(g => g.boundaryWall === 'east')
+          .map(g => ({ center: (g.globalPosition?.[2] ?? plotCz) - plotCz, width: g.width || 2.8 }));
 
         // N/S walls are wider by 2owT so they cap the corners
         return (
           <group>
             {/* North wall (rear / top in 2D) */}
-            <mesh position={[plotCx, owY, plotCz - plotH / 2 - owT / 2]} castShadow receiveShadow>
-              <boxGeometry args={[plotW + owT * 2, owH, owT]} />
-              {wallMat}
-            </mesh>
+            {getWallSegments(northSouthLength, northOpenings).map((seg, idx) => (
+              <mesh key={`north-seg-${idx}`} position={[plotCx + seg.center, owY, northZ]} castShadow receiveShadow>
+                <boxGeometry args={[seg.length, owH, owT]} />
+                {wallMat}
+              </mesh>
+            ))}
+
             {/* South wall (front / bottom in 2D) */}
-            <mesh position={[plotCx, owY, plotCz + plotH / 2 + owT / 2]} castShadow receiveShadow>
-              <boxGeometry args={[plotW + owT * 2, owH, owT]} />
-              {wallMat}
-            </mesh>
+            {getWallSegments(northSouthLength, southOpenings).map((seg, idx) => (
+              <mesh key={`south-seg-${idx}`} position={[plotCx + seg.center, owY, southZ]} castShadow receiveShadow>
+                <boxGeometry args={[seg.length, owH, owT]} />
+                {wallMat}
+              </mesh>
+            ))}
+
             {/* West wall (left in 2D) */}
-            <mesh position={[plotCx - plotW / 2 - owT / 2, owY, plotCz]} castShadow receiveShadow>
-              <boxGeometry args={[owT, owH, plotH]} />
-              {wallMat}
-            </mesh>
+            {getWallSegments(eastWestLength, westOpenings).map((seg, idx) => (
+              <mesh key={`west-seg-${idx}`} position={[westX, owY, plotCz + seg.center]} castShadow receiveShadow>
+                <boxGeometry args={[owT, owH, seg.length]} />
+                {wallMat}
+              </mesh>
+            ))}
+
             {/* East wall (right in 2D) */}
-            <mesh position={[plotCx + plotW / 2 + owT / 2, owY, plotCz]} castShadow receiveShadow>
-              <boxGeometry args={[owT, owH, plotH]} />
-              {wallMat}
-            </mesh>
+            {getWallSegments(eastWestLength, eastOpenings).map((seg, idx) => (
+              <mesh key={`east-seg-${idx}`} position={[eastX, owY, plotCz + seg.center]} castShadow receiveShadow>
+                <boxGeometry args={[owT, owH, seg.length]} />
+                {wallMat}
+              </mesh>
+            ))}
+
+            {/* Boundary gates on any side */}
+            {boundaryGates.map(gate => {
+              const side = gate.boundaryWall || 'south';
+              const defaults = sideDefaults[side] || sideDefaults.south;
+              const gateX = gate.globalPosition?.[0] ?? plotCx;
+              const gateZ = gate.globalPosition?.[2] ?? plotCz;
+
+              let doorPosition = [gateX, foundationHeight, gateZ];
+              if (side === 'north') {
+                doorPosition = [gateX, foundationHeight, northZ + defaults.depthOffset];
+              } else if (side === 'south') {
+                doorPosition = [gateX, foundationHeight, southZ + defaults.depthOffset];
+              } else if (side === 'west') {
+                doorPosition = [westX + defaults.depthOffset, foundationHeight, gateZ];
+              } else if (side === 'east') {
+                doorPosition = [eastX + defaults.depthOffset, foundationHeight, gateZ];
+              }
+
+              return (
+                <Door3D
+                  key={`boundary-gate-${gate.id}`}
+                  position={doorPosition}
+                  rotation={gate.rotation || defaults.rotation}
+                  width={gate.width}
+                  height={gate.height}
+                  isOpen={doorStates[gate.id] || gate.isOpen}
+                  onToggle={(isOpen) => handleDoorToggle(gate.id, isOpen)}
+                  playerPosition={playerPosition}
+                  autoOpen={mode === 'walk'}
+                  customColor="#111111"
+                  isGate={true}
+                />
+              );
+            })}
           </group>
         );
       })()}
@@ -3339,11 +3785,15 @@ const FloorPlan3DScene = ({ floorPlanData, mode, customColors, roomColors = {}, 
       
       {/* Render smart doors globally - visible from both connected rooms - elevated on foundation */}
       <group position={[0, foundationHeight, 0]}>
-        {smartDoors.map((door) => {
+        {smartDoors
+          .filter((door) => !resolveGateMeta(door, { bounds, setbacks }).isGate)
+          .map((door) => {
+          const gateMeta = resolveGateMeta(door, { bounds, setbacks });
+          const isGate = gateMeta.isGate;
           // Use global position for doors to ensure they're visible from both sides
           const position = door.globalPosition || door.position || [0, 0, 0];
           const doorIdString = String(door.id);
-          const doorColor = doorColors[doorIdString] || colors.doors;
+          const doorColor = isGate ? '#111111' : (doorColors[doorIdString] || colors.doors);
           
           // For doors connecting multiple rooms, use the first room's rotation or calculate average
           let rotation = [0, 0, 0];
@@ -3365,6 +3815,7 @@ const FloorPlan3DScene = ({ floorPlanData, mode, customColors, roomColors = {}, 
               playerPosition={playerPosition}
               autoOpen={mode === 'walk'} // Only auto-open in walk mode
               customColor={doorColor}
+              isGate={isGate}
             />
           );
         })}

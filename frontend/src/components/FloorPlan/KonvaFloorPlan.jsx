@@ -39,6 +39,7 @@ const KonvaFloorPlan = forwardRef(({
   const [showCustomizationPanel, setShowCustomizationPanel] = useState(false);
   const [doorColor, setDoorColor] = useState('#8B4513');
   const [wallColor, setWallColor] = useState('#000000');
+  const [showGatePlacement, setShowGatePlacement] = useState(false);
   const [windowColor, setWindowColor] = useState('#87CEEB');
   const [doorWidth, setDoorWidth] = useState(3);
   const [wallWidth, setWallWidth] = useState(4);
@@ -59,7 +60,18 @@ const KonvaFloorPlan = forwardRef(({
   const boundaryWarningTimeoutRef = useRef(null);
   const [collisionWarning, setCollisionWarning] = useState(false);
   const collisionWarningTimeoutRef = useRef(null);
+  const [gateWarning, setGateWarning] = useState(false);
+  const [gateWarningMessage, setGateWarningMessage] = useState('');
+  const gateWarningTimeoutRef = useRef(null);
   const [showRoomTypeDialog, setShowRoomTypeDialog] = useState(false);
+  // Boundary wall to user-friendly label mapping
+  const boundaryLabels = {
+    'south': 'Front',
+    'north': 'Rear',
+    'east': 'Right',
+    'west': 'Left'
+  };
+
   const doorOpeningOptions = [
     { value: 'left', label: 'Open Left', icon: '↶' },
     { value: 'right', label: 'Open Right', icon: '↷' },
@@ -356,14 +368,31 @@ const KonvaFloorPlan = forwardRef(({
   const handleContextMenu = useCallback((e, type, id) => {
     if (!isEditable) return;
     e.evt.preventDefault();
+    // Normalize: if the target is a door that is actually a gate (or vice versa), prefer gate menu type
+    let menuType = type;
+    try {
+      if ((type === 'door' || type === 'gate') && id) {
+        const targetDoor = doors.find(d => d.id === id);
+        if (targetDoor) {
+          if (targetDoor.isGate || targetDoor.type === 'Gate' || targetDoor.type === 'gate' || targetDoor.boundaryWall) {
+            menuType = 'gate';
+          } else {
+            menuType = 'door';
+          }
+        }
+      }
+    } catch (err) {
+      // ignore
+    }
+
     setContextMenu({
       visible: true,
       x: e.evt.clientX,
       y: e.evt.clientY,
-      type,
+      type: menuType,
       id
     });
-  }, [isEditable]);
+  }, [isEditable, doors]);
 
   // Handle delete from context menu
   const handleDeleteFromContextMenu = useCallback(() => {
@@ -383,7 +412,7 @@ const KonvaFloorPlan = forwardRef(({
         onRoomsChange(updatedRooms);
       }
       setSelectedRoom(null);
-    } else if (type === 'door') {
+    } else if (type === 'door' || type === 'gate') {
       const updatedDoors = doors.filter(d => d.id !== id);
       setDoors(updatedDoors);
       if (onDoorsChange) {
@@ -481,6 +510,65 @@ const KonvaFloorPlan = forwardRef(({
 
     setContextMenu({ visible: false, x: 0, y: 0, type: null, id: null });
   }, [contextMenu, doors, onDoorsChange]);
+
+  // Handle gate placement on specific boundary (Front, Rear, Left, Right)
+  const handleGateBoundaryPlacement = useCallback((boundaryWall) => {
+    if (!contextMenu.visible || contextMenu.type !== 'gate') return;
+
+    const { id } = contextMenu;
+    const gate = doors.find(d => d.id === id);
+    if (!gate) return;
+
+    const { offsetX, offsetY, scaledWidth, scaledHeight } = layoutProps;
+    const gateLength = Math.sqrt(
+      (gate.points[2] - gate.points[0]) ** 2 + 
+      (gate.points[3] - gate.points[1]) ** 2
+    );
+
+    const plotCx = offsetX + scaledWidth / 2;
+    const plotCy = offsetY + scaledHeight / 2;
+    let newPoints = [...gate.points];
+
+    // Position gate on selected boundary
+    if (boundaryWall === 'south') {
+      // Front
+      const boundaryY = offsetY + scaledHeight;
+      const gateX1 = plotCx - gateLength / 2;
+      const gateX2 = plotCx + gateLength / 2;
+      newPoints = [gateX1, boundaryY, gateX2, boundaryY];
+    } else if (boundaryWall === 'north') {
+      // Rear
+      const boundaryY = offsetY;
+      const gateX1 = plotCx - gateLength / 2;
+      const gateX2 = plotCx + gateLength / 2;
+      newPoints = [gateX1, boundaryY, gateX2, boundaryY];
+    } else if (boundaryWall === 'east') {
+      // Right
+      const boundaryX = offsetX + scaledWidth;
+      const gateY1 = plotCy - gateLength / 2;
+      const gateY2 = plotCy + gateLength / 2;
+      newPoints = [boundaryX, gateY1, boundaryX, gateY2];
+    } else if (boundaryWall === 'west') {
+      // Left
+      const boundaryX = offsetX;
+      const gateY1 = plotCy - gateLength / 2;
+      const gateY2 = plotCy + gateLength / 2;
+      newPoints = [boundaryX, gateY1, boundaryX, gateY2];
+    }
+
+    const updatedDoors = doors.map(door =>
+      door.id === id 
+        ? { ...door, points: newPoints, boundaryWall }
+        : door
+    );
+
+    setDoors(updatedDoors);
+    if (onDoorsChange) {
+      onDoorsChange(updatedDoors);
+    }
+
+    setContextMenu({ visible: false, x: 0, y: 0, type: null, id: null });
+  }, [contextMenu, doors, layoutProps, onDoorsChange]);
 
   // Close context menu on outside click
   useEffect(() => {
@@ -620,42 +708,52 @@ const KonvaFloorPlan = forwardRef(({
       // Method 1: Check mapData for doors
       if (floorPlanData.mapData && Array.isArray(floorPlanData.mapData)) {
         const mapDoors = floorPlanData.mapData
-          .filter(item => item.type === 'Door')
-          .map((door, index) => ({
-            id: door.id || `door-${index}`,
-            points: [
-              (door.x1 || 0) * coordScaleX + offsetX, 
-              (door.y1 || 0) * coordScaleY + offsetY, 
-              (door.x2 || 0) * coordScaleX + offsetX, 
-              (door.y2 || 0) * coordScaleY + offsetY
-            ],
-            stroke: '#8B4513',
-            strokeWidth: Math.max(6, 4 * scale),
-            lineCap: 'round',
-            type: 'Door',
-            openingDirection: door.openingDirection || 'right',
-            showDirection: Boolean(door.showDirection)
-          }));
+          .filter(item => item.type === 'Door' || item.type === 'door' || item.type === 'Gate' || item.type === 'gate')
+          .map((door, index) => {
+            const isGate = Boolean(door.isGate || door.type === 'Gate' || door.type === 'gate' || door.boundaryWall);
+            return {
+              id: door.id || `door-${index}`,
+              points: [
+                (door.x1 || 0) * coordScaleX + offsetX,
+                (door.y1 || 0) * coordScaleY + offsetY,
+                (door.x2 || 0) * coordScaleX + offsetX,
+                (door.y2 || 0) * coordScaleY + offsetY
+              ],
+              stroke: isGate ? '#111111' : '#8B4513',
+              strokeWidth: Math.max(6, 4 * scale),
+              lineCap: 'round',
+              type: isGate ? 'Gate' : 'Door',
+              isGate,
+              boundaryWall: door.boundaryWall || null,
+              openingDirection: door.openingDirection || (isGate ? 'double' : 'right'),
+              showDirection: Boolean(door.showDirection)
+            };
+          });
         doorsData = [...doorsData, ...mapDoors];
       }
       
       // Method 2: Check direct doors array
       if (floorPlanData.doors && Array.isArray(floorPlanData.doors)) {
-        const directDoors = floorPlanData.doors.map((door, index) => ({
-          id: door.id || `direct-door-${index}`,
-          points: [
-            (door.x1 || 0) * coordScaleX + offsetX, 
-            (door.y1 || 0) * coordScaleY + offsetY, 
-            (door.x2 || 0) * coordScaleX + offsetX, 
-            (door.y2 || 0) * coordScaleY + offsetY
-          ],
-          stroke: '#8B4513',
-          strokeWidth: Math.max(6, 4 * scale),
-          lineCap: 'round',
-          type: 'Door',
-          openingDirection: door.openingDirection || 'right',
-          showDirection: Boolean(door.showDirection)
-        }));
+        const directDoors = floorPlanData.doors.map((door, index) => {
+          const isGate = Boolean(door.isGate || door.type === 'Gate' || door.type === 'gate' || door.boundaryWall);
+          return {
+            id: door.id || `direct-door-${index}`,
+            points: [
+              (door.x1 || 0) * coordScaleX + offsetX,
+              (door.y1 || 0) * coordScaleY + offsetY,
+              (door.x2 || 0) * coordScaleX + offsetX,
+              (door.y2 || 0) * coordScaleY + offsetY
+            ],
+            stroke: isGate ? '#111111' : '#8B4513',
+            strokeWidth: Math.max(6, 4 * scale),
+            lineCap: 'round',
+            type: isGate ? 'Gate' : 'Door',
+            isGate,
+            boundaryWall: door.boundaryWall || null,
+            openingDirection: door.openingDirection || (isGate ? 'double' : 'right'),
+            showDirection: Boolean(door.showDirection)
+          };
+        });
         doorsData = [...doorsData, ...directDoors];
       }
       
@@ -1183,6 +1281,65 @@ const KonvaFloorPlan = forwardRef(({
     e.target.position({ x: finalX, y: finalY });
   }, [isEditable, isDragging, snapToGridCoordinate, rooms, dragStart, constrainRoomToAvoidCollision, constrainRoomToBoundary]);
 
+  // Helper function to find nearest plot BOUNDARY wall ONLY (for gates) - gates snap to boundary, not rooms
+  const findNearestBoundaryEdge = useCallback((x, y, gateLength) => {
+    let nearestBoundary = null;
+    let minDistance = Infinity;
+    let snapPosition = null;
+    
+    try {
+      const { offsetX, offsetY, scaledWidth, scaledHeight } = layoutProps;
+      const bx1 = offsetX;
+      const by1 = offsetY;
+      const bx2 = offsetX + scaledWidth;
+      const by2 = offsetY + scaledHeight;
+
+      const boundaryWalls = [
+        { x1: bx1, y1: by1, x2: bx2, y2: by1, edge: 'north', type: 'boundary', name: 'north' },
+        { x1: bx2, y1: by1, x2: bx2, y2: by2, edge: 'east', type: 'boundary', name: 'east' },
+        { x1: bx1, y1: by2, x2: bx2, y2: by2, edge: 'south', type: 'boundary', name: 'south' },
+        { x1: bx1, y1: by1, x2: bx1, y2: by2, edge: 'west', type: 'boundary', name: 'west' }
+      ];
+
+      boundaryWalls.forEach(bw => {
+        const wallLength = Math.sqrt((bw.x2 - bw.x1) ** 2 + (bw.y2 - bw.y1) ** 2);
+        const wallUnitX = wallLength > 0 ? (bw.x2 - bw.x1) / wallLength : 0;
+        const wallUnitY = wallLength > 0 ? (bw.y2 - bw.y1) / wallLength : 0;
+
+        const toPointX = x - bw.x1;
+        const toPointY = y - bw.y1;
+        const projectionLength = toPointX * wallUnitX + toPointY * wallUnitY;
+        const clampedProjection = Math.max(0, Math.min(wallLength, projectionLength));
+        const closestX = bw.x1 + wallUnitX * clampedProjection;
+        const closestY = bw.y1 + wallUnitY * clampedProjection;
+        const distance = Math.sqrt((x - closestX) ** 2 + (y - closestY) ** 2);
+
+        const boundaryThreshold = 100;
+        if (distance < minDistance && distance < boundaryThreshold) {
+          minDistance = distance;
+          nearestBoundary = bw;
+
+          const gateStartX = closestX - (wallUnitX * gateLength / 2);
+          const gateStartY = closestY - (wallUnitY * gateLength / 2);
+          const gateEndX = closestX + (wallUnitX * gateLength / 2);
+          const gateEndY = closestY + (wallUnitY * gateLength / 2);
+
+          snapPosition = {
+            x1: gateStartX,
+            y1: gateStartY,
+            x2: gateEndX,
+            y2: gateEndY,
+            boundaryWall: bw.name
+          };
+        }
+      });
+    } catch (e) {
+      // ignore layoutProps missing
+    }
+    
+    return { nearestBoundary, snapPosition, distance: minDistance };
+  }, [layoutProps]);
+
   // Helper function to find the nearest wall edge for door placement
   const findNearestWallEdge = useCallback((x, y, doorLength) => {
     let nearestWall = null;
@@ -1302,6 +1459,8 @@ const KonvaFloorPlan = forwardRef(({
       }
     });
     
+    
+    
     return { nearestWall, snapPosition, distance: minDistance };
   }, [rooms, walls]);
 
@@ -1328,23 +1487,41 @@ const KonvaFloorPlan = forwardRef(({
         (door.points[3] - door.points[1]) ** 2
       );
 
-      // Find nearest wall edge
-      const { nearestWall, snapPosition } = findNearestWallEdge(doorCenterX, doorCenterY, doorLength);
-
+      // Gates snap to boundary ONLY (grey outer wall); doors snap to room walls
       let finalDoorPoints;
-
-      if (nearestWall && snapPosition) {
-        finalDoorPoints = [snapPosition.x1, snapPosition.y1, snapPosition.x2, snapPosition.y2];
+      let updatedBoundaryWall = null;
+      
+      if (door.isGate) {
+        // Gate MUST snap to plot boundary only - never to interior walls
+        const { snapPosition: boundarySnap } = findNearestBoundaryEdge(doorCenterX, doorCenterY, doorLength);
+        if (boundarySnap) {
+          finalDoorPoints = [boundarySnap.x1, boundarySnap.y1, boundarySnap.x2, boundarySnap.y2];
+          updatedBoundaryWall = boundarySnap.boundaryWall;
+        } else {
+          // If not near boundary, gate stays at original position
+          finalDoorPoints = door.points;
+        }
       } else {
-        // Return to original position if no valid wall found
-        finalDoorPoints = door.points;
+        // Regular door snaps to room walls only
+        const { nearestWall, snapPosition } = findNearestWallEdge(doorCenterX, doorCenterY, doorLength);
+        if (nearestWall && snapPosition) {
+          finalDoorPoints = [snapPosition.x1, snapPosition.y1, snapPosition.x2, snapPosition.y2];
+        } else {
+          finalDoorPoints = door.points;
+        }
       }
 
-      const updated = prevDoors.map(d => 
-        d.id === doorId 
-          ? { ...d, points: finalDoorPoints }
-          : d
-      );
+      const updated = prevDoors.map(d => {
+        if (d.id === doorId) {
+          const updatedDoor = { ...d, points: finalDoorPoints };
+          // If gate moved to a different boundary side, update metadata
+          if (door.isGate && updatedBoundaryWall) {
+            updatedDoor.boundaryWall = updatedBoundaryWall;
+          }
+          return updatedDoor;
+        }
+        return d;
+      });
 
       // Mark that doors were updated by user so useEffect skips re-processing
       doorsUpdatedByUserRef.current = true;
@@ -1363,7 +1540,7 @@ const KonvaFloorPlan = forwardRef(({
     
     // Reset Konva element position to prevent ghost copies
     e.target.position({ x: 0, y: 0 });
-  }, [isEditable, dragStart, findNearestWallEdge, onDoorsChange]);
+  }, [isEditable, dragStart, findNearestWallEdge, findNearestBoundaryEdge, onDoorsChange]);
 
   // Handle window drag start
   const handleWindowDragStart = useCallback((e, windowId) => {
@@ -1466,6 +1643,102 @@ const KonvaFloorPlan = forwardRef(({
       onDoorsChange(updatedDoors);
     }
   }, [doors, doorColor, doorWidth, onDoorsChange]);
+
+  // Add a main gate on the front boundary wall
+  const addMainGate = useCallback(() => {
+    const { offsetX, offsetY, scaledWidth, scaledHeight } = layoutProps;
+    const gateWidth = Math.max(140, Math.min(scaledWidth * 0.28, scaledWidth * 0.4));
+    const left = offsetX + (scaledWidth - gateWidth) / 2;
+    const boundaryY = offsetY + scaledHeight; // Front/South boundary
+
+    const newGate = {
+      id: `new-gate-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      points: [left, boundaryY, left + gateWidth, boundaryY],
+      stroke: '#111111',
+      strokeWidth: 12,
+      lineCap: 'round',
+      type: 'Gate',
+      openingDirection: 'double',
+      showDirection: false,
+      isGate: true,
+      boundaryWall: 'south' // Main gate on front/south boundary
+    };
+
+    const updatedDoors = [...doors, newGate];
+    setDoors(updatedDoors);
+    setSelectedDoor(newGate.id);
+    setSelectedRoom(null);
+    setSelectedWall(null);
+    setSelectedWindow(null);
+
+    if (onDoorsChange) {
+      onDoorsChange(updatedDoors);
+    }
+  }, [doors, layoutProps, onDoorsChange]);
+
+  // Add main gate at a specified boundary side ('north'|'south'|'east'|'west')
+  const addMainGateAtSide = useCallback((side) => {
+    // Check if ANY gate already exists (only one gate allowed per plot)
+    const existingGate = doors.find(d => d.isGate);
+    if (existingGate) {
+      // Show warning message
+      const message = `Gate already added to this plot. Only one gate allowed. Please delete existing gate first.`;
+      setGateWarningMessage(message);
+      setGateWarning(true);
+      
+      // Clear previous timeout if exists
+      if (gateWarningTimeoutRef.current) {
+        clearTimeout(gateWarningTimeoutRef.current);
+      }
+      
+      // Auto-dismiss after 3 seconds
+      gateWarningTimeoutRef.current = setTimeout(() => {
+        setGateWarning(false);
+      }, 3000);
+      
+      return; // Don't create gate
+    }
+
+    const { offsetX, offsetY, scaledWidth, scaledHeight } = layoutProps;
+    const gateWidth = Math.max(140, Math.min(scaledWidth * 0.28, scaledWidth * 0.4));
+    const plotCx = offsetX + scaledWidth / 2;
+    const plotCy = offsetY + scaledHeight / 2;
+
+    let points = [plotCx - gateWidth / 2, offsetY + scaledHeight, plotCx + gateWidth / 2, offsetY + scaledHeight];
+    if (side === 'north') {
+      points = [plotCx - gateWidth / 2, offsetY, plotCx + gateWidth / 2, offsetY];
+    } else if (side === 'south') {
+      points = [plotCx - gateWidth / 2, offsetY + scaledHeight, plotCx + gateWidth / 2, offsetY + scaledHeight];
+    } else if (side === 'east') {
+      points = [offsetX + scaledWidth, plotCy - gateWidth / 2, offsetX + scaledWidth, plotCy + gateWidth / 2];
+    } else if (side === 'west') {
+      points = [offsetX, plotCy - gateWidth / 2, offsetX, plotCy + gateWidth / 2];
+    }
+
+    const newGate = {
+      id: `new-gate-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      points,
+      stroke: '#111111',
+      strokeWidth: 12,
+      lineCap: 'round',
+      type: 'Gate',
+      openingDirection: 'double',
+      showDirection: false,
+      isGate: true,
+      boundaryWall: side || 'south'
+    };
+
+    const updatedDoors = [...doors, newGate];
+    setDoors(updatedDoors);
+    setSelectedDoor(newGate.id);
+    setSelectedRoom(null);
+    setSelectedWall(null);
+    setSelectedWindow(null);
+
+    if (onDoorsChange) {
+      onDoorsChange(updatedDoors);
+    }
+  }, [doors, layoutProps, onDoorsChange, boundaryLabels])
 
   // Add new stairs
   const addStairs = useCallback(() => {
@@ -2266,6 +2539,64 @@ const KonvaFloorPlan = forwardRef(({
           setNewElementStart(null);
           setCreationMode(null);
         }
+      } else if (creationMode === 'gate') {
+        if (!isCreating) {
+          // Find nearest boundary for initial position
+          const gateLength = 100;
+          const { snapPosition } = findNearestBoundaryEdge(snappedX, snappedY, gateLength);
+          
+          if (snapPosition) {
+            // Gate MUST start on boundary
+            setNewElementStart({ x: snapPosition.x1, y: snapPosition.y1, boundaryWall: snapPosition.boundaryWall });
+            setIsCreating(true);
+          } else {
+            // Reject gate creation if not on boundary
+            console.warn('Gate must be placed on plot boundary (grey outer wall)');
+            return;
+          }
+        } else {
+          const gateLength = Math.sqrt(
+            Math.pow(snappedX - newElementStart.x, 2) + Math.pow(snappedY - newElementStart.y, 2)
+          );
+          
+          // Snap end point to boundary as well - gate MUST end on boundary
+          const { snapPosition: endSnap } = findNearestBoundaryEdge(snappedX, snappedY, gateLength);
+          
+          if (!endSnap) {
+            // Gate must end on boundary
+            console.warn('Gate must end on plot boundary (grey outer wall)');
+            setIsCreating(false);
+            setNewElementStart(null);
+            setCreationMode(null);
+            return;
+          }
+          
+          // Use the boundary side where the gate ends up
+          const finalBoundaryWall = endSnap.boundaryWall || newElementStart.boundaryWall || 'south';
+          
+          const newGate = {
+            id: `created-gate-${Date.now()}`,
+            points: [endSnap.x1, endSnap.y1, endSnap.x2, endSnap.y2],
+            stroke: '#111111',
+            strokeWidth: 12,
+            lineCap: 'round',
+            openingDirection: 'double',
+            showDirection: false,
+            type: 'Gate',
+            isGate: true,
+            boundaryWall: finalBoundaryWall
+          };
+          const updatedDoors = [...doors, newGate];
+          setDoors(updatedDoors);
+          setSelectedDoor(newGate.id);
+          setIsCreating(false);
+          setNewElementStart(null);
+          setCreationMode(null);
+
+          if (onDoorsChange) {
+            onDoorsChange(updatedDoors);
+          }
+        }
       } else if (creationMode === 'wall') {
         if (!isCreating) {
           // Start creating wall
@@ -2379,6 +2710,98 @@ const KonvaFloorPlan = forwardRef(({
               >
                 🚪 Add Door
               </button>
+
+              <button
+                onClick={() => setShowGatePlacement(true)}
+                className="w-full px-2 py-1.5 text-xs rounded border bg-gray-100 border-gray-400 text-gray-900 hover:bg-gray-200 transition-colors"
+                title="Add a black main gate on the boundary wall"
+              >
+                🚧 Add Main Gate
+              </button>
+
+              {/* Gate placement modal */}
+              {showGatePlacement && (
+                <div
+                  style={{
+                    position: 'fixed',
+                    inset: 0,
+                    zIndex: 2000,
+                    backgroundColor: 'rgba(0, 0, 0, 0.28)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                  onClick={() => setShowGatePlacement(false)}
+                >
+                  <div
+                    style={{
+                      background: '#ffffff',
+                      borderRadius: 12,
+                      boxShadow: '0 12px 30px rgba(0,0,0,0.28)',
+                      overflow: 'hidden',
+                      minWidth: 280,
+                      border: '1px solid #d7d7d7'
+                    }}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <div style={{ padding: '12px 16px', borderBottom: '1px solid #e5e7eb', fontWeight: 700, color: '#111827', background: '#f9fafb' }}>
+                      Place Gate On
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                      {[
+                        { side: 'south', label: 'Front', icon: '↓' },
+                        { side: 'north', label: 'Rear', icon: '↑' },
+                        { side: 'east', label: 'Right', icon: '→' },
+                        { side: 'west', label: 'Left', icon: '←' }
+                      ].map((item, index, arr) => (
+                        <button
+                          key={item.side}
+                          onClick={() => { addMainGateAtSide(item.side); setShowGatePlacement(false); }}
+                          style={{
+                            padding: '12px 16px',
+                            border: 'none',
+                            background: '#ffffff',
+                            color: '#111827',
+                            textAlign: 'left',
+                            cursor: 'pointer',
+                            fontSize: '14px',
+                            fontWeight: 600,
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '10px',
+                            borderBottom: index < arr.length - 1 ? '1px solid #eef0f2' : 'none'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = '#eef6ff';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = '#ffffff';
+                          }}
+                        >
+                          <span style={{ width: 18, textAlign: 'center', fontSize: 16, color: '#2563eb' }}>{item.icon}</span>
+                          <span>{item.label}</span>
+                        </button>
+                      ))}
+                      <div style={{ borderTop: '1px solid #e5e7eb', display: 'flex' }}>
+                        <button
+                          onClick={() => setShowGatePlacement(false)}
+                          style={{
+                            flex: 1,
+                            padding: '11px 14px',
+                            border: 'none',
+                            background: '#f3f4f6',
+                            color: '#111827',
+                            cursor: 'pointer',
+                            fontWeight: 600
+                          }}
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
               
               {/* Quick Add Stairs */}
               <button
@@ -3559,6 +3982,7 @@ const KonvaFloorPlan = forwardRef(({
             const y1 = door.points[1];
             const x2 = door.points[2];
             const y2 = door.points[3];
+            const isGate = Boolean(door.isGate || door.type === 'Gate' || door.type === 'gate' || door.boundaryWall);
             const openingDirection = (door.openingDirection || 'right').toLowerCase();
             const showDirection = Boolean(door.showDirection);
             const doorLength = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
@@ -3619,20 +4043,56 @@ const KonvaFloorPlan = forwardRef(({
                 )}
 
                 {/* Simple door - bold brown line */}
+                {isGate && (
+                  <Line
+                    x={0}
+                    y={0}
+                    points={[x1, y1, x2, y2]}
+                    stroke="#2a2a2a"
+                    strokeWidth={Math.max(12, door.strokeWidth * 2.6)}
+                    lineCap="round"
+                    listening={false}
+                  />
+                )}
+
+                {isGate && (
+                  <Line
+                    x={0}
+                    y={0}
+                    points={[x1, y1, x2, y2]}
+                    stroke="#5a5a5a"
+                    strokeWidth={Math.max(4, door.strokeWidth * 1.1)}
+                    lineCap="round"
+                    listening={false}
+                  />
+                )}
+
                 <Line
                   x={0}
                   y={0}
                   points={[x1, y1, x2, y2]}
-                  stroke={isSelected ? "#2196F3" : "#8B4513"}
-                  strokeWidth={Math.max(8, door.strokeWidth * 2)}
+                  stroke={isSelected ? "#2196F3" : isGate ? "#111111" : "#8B4513"}
+                  strokeWidth={isGate ? Math.max(8, door.strokeWidth * 1.4) : Math.max(8, door.strokeWidth * 2)}
                   lineCap="round"
                   draggable={isEditable}
                   onDragStart={(e) => handleDoorDragStart(e, door.id)}
                   onDragEnd={(e) => handleDoorDragEnd(e, door.id)}
                   onClick={(e) => handleDoorClick(e, door.id)}
-                  onContextMenu={(e) => handleContextMenu(e, 'door', door.id)}
+                  onContextMenu={(e) => handleContextMenu(e, isGate ? 'gate' : 'door', door.id)}
                   style={{ cursor: isEditable ? 'move' : 'default' }}
                 />
+
+                {isGate && isSelected && (
+                  <Text
+                    x={(x1 + x2) / 2 - 34}
+                    y={(y1 + y2) / 2 - 22}
+                    text="MAIN GATE"
+                    fontSize={10}
+                    fontStyle="bold"
+                    fill="#111111"
+                    listening={false}
+                  />
+                )}
                 
                 {/* Door endpoint handles - draggable */}
                 {isSelected && isEditable && (
@@ -4025,7 +4485,7 @@ const KonvaFloorPlan = forwardRef(({
               </>
             );
           })()}
-          
+
           {/* Delete option - for all types */}
           <div
             style={{
@@ -4114,6 +4574,32 @@ const KonvaFloorPlan = forwardRef(({
               <line x1="9" y1="9" x2="15" y2="15" />
             </svg>
             <span>Room overlaps detected! Auto-adjusted to avoid collision.</span>
+          </div>
+        )}
+
+        {/* Gate Warning Notification */}
+        {gateWarning && isEditable && (
+          <div
+            style={{
+              backgroundColor: '#ff6b6b',
+              color: 'white',
+              padding: '12px 16px',
+              borderRadius: '8px',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+              fontSize: '14px',
+              fontWeight: '500',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              animation: 'fadeInOut 2s ease-in-out'
+            }}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+              <line x1="12" y1="9" x2="12" y2="13" />
+              <line x1="12" y1="17" x2="12.01" y2="17" />
+            </svg>
+            <span>{gateWarningMessage}</span>
           </div>
         )}
       </div>

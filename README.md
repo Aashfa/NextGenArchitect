@@ -1,13 +1,18 @@
 # NextGenArchitect 🏗️
 
-NextGenArchitect is an AI-powered platform for custom floor plan generation and seamless plot purchasing. The platform provides tools for designing, validating, and approving architectural projects with advanced compliance management.
+NextGenArchitect is an AI-powered platform for custom floor plan generation and seamless plot purchasing. The platform provides tools for designing, validating, and approving architectural projects with an intuitive user interface.
 
 [![React](https://img.shields.io/badge/React-18.0+-61DAFB?style=flat&logo=react)](https://reactjs.org/)
 [![Vite](https://img.shields.io/badge/Vite-4.0+-646CFF?style=flat&logo=vite)](https://vitejs.dev/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-3.0+-06B6D4?style=flat&logo=tailwindcss)](https://tailwindcss.com/)
 
+## 📹 Demo Video
+
+Watch the platform in action: [NextGenArchitect Demo Video](https://drive.google.com/file/d/17XhV8er3RlMxsNMybm_OdDIoF8aj7Vrn/view?usp=sharing)
+
 ## 📋 Table of Contents
 
+- [Demo Video](#demo-video)
 - [Prerequisites](#prerequisites)
 - [Quick Start](#quick-start)
 - [Detailed Setup](#detailed-setup)

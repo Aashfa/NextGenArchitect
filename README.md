@@ -8,7 +8,6 @@ NextGenArchitect lets users design, validate, and approve architectural projects
   <img src="https://img.shields.io/badge/React-18.0+-61DAFB?style=flat&logo=react&logoColor=white" alt="React"/>
   <img src="https://img.shields.io/badge/Vite-4.0+-646CFF?style=flat&logo=vite&logoColor=white" alt="Vite"/>
   <img src="https://img.shields.io/badge/Tailwind_CSS-3.0+-06B6D4?style=flat&logo=tailwindcss&logoColor=white" alt="Tailwind CSS"/>
-  <img src="https://img.shields.io/badge/License-MIT-green?style=flat" alt="MIT License"/>
 </p>
 
 ---
@@ -56,19 +55,6 @@ NextGenArchitect lets users design, validate, and approve architectural projects
 
 ---
 
-## 📋 Table of Contents
-
-- [Live Demo](#-live-demo)
-- [Technology Stack](#-technology-stack)
-- [Key Features](#-key-features)
-- [Prerequisites](#-prerequisites)
-- [Quick Start](#-quick-start-5-minutes-setup)
-- [Detailed Setup](#-detailed-setup)
-- [Project Structure](#-project-structure)
-- [Available Scripts](#-available-scripts)
-- [Troubleshooting](#-troubleshooting)
-- [Contributing](#-contributing)
-
 ---
 
 ## 🛠️ Technology Stack
@@ -109,14 +95,19 @@ NextGenArchitect is built as a modern, component-driven single-page application,
 - **User Authentication** — secure login and account management
 - **Responsive Design** — works seamlessly across desktop, tablet, and mobile
 
-### 👨‍💼 For Sub-Admins
-- **Analytics Dashboard** — administrative overview of platform activity
-- **Floor Plan Approval Workflow** — review and approve or reject user-generated floor plans before they go live
-- **Advertisement Request Review** — approve or decline incoming advertisement requests along with their submitted plans
-- **Compliance Management** — define building compliance rules and validate each plot listing and floor plan against them
-- **Room Connections** — configure relationships between rooms in a generated plan
-- **Plot Configuration** — set plot sizes and requirements per society
-- **Automatic Compliance Alerts** — get notified automatically when a submitted plan or listing fails a compliance check, so it can be flagged for review
+### 👨‍💼 For Admins (Platform-Level)
+- **Analytics Dashboard** — view platform-wide analytics and activity overview
+- **Advertisement Approval** — review and approve advertisements before they go live for display
+- **Society Management** — create, add, edit, and delete societies on the platform
+- **Platform Control & Monitoring** — oversee overall platform operations, users, and activity
+
+### 🏘️ For Sub-Admins (Registered Societies)
+- **Society Registration** — societies register on the platform as sub-admins
+- **Plot Details Upload** — upload and manage plot listings and their details
+- **Floor Plan Compliance Checks** — validate uploaded/generated floor plans against society-specific compliance rules
+- **Floor Plan Approval** — review user-requested floor plans and approve them online
+- **Edit & Re-upload Approved Plans** — modify already-approved floor plans and re-upload updated versions
+- **Advertisement Plan Subscription** — subscribe to advertisement plans to promote offers and announcements for their society
 
 ---
 

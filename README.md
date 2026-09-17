@@ -16,6 +16,8 @@ NextGenArchitect lets users design, validate, and approve architectural projects
 
 <p align="center">
   <a href="https://drive.google.com/file/d/17XhV8er3RlMxsNMybm_OdDIoF8aj7Vrn/view?usp=sharing">
+    <img width="956" height="374" alt="3dview" src="https://github.com/user-attachments/assets/a3442d77-8f98-4e8c-acec-6abbe411b7a7" />
+
     <img src="assets/ai-floorplan-generator.png" alt="Watch the NextGenArchitect demo video" width="800"/>
   </a>
 </p>

@@ -24,38 +24,7 @@ NextGenArchitect lets users design, validate, and approve architectural projects
 
 ---
 
-## 📸 Screenshots
 
-<table>
-  <tr>
-    <td width="50%">
-      <b>AI Floor Plan Generator</b><br/>
-      <img src="assets/ai-floorplan-generator.png" alt="AI Floor Plan Generator"/>
-      <p>Configure a plot, auto-generate compliant floor plans, and browse multiple layout variations ranked by space efficiency.</p>
-    </td>
-    <td width="50%">
-      <b>2D Floor Plan Editor</b><br/>
-      <img src="assets/floorplan-editor.png" alt="2D Floor Plan Editor"/>
-      <p>Fine-tune the generated layout — add doors, windows, stairs, and rooms with free positioning on an interactive canvas.</p>
-    </td>
-  </tr>
-  <tr>
-    <td width="50%">
-      <b>Interactive 3D View & Walkthrough</b><br/>
-      <img src="assets/3d-view.png" alt="3D View and Walkthrough"/>
-      <p>Explore the design in 3D with customizable colors, lighting, and a walkthrough mode — then export as PDF.</p>
-    </td>
-    <td width="50%">
-      <b>Advertisement Management</b><br/>
-      <img src="assets/advertisement-management.png" alt="Advertisement Management Dashboard"/>
-      <p>Admins review, approve, or reject advertisement requests with payment status and duration tracked per listing.</p>
-    </td>
-  </tr>
-</table>
-
----
-
----
 
 ## 🛠️ Technology Stack
 

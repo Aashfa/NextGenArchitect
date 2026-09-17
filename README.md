@@ -24,7 +24,6 @@ NextGenArchitect lets users design, validate, and approve architectural projects
   </a>
 </p>
 
-<p align="center"><i>Click the thumbnail or the play button above to watch the full demo — from browsing societies to generating and customizing a floor plan in 3D.</i></p>
 
 ---
 

@@ -16,7 +16,8 @@ NextGenArchitect lets users design, validate, and approve architectural projects
 
 <p align="center">
   <a href="https://drive.google.com/file/d/17XhV8er3RlMxsNMybm_OdDIoF8aj7Vrn/view?usp=sharing" aria-label="Click to watch the full NextGenArchitect demonstration">
-    <img width="700" alt="Click to watch the full NextGenArchitect demo video" src="assets/ai-floorplan-generator.png" />
+    <img width="700" alt="Click to watch the full NextGenArchitect demo video" src="https://github.com/user-attachments/assets/81cc5ab7-d63e-49af-862e-ac96259a619e" />
+
   </a>
 </p>
 
@@ -66,7 +67,6 @@ NextGenArchitect lets users design, validate, and approve architectural projects
 - [Live Demo](#-live-demo)
 - [Technology Stack](#-technology-stack)
 - [Key Features](#-key-features)
-- [Troubleshooting](#-troubleshooting)
 
 ---
 
@@ -124,118 +124,3 @@ NextGenArchitect is built as a modern, component-driven single-page application,
 
 ---
 
-## 🌐 Available Routes
-
-| Route | Page |
-|---|---|
-| `/` | Homepage |
-| `/society` | Society listings |
-| `/login` | User login |
-| `/subadmin` | Sub-admin dashboard |
-| `/plot-details` | Plot information |
-
----
-
-## 🐛 Troubleshooting
-
-<details>
-<summary><b>"Cannot find module 'tailwindcss'" error</b></summary>
-
-```bash
-cd frontend
-npm install -D tailwindcss postcss autoprefixer
-npx tailwindcss init -p
-```
-</details>
-
-<details>
-<summary><b>Port 5173 already in use</b></summary>
-
-```bash
-npx kill-port 5173
-# or run on a different port
-npm run dev -- --port 3000
-```
-</details>
-
-<details>
-<summary><b>Node modules issues</b></summary>
-
-```bash
-rm -rf node_modules package-lock.json   # Windows: rmdir /s node_modules & del package-lock.json
-npm install
-```
-</details>
-
-<details>
-<summary><b>Git clone permission denied</b></summary>
-
-```bash
-git clone https://github.com/Aashfa/NextGenArchitect.git   # use HTTPS, not SSH
-```
-</details>
-
-<details>
-<summary><b>Vite build errors</b></summary>
-
-```bash
-rm -rf node_modules/.vite
-npm run dev
-```
-</details>
-
-<details>
-<summary><b>CSS/Tailwind not loading</b></summary>
-
-```bash
-npx tailwindcss init -p
-```
-Then confirm `index.css` includes:
-```css
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-```
-</details>
-
-<details>
-<summary><b>Full reset (if nothing else works)</b></summary>
-
-```bash
-rm -rf node_modules package-lock.json dist
-npm install
-npm install -D tailwindcss postcss autoprefixer
-npx tailwindcss init -p
-npm run dev
-```
-</details>
-
-**Platform notes:**
-- **Windows:** if you hit execution policy errors, run `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser`
-- **macOS/Linux:** you may need `sudo` for global npm installs; keep Node.js updated
-
----
-
-## 📞 Support
-
-1. Check this README first — most setup issues are covered above
-2. Search [existing issues](https://github.com/Aashfa/NextGenArchitect/issues)
-3. Open a new issue with your Node/npm version, OS, and the full error message
-
----
-
-## ✅ Setup Verification Checklist
-
-- [ ] Node.js v16+ installed
-- [ ] Repository cloned successfully
-- [ ] Dependencies installed without errors
-- [ ] Tailwind CSS configured
-- [ ] Dev server running on port 5173
-- [ ] Homepage loads correctly
-- [ ] Navigation works between pages
-- [ ] No console errors
-- [ ] Hot reload works
-
----
-
-<p align="center"><b>Happy Coding! 🚀</b></p>

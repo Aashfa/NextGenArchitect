@@ -2,7 +2,7 @@
 
 **An AI-powered platform for custom floor plan generation and seamless plot purchasing.**
 
-NextGenArchitect lets users design, validate, and approve architectural projects through an intuitive interface — combining generative algorithms for automated floor plan creation with a full plot-b[...] 
+NextGenArchitect is an AI-driven platform that makes residential floor plan design fast and effortless. Users can generate customizable, society-compliant floor plans in minutes, explore them in real-time 3D, fine-tune every detail with drag-and-drop editing, and submit them for online approval — all without needing design expertise or making physical visits. The platform serves three roles: Admins overseeing the platform, Societies (Sub-Admins) managing plot listings and compliance rules, and Users designing and submitting floor plans for approval.
 
 <p align="left">
   <img src="https://img.shields.io/badge/React-18.0+-61DAFB?style=flat&logo=react&logoColor=white" alt="React"/>

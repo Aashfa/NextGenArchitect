@@ -15,9 +15,18 @@ NextGenArchitect is an AI-driven platform that makes residential floor plan desi
 ## 🎬 Live Demo
 
 <p align="center">
-  <a href="https://drive.google.com/file/d/17XhV8er3RlMxsNMybm_OdDIoF8aj7Vrn/view?usp=sharing" aria-label="Click to watch the full NextGenArchitect demonstration">
-    <img width="700" alt="Click to watch the full NextGenArchitect demo video" src="https://github.com/user-attachments/assets/81cc5ab7-d63e-49af-862e-ac96259a619e" />
+  <a href="https://drive.google.com/file/d/17XhV8er3RlMxsNMybm_OdDIoF8aj7Vrn/view?usp=sharing" target="_blank" rel="noopener noreferrer" aria-label="Watch the full NextGenArchitect demonstration">
+    <img
+      width="700"
+      alt="Watch the full NextGenArchitect demo video"
+      src="https://github.com/user-attachments/assets/81cc5ab7-d63e-49af-862e-ac96259a619e"
+    />
+  </a>
+</p>
 
+<p align="center">
+  <a href="https://drive.google.com/file/d/17XhV8er3RlMxsNMybm_OdDIoF8aj7Vrn/view?usp=sharing" target="_blank" rel="noopener noreferrer">
+    <strong>▶️ Watch the Full Demo Video</strong>
   </a>
 </p>
 

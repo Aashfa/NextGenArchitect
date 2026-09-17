@@ -2,12 +2,13 @@
 
 **An AI-powered platform for custom floor plan generation and seamless plot purchasing.**
 
-NextGenArchitect lets users design, validate, and approve architectural projects through an intuitive interface — combining generative algorithms for automated floor plan creation with a full plot-browsing and compliance-management workflow for admins.
+NextGenArchitect lets users design, validate, and approve architectural projects through an intuitive interface — combining generative algorithms for automated floor plan creation with a full plot-buying workflow.
 
 <p align="left">
   <img src="https://img.shields.io/badge/React-18.0+-61DAFB?style=flat&logo=react&logoColor=white" alt="React"/>
   <img src="https://img.shields.io/badge/Vite-4.0+-646CFF?style=flat&logo=vite&logoColor=white" alt="Vite"/>
   <img src="https://img.shields.io/badge/Tailwind_CSS-3.0+-06B6D4?style=flat&logo=tailwindcss&logoColor=white" alt="Tailwind CSS"/>
+  <img src="https://img.shields.io/badge/License-MIT-green?style=flat" alt="MIT License"/>
 </p>
 
 ---
@@ -15,16 +16,46 @@ NextGenArchitect lets users design, validate, and approve architectural projects
 ## 🎬 Live Demo
 
 <p align="center">
-  <a href="https://drive.google.com/file/d/17XhV8er3RlMxsNMybm_OdDIoF8aj7Vrn/view?usp=sharing">
-    <img width="956" height="374" alt="3dview" src="https://github.com/user-attachments/assets/a3442d77-8f98-4e8c-acec-6abbe411b7a7" alt="Watch the NextGenArchitect demo video" width="800" />
+  <a href="https://drive.google.com/file/d/17XhV8er3RlMxsNMybm_OdDIoF8aj7Vrn/view?usp=sharing" style="position: relative; display: inline-block;">
+    <img width="700" alt="Watch the NextGenArchitect demo video" src="https://github.com/user-attachments/assets/a3442d77-8f98-4e8c-acec-6abbe411b7a7" style="display: block; max-width: 100%; height: auto;" />
+    <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: flex; align-items: center; justify-content: center; width: 64px; height: 64px; border-radius: 50%; background: rgba(237, 118, 0, 0.95); color: white; font-size: 30px; line-height: 1;">▶</span>
   </a>
 </p>
 
-<p align="center"><i>Click the screenshot above to watch the full demo — from browsing societies to generating and customizing a floor plan in 3D.</i></p>
+<p align="center"><i>Click the thumbnail or the play button above to watch the full demo — from browsing societies to generating and customizing a floor plan in 3D.</i></p>
 
 ---
 
+## 📸 Screenshots
 
+<table>
+  <tr>
+    <td width="50%">
+      <b>AI Floor Plan Generator</b><br/>
+      <img src="assets/ai-floorplan-generator.png" alt="AI Floor Plan Generator"/>
+      <p>Configure a plot, auto-generate compliant floor plans, and browse multiple layout variations ranked by space efficiency.</p>
+    </td>
+    <td width="50%">
+      <b>2D Floor Plan Editor</b><br/>
+      <img src="assets/floorplan-editor.png" alt="2D Floor Plan Editor"/>
+      <p>Fine-tune the generated layout — add doors, windows, stairs, and rooms with free positioning on an interactive canvas.</p>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%">
+      <b>Interactive 3D View &amp; Walkthrough</b><br/>
+      <img src="assets/3d-view.png" alt="3D View and Walkthrough"/>
+      <p>Explore the design in 3D with customizable colors, lighting, and a walkthrough mode — then export as PDF.</p>
+    </td>
+    <td width="50%">
+      <b>Advertisement Management</b><br/>
+      <img src="assets/advertisement-management.png" alt="Advertisement Management Dashboard"/>
+      <p>Admins review, approve, or reject advertisement requests with payment status and duration tracked per listing.</p>
+    </td>
+  </tr>
+</table>
+
+---
 
 ## 🛠️ Technology Stack
 
@@ -32,51 +63,63 @@ NextGenArchitect is built as a modern, component-driven single-page application,
 
 | Layer | Technology | Why it's used |
 |---|---|---|
-| **UI Library** | ![React](https://img.shields.io/badge/-React_18-61DAFB?style=flat&logo=react&logoColor=black) | Component-based architecture for reusable UI across user and admin dashboards |
-| **Build Tool** | ![Vite](https://img.shields.io/badge/-Vite-646CFF?style=flat&logo=vite&logoColor=white) | Near-instant dev server startup and Hot Module Replacement for fast iteration |
-| **Styling** | ![Tailwind CSS](https://img.shields.io/badge/-Tailwind_CSS-06B6D4?style=flat&logo=tailwindcss&logoColor=white) | Utility-first styling for a consistent design system without custom CSS overhead |
-| **CSS Processing** | ![PostCSS](https://img.shields.io/badge/-PostCSS-DD3A0A?style=flat&logo=postcss&logoColor=white) | Autoprefixing and Tailwind compilation pipeline |
-| **Routing** | ![React Router](https://img.shields.io/badge/-React_Router-CA4245?style=flat&logo=reactrouter&logoColor=white) | Client-side navigation between user, sub-admin, and profile views |
-| **Backend** | ![Python](https://img.shields.io/badge/-Python-3776AB?style=flat&logo=python&logoColor=white) ![Flask](https://img.shields.io/badge/-Flask-000000?style=flat&logo=flask&logoColor=white) | Handles floor plan generation logic (genetic algorithms), compliance validation, and API endpoints for the frontend |
-| **Database** | ![MongoDB](https://img.shields.io/badge/-MongoDB-47A248?style=flat&logo=mongodb&logoColor=white) | Stores plot listings, user accounts, floor plans, and advertisement/approval records |
-| **3D Visualization** | ![Three.js](https://img.shields.io/badge/-Three.js-000000?style=flat&logo=three.js&logoColor=white) | Renders interactive, walkthrough-ready 3D models of generated floor plans directly in the browser |
-| **Payments** | ![Stripe](https://img.shields.io/badge/-Stripe-635BFF?style=flat&logo=stripe&logoColor=white) | Secure checkout for plot purchases and advertisement requests |
-| **Notifications** | Email & in-app alerts | Automatic notifications for approvals, rejections, compliance flags, and purchase confirmations |
-| **Icons** | React Icons | Consistent iconography across the interface |
-| **Linting** | ![ESLint](https://img.shields.io/badge/-ESLint-4B32C3?style=flat&logo=eslint&logoColor=white) | Enforces code quality and consistency |
+| **UI Library** | React 18 | Component-based architecture for reusable UI |
+| **Build Tool** | Vite | Fast development server and production builds |
+| **Styling** | Tailwind CSS | Consistent utility-first design system |
+| **Routing** | React Router | Client-side navigation |
+| **Backend** | Python / Flask | API and application services |
+| **Database** | MongoDB | Stores plots, users, floor plans, and approvals |
+| **3D Visualization** | Three.js | Interactive floor-plan visualization and walkthroughs |
+| **Payments** | Stripe | Secure plot purchases and advertisement requests |
 
-**Design system:** a consistent primary/secondary color palette (`#2F3D57` / `#ED7600`) is applied throughout via Tailwind's theme configuration, giving the platform a cohesive, professional look across every page.
+**Design system:** the primary and secondary colors `#2F3D57` and `#ED7600` are applied throughout the platform via Tailwind's theme configuration.
 
 ---
 
 ## 🎯 Key Features
 
 ### 🏠 For Users
-- **Homepage** with an image carousel introducing the platform
-- **Society-Integrated Plot Listings** — browse plots organized by housing society, each with full specifications
-- **AI-Generated Floor Plans** — auto-generate custom floor plans using genetic algorithms based on plot size and preferences
-- **Interactive 3D View & Walkthrough** — explore generated floor plans in an interactive 3D model, with a virtual walkthrough to experience the layout before committing
-- **Floor Plan Customization** — adjust walls, windows, doors, and furniture placement in real time within the 3D view
-- **Save, Edit & Delete Floor Plans** — manage your own library of generated plans, revisit and modify them anytime, or remove ones you no longer need
-- **Plot Purchasing with Stripe** — secure, integrated checkout powered by Stripe for buying a listed plot
-- **Advertisement Requests** — submit a request (with supporting plans/documents) to advertise a plot or listing on the platform
-- **Automatic Alerts & Email Notifications** — get notified automatically when a floor plan is approved/rejected, an advertisement request is reviewed, or a plot purchase is confirmed
-- **User Authentication** — secure login and account management
-- **Responsive Design** — works seamlessly across desktop, tablet, and mobile
+- Homepage with an image carousel
+- Society-integrated plot listings
+- AI-generated floor plans based on plot size and preferences
+- Interactive 3D view and walkthrough
+- Floor-plan customization with doors, windows, stairs, rooms, and furniture
+- Save, edit, and delete floor plans
+- Secure plot purchasing with Stripe
+- Advertisement requests with supporting plans and documents
+- Automatic alerts and email notifications
+- Secure authentication and responsive design
 
-### 👨‍💼 For Admins (Platform-Level)
-- **Analytics Dashboard** — view platform-wide analytics and activity overview
-- **Advertisement Approval** — review and approve advertisements before they go live for display
-- **Society Management** — create, add, edit, and delete societies on the platform
-- **Platform Control & Monitoring** — oversee overall platform operations, users, and activity
+### 👨‍💼 For Admins
+- Analytics dashboard
+- Advertisement approval
+- Society management
+- Platform control and monitoring
 
-### 🏘️ For Sub-Admins (Registered Societies)
-- **Society Registration** — societies register on the platform as sub-admins
-- **Plot Details Upload** — upload and manage plot listings and their details
-- **Floor Plan Compliance Checks** — validate uploaded/generated floor plans against society-specific compliance rules
-- **Floor Plan Approval** — review user-requested floor plans and approve them online
-- **Edit & Re-upload Approved Plans** — modify already-approved floor plans and re-upload updated versions
-- **Advertisement Plan Subscription** — subscribe to advertisement plans to promote offers and announcements for their society
+### 🏘️ For Sub-Admins
+- Society registration
+- Plot details upload and management
+- Society-specific floor-plan compliance checks
+- Floor-plan approval workflow
+- Edit and re-upload approved plans
+- Advertisement plan subscriptions
 
 ---
 
+## 📋 Quick Start
+
+Install the frontend dependencies and start the development server:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+See the project configuration and environment files for backend setup instructions.
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome. Please open an issue to discuss a change before submitting a pull request.

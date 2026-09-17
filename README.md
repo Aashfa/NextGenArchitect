@@ -2,7 +2,7 @@
 
 **An AI-powered platform for custom floor plan generation and seamless plot purchasing.**
 
-NextGenArchitect lets users design, validate, and approve architectural projects through an intuitive interface — combining generative algorithms for automated floor plan creation with a full plot-buying workflow.
+NextGenArchitect lets users design, validate, and approve architectural projects through an intuitive interface — combining generative algorithms for automated floor plan creation with a full plot-buying and project-approval workflow.
 
 <p align="left">
   <img src="https://img.shields.io/badge/React-18.0+-61DAFB?style=flat&logo=react&logoColor=white" alt="React"/>
@@ -16,9 +16,12 @@ NextGenArchitect lets users design, validate, and approve architectural projects
 ## 🎬 Live Demo
 
 <p align="center">
-  <a href="https://drive.google.com/file/d/17XhV8er3RlMxsNMybm_OdDIoF8aj7Vrn/view?usp=sharing" style="position: relative; display: inline-block;">
-    <img width="700" alt="Watch the NextGenArchitect demo video" src="https://github.com/user-attachments/assets/a3442d77-8f98-4e8c-acec-6abbe411b7a7" style="display: block; max-width: 100%; height: auto;" />
-    <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: flex; align-items: center; justify-content: center; width: 64px; height: 64px; border-radius: 50%; background: rgba(237, 118, 0, 0.95); color: white; font-size: 30px; line-height: 1;">▶</span>
+  <a href="https://drive.google.com/file/d/17XhV8er3RlMxsNMybm_OdDIoF8aj7Vrn/view?usp=sharing" aria-label="Click to watch the full NextGenArchitect demonstration" style="position: relative; display: inline-block; overflow: hidden; border-radius: 12px; line-height: 0;">
+    <img width="700" alt="Click to watch the full NextGenArchitect demo video" src="https://github.com/user-attachments/assets/a3442d77-8f98-4e8c-acec-6abbe411b7a7" style="display: block; max-width: 100%; height: auto; filter: blur(3px); transform: scale(1.03);"/>
+    <span style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; background: rgba(0, 0, 0, 0.18); color: white; font: 700 16px/1.2 Arial, sans-serif; text-align: center; text-shadow: 0 1px 3px rgba(0,0,0,.8);">
+      <span style="display: flex; align-items: center; justify-content: center; width: 72px; height: 72px; border-radius: 50%; background: #ED7600; box-shadow: 0 3px 12px rgba(0,0,0,.45); font-size: 30px; line-height: 1;">▶</span>
+      <span>Click to watch the full demo</span>
+    </span>
   </a>
 </p>
 

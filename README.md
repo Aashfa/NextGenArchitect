@@ -2,7 +2,7 @@
 
 **An AI-powered platform for custom floor plan generation and seamless plot purchasing.**
 
-NextGenArchitect lets users design, validate, and approve architectural projects through an intuitive interface — combining generative algorithms for automated floor plan creation with a full plot-browsing and compliance-management workflow for admins.
+NextGenArchitect lets users design, validate, and approve architectural projects through an intuitive interface — combining generative algorithms for automated floor plan creation with a full plot-b[...] 
 
 <p align="left">
   <img src="https://img.shields.io/badge/React-18.0+-61DAFB?style=flat&logo=react&logoColor=white" alt="React"/>
@@ -15,12 +15,8 @@ NextGenArchitect lets users design, validate, and approve architectural projects
 ## 🎬 Live Demo
 
 <p align="center">
-  <a href="https://drive.google.com/file/d/17XhV8er3RlMxsNMybm_OdDIoF8aj7Vrn/view?usp=sharing" aria-label="Click to watch the full NextGenArchitect demonstration" style="position: relative; display: inline-block; overflow: hidden; border-radius: 12px; line-height: 0;">
-    <img width="700" alt="Click to watch the full NextGenArchitect demo video" src="assets/ai-floorplan-generator.png" style="display: block; max-width: 100%; height: auto; filter: blur(3px); transform: scale(1.03);"/>
-    <span style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; background: rgba(0, 0, 0, 0.18); color: white; font: 700 16px/1.2 Arial, sans-serif; text-align: center; text-shadow: 0 1px 3px rgba(0,0,0,.8);">
-      <span style="display: flex; align-items: center; justify-content: center; width: 72px; height: 72px; border-radius: 50%; background: #ED7600; box-shadow: 0 3px 12px rgba(0,0,0,.45); font-size: 30px; line-height: 1;">▶</span>
-      <span>Click to watch the full demo</span>
-    </span>
+  <a href="https://drive.google.com/file/d/17XhV8er3RlMxsNMybm_OdDIoF8aj7Vrn/view?usp=sharing" aria-label="Click to watch the full NextGenArchitect demonstration">
+    <img width="700" alt="Click to watch the full NextGenArchitect demo video" src="assets/ai-floorplan-generator.png" />
   </a>
 </p>
 
@@ -30,32 +26,35 @@ NextGenArchitect lets users design, validate, and approve architectural projects
 
 <table>
   <tr>
-    <td width="50%">
-      <b>AI Floor Plan Generator</b><br/>
-      <img width="959" height="383" alt="AI Floor Plan Generator" src="https://github.com/user-attachments/assets/36711650-bebb-4166-aafe-3a1550f0e476" />
-
+    <td width="50%" valign="top">
+      <h3 align="center">AI Floor Plan Generator</h3>
+      <p align="center">
+        <img src="https://github.com/user-attachments/assets/36711650-bebb-4166-aafe-3a1550f0e476" alt="AI Floor Plan Generator" width="100%" />
+      </p>
       <p>Configure a plot, auto-generate compliant floor plans, and browse multiple layout variations ranked by space efficiency.</p>
     </td>
-    <td width="50%">
-      <b>2D Floor Plan Editor</b><br/>
-      <img width="914" height="379" alt="2D Floor Plan Editor" src="https://github.com/user-attachments/assets/80f1688d-e0d8-47c3-a050-917edde2edf0" />
-      
-
-      <p>Fine-tune the generated layout — add doors, windows, stairs, and rooms with free positioning on an interactive canvas.</p>
+    <td width="50%" valign="top">
+      <h3 align="center">2D Floor Plan Editor</h3>
+      <p align="center">
+        <img src="https://github.com/user-attachments/assets/80f1688d-e0d8-47c3-a050-917edde2edf0" alt="2D Floor Plan Editor" width="100%" />
+      </p>
+      <p>Fine-tune the generated layout by adding doors, windows, stairs, and rooms with free positioning on an interactive canvas.</p>
     </td>
   </tr>
   <tr>
-    <td width="50%">
-      <b>Interactive 3D View & Walkthrough</b><br/>
-      <img width="956" height="374" alt="3D View and Walkthrough" src="https://github.com/user-attachments/assets/592a87e5-6021-45a3-99b9-483e560fc5c7" />
-      <p>Explore the design in 3D with customizable colors, lighting, and a walkthrough mode — then export as PDF.</p>
+    <td width="50%" valign="top">
+      <h3 align="center">Interactive 3D View &amp; Walkthrough</h3>
+      <p align="center">
+        <img src="https://github.com/user-attachments/assets/592a87e5-6021-45a3-99b9-483e560fc5c7" alt="Interactive 3D View and Walkthrough" width="100%" />
+      </p>
+      <p>Explore the design in 3D with customizable colors, lighting, and walkthrough mode, then export the final design as a PDF.</p>
     </td>
-    <td width="50%">
-      <b>Advertisement Management</b><br/>
-      <img width="959" height="383" alt="advertisement request" src="https://github.com/user-attachments/assets/dfd98eeb-85a0-48f4-b2d0-d998e0fb1e5c" />
-
-      <img src="assets/advertisement-management.png" alt="Advertisement Management Dashboard"/>
-      <p>Admins review, approve, or reject advertisement requests with payment status and duration tracked per listing.</p>
+    <td width="50%" valign="top">
+      <h3 align="center">Advertisement Management</h3>
+      <p align="center">
+        <img src="https://github.com/user-attachments/assets/dfd98eeb-85a0-48f4-b2d0-d998e0fb1e5c" alt="Advertisement Management Dashboard" width="100%" />
+      </p>
+      <p>Admins can review, approve, or reject advertisement requests while tracking payment status and duration for each listing.</p>
     </td>
   </tr>
 </table>
@@ -79,18 +78,18 @@ NextGenArchitect is built as a modern, component-driven single-page application,
 |---|---|---|
 | **UI Library** | ![React](https://img.shields.io/badge/-React_18-61DAFB?style=flat&logo=react&logoColor=black) | Component-based architecture for reusable UI across user and admin dashboards |
 | **Build Tool** | ![Vite](https://img.shields.io/badge/-Vite-646CFF?style=flat&logo=vite&logoColor=white) | Near-instant dev server startup and Hot Module Replacement for fast iteration |
-| **Styling** | ![Tailwind CSS](https://img.shields.io/badge/-Tailwind_CSS-06B6D4?style=flat&logo=tailwindcss&logoColor=white) | Utility-first styling for a consistent design system without custom CSS overhead |
+| **Styling** | ![Tailwind CSS](https://img.shields.io/badge/-Tailwind_CSS-06B6D4?style=flat&logo=tailwindcss&logoColor=white) | Utility-first styling for a consistent design system without custom CSS[...] |
 | **CSS Processing** | ![PostCSS](https://img.shields.io/badge/-PostCSS-DD3A0A?style=flat&logo=postcss&logoColor=white) | Autoprefixing and Tailwind compilation pipeline |
 | **Routing** | ![React Router](https://img.shields.io/badge/-React_Router-CA4245?style=flat&logo=reactrouter&logoColor=white) | Client-side navigation between user, sub-admin, and profile views |
-| **Backend** | ![Python](https://img.shields.io/badge/-Python-3776AB?style=flat&logo=python&logoColor=white) ![Flask](https://img.shields.io/badge/-Flask-000000?style=flat&logo=flask&logoColor=white) | Handles floor plan generation logic (genetic algorithms), compliance validation, and API endpoints for the frontend |
-| **Database** | ![MongoDB](https://img.shields.io/badge/-MongoDB-47A248?style=flat&logo=mongodb&logoColor=white) | Stores plot listings, user accounts, floor plans, and advertisement/approval records |
-| **3D Visualization** | ![Three.js](https://img.shields.io/badge/-Three.js-000000?style=flat&logo=three.js&logoColor=white) | Renders interactive, walkthrough-ready 3D models of generated floor plans directly in the browser |
+| **Backend** | ![Python](https://img.shields.io/badge/-Python-3776AB?style=flat&logo=python&logoColor=white) ![Flask](https://img.shields.io/badge/-Flask-000000?style=flat&logo=flask&logoColor=white) | API and server-side application logic |
+| **Database** | ![MongoDB](https://img.shields.io/badge/-MongoDB-47A248?style=flat&logo=mongodb&logoColor=white) | Stores plot listings, user accounts, floor plans, and advertisement/approval records[...] |
+| **3D Visualization** | ![Three.js](https://img.shields.io/badge/-Three.js-000000?style=flat&logo=three.js&logoColor=white) | Renders interactive, walkthrough-ready 3D models of generated floor plans[...] |
 | **Payments** | ![Stripe](https://img.shields.io/badge/-Stripe-635BFF?style=flat&logo=stripe&logoColor=white) | Secure checkout for plot purchases and advertisement requests |
 | **Notifications** | Email & in-app alerts | Automatic notifications for approvals, rejections, compliance flags, and purchase confirmations |
 | **Icons** | React Icons | Consistent iconography across the interface |
 | **Linting** | ![ESLint](https://img.shields.io/badge/-ESLint-4B32C3?style=flat&logo=eslint&logoColor=white) | Enforces code quality and consistency |
 
-**Design system:** a consistent primary/secondary color palette (`#2F3D57` / `#ED7600`) is applied throughout via Tailwind's theme configuration, giving the platform a cohesive, professional look across every page.
+**Design system:** a consistent primary/secondary color palette (`#2F3D57` / `#ED7600`) is applied throughout via Tailwind's theme configuration, giving the platform a cohesive, professional look across the interface.
 
 ---
 

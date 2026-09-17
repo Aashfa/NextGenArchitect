@@ -32,23 +32,28 @@ NextGenArchitect lets users design, validate, and approve architectural projects
   <tr>
     <td width="50%">
       <b>AI Floor Plan Generator</b><br/>
-      <img src="assets/ai-floorplan-generator.png" alt="AI Floor Plan Generator"/>
+      <img width="959" height="383" alt="AI Floor Plan Generator" src="https://github.com/user-attachments/assets/36711650-bebb-4166-aafe-3a1550f0e476" />
+
       <p>Configure a plot, auto-generate compliant floor plans, and browse multiple layout variations ranked by space efficiency.</p>
     </td>
     <td width="50%">
       <b>2D Floor Plan Editor</b><br/>
-      <img src="assets/floorplan-editor.png" alt="2D Floor Plan Editor"/>
+      <img width="914" height="379" alt="2D Floor Plan Editor" src="https://github.com/user-attachments/assets/80f1688d-e0d8-47c3-a050-917edde2edf0" />
+      
+
       <p>Fine-tune the generated layout — add doors, windows, stairs, and rooms with free positioning on an interactive canvas.</p>
     </td>
   </tr>
   <tr>
     <td width="50%">
       <b>Interactive 3D View & Walkthrough</b><br/>
-      <img src="assets/3d-view.png" alt="3D View and Walkthrough"/>
+      <img width="956" height="374" alt="3D View and Walkthrough" src="https://github.com/user-attachments/assets/592a87e5-6021-45a3-99b9-483e560fc5c7" />
       <p>Explore the design in 3D with customizable colors, lighting, and a walkthrough mode — then export as PDF.</p>
     </td>
     <td width="50%">
       <b>Advertisement Management</b><br/>
+      <img width="959" height="383" alt="advertisement request" src="https://github.com/user-attachments/assets/dfd98eeb-85a0-48f4-b2d0-d998e0fb1e5c" />
+
       <img src="assets/advertisement-management.png" alt="Advertisement Management Dashboard"/>
       <p>Admins review, approve, or reject advertisement requests with payment status and duration tracked per listing.</p>
     </td>

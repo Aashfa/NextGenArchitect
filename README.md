@@ -8,6 +8,7 @@ NextGenArchitect lets users design, validate, and approve architectural projects
   <img src="https://img.shields.io/badge/React-18.0+-61DAFB?style=flat&logo=react&logoColor=white" alt="React"/>
   <img src="https://img.shields.io/badge/Vite-4.0+-646CFF?style=flat&logo=vite&logoColor=white" alt="Vite"/>
   <img src="https://img.shields.io/badge/Tailwind_CSS-3.0+-06B6D4?style=flat&logo=tailwindcss&logoColor=white" alt="Tailwind CSS"/>
+  <img src="https://img.shields.io/badge/License-MIT-green?style=flat" alt="MIT License"/>
 </p>
 
 ---
@@ -16,13 +17,42 @@ NextGenArchitect lets users design, validate, and approve architectural projects
 
 <p align="center">
   <a href="https://drive.google.com/file/d/17XhV8er3RlMxsNMybm_OdDIoF8aj7Vrn/view?usp=sharing">
-    <img src="https://img.shields.io/badge/▶_Watch_the_Demo_Video-FF0000?style=for-the-badge&logo=googledrive&logoColor=white" alt="Watch Demo Video"/>
+    <img src="assets/ai-floorplan-generator.png" alt="Watch the NextGenArchitect demo video" width="800"/>
   </a>
 </p>
 
-<p align="center"><i>See NextGenArchitect in action — from browsing societies to generating a custom floor plan in one click.</i></p>
+<p align="center"><i>Click the screenshot above to watch the full demo — from browsing societies to generating and customizing a floor plan in 3D.</i></p>
 
-> 💡 **Tip for future updates:** GitHub renders `.gif` and `.mp4` files uploaded directly to the repo (e.g. under an `assets/` or `docs/` folder) as inline previews right in this README — no click-through needed. Converting the demo into a short GIF/MP4 and embedding it here (`![Demo](assets/demo.gif)`) would let visitors watch it without leaving the page.
+---
+
+## 📸 Screenshots
+
+<table>
+  <tr>
+    <td width="50%">
+      <b>AI Floor Plan Generator</b><br/>
+      <img src="assets/ai-floorplan-generator.png" alt="AI Floor Plan Generator"/>
+      <p>Configure a plot, auto-generate compliant floor plans, and browse multiple layout variations ranked by space efficiency.</p>
+    </td>
+    <td width="50%">
+      <b>2D Floor Plan Editor</b><br/>
+      <img src="assets/floorplan-editor.png" alt="2D Floor Plan Editor"/>
+      <p>Fine-tune the generated layout — add doors, windows, stairs, and rooms with free positioning on an interactive canvas.</p>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%">
+      <b>Interactive 3D View & Walkthrough</b><br/>
+      <img src="assets/3d-view.png" alt="3D View and Walkthrough"/>
+      <p>Explore the design in 3D with customizable colors, lighting, and a walkthrough mode — then export as PDF.</p>
+    </td>
+    <td width="50%">
+      <b>Advertisement Management</b><br/>
+      <img src="assets/advertisement-management.png" alt="Advertisement Management Dashboard"/>
+      <p>Admins review, approve, or reject advertisement requests with payment status and duration tracked per listing.</p>
+    </td>
+  </tr>
+</table>
 
 ---
 
@@ -89,6 +119,4 @@ NextGenArchitect is built as a modern, component-driven single-page application,
 - **Automatic Compliance Alerts** — get notified automatically when a submitted plan or listing fails a compliance check, so it can be flagged for review
 
 ---
-
-
 
